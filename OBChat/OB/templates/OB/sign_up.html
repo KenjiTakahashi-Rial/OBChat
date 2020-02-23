@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            OB up
+        </title>
+    </head>
+    <body>
+        <h1>Sign Up</h1>
+
+        {% if error_message %}
+            <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+        {% endif %}
+
+        <form action="{% url 'OB:OB-sign_up' %}" method="post">
+            {% csrf_token %}
+            <label>Username</label><br>
+            <input type="text" name="username" placeholder="OBTMF" value="{% if username %} {{ username }} {% endif %}"><br>
+
+            <label>Email</label><br>
+            <input type="email" name="email" placeholder="kenji.ob.taka@gmail.com" value="{% if email %} {{ email }} {% endif %}"><br>
+
+            <label>Password</label><br>
+            <input type="password" name="password"><br>
+
+            <label>Display Name</label><br>
+            <input type="text" name="display_name" placeholder="OB" value="{% if display_name %} {{ display_name }} {% endif %}"><br>
+
+            <br>
+
+            <label>First Name</label><br>
+            <input type="text" name="first_name" placeholder="Kenji" value="{% if first_name %} {{ first_name }} {% endif %}"><br>
+
+            <label>Last Name</label><br>
+            <input type="text" name="last_name" placeholder="Takahashi-Rial" value="{% if last_name %} {{ last_name }} {% endif %}"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>

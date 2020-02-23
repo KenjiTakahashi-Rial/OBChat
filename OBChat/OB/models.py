@@ -5,6 +5,7 @@ from .constants import *
 
 class OBUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=0)
+    display_name = models.CharField(max_length=DISPLAY_NAME_MAX_LENGTH, default=0)
     is_ob = models.BooleanField(default=False)
     is_expelled = models.BooleanField(default=False)
 
@@ -12,7 +13,7 @@ class OBUser(models.Model):
         return self.user.username
 
 class Room(models.Model):
-    name = models.CharField(max_length=ROOM_NAME_MAX_LENGTH)
+    name = models.CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
     owner = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_suspended = models.BooleanField(default=False)
