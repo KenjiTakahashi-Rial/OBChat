@@ -1,5 +1,5 @@
 #########################################
-# run_server.py                         #
+# server.py                             #
 # The code to run the chat server       #
 # by Kenji Takahashi-Rial               #
 #########################################

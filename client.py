@@ -7,7 +7,7 @@
 import socket
 
 
-class Client():
+class Client:
 
     def __init__(self, client_socket):
         self.socket = client_socket

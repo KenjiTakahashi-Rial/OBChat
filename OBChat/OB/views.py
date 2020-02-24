@@ -39,7 +39,8 @@ def sign_up(request):
 
         try:
             user = User.objects.create_user(username, email, password,
-                first_name=first_name, last_name=last_name)
+                                            first_name=first_name,
+                                            last_name=last_name)
             ob_user = OBUser(user=user, display_name=display_name)
             ob_user.save()
         except IntegrityError:
@@ -47,6 +48,7 @@ def sign_up(request):
             return render(request, template, context)
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
+
 
 def log_in(request):
     template = "OB/log_in.html"
@@ -63,9 +65,10 @@ def log_in(request):
             login(request, user)
             return HttpResponseRedirect(reverse("OB:OB-chat"))
         else:
-            context = { "error_message": "Invalid username or password." }
+            context = {"error_message": "Invalid username or password."}
             return render(request, template, context)
 
 
 def chat(request):
-    return HttpResponse("OB Chat")
+    template = "OB/chat.html"
+    return render(request, template)

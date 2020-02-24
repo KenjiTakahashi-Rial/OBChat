@@ -19,7 +19,7 @@ ILLEGAL_CHARS = ['\x08', '\x1b[A', '\x1b[B', '\x1b[C', '\x1b[D', '\x1bOP',
                  '\x1b[4~', '\x1b[6~', '\x1b[P']
 
 
-def send(self, data, client):
+def send(data, client):
     """
     Description:
         Handles sending a data to a client
@@ -34,7 +34,7 @@ def send(self, data, client):
 
     try:
         # Send the data
-        client.socket.send((f"\r<= {data}\r\n").encode('utf-8'))
+        client.socket.send(f"\r<= {data}\r\n".encode('utf-8'))
 
         # Re-print the message the user was just typing to make it
         # seem like the user was not interruped
