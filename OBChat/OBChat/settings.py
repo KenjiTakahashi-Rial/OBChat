@@ -131,3 +131,5 @@ CHANNEL_LAYERS = {
 }
 
 ASGI_APPLICATION = 'OBChat.routing.application'
+
+LOGIN_URL = 'OB-log_in'
