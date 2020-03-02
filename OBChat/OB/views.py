@@ -74,12 +74,12 @@ def log_in(request):
     return HttpResponseRedirect(reverse("OB:OB-chat"))
 
 def chat(request):
-    return None
+    return None # TODO: this
 
 def create_room(request):
     if request.method != "POST":
         if request.user.is_authenticated:
-            template = "OB/create_room.html"
+            template = "OB/create_room.html" # TODO: make this template
             context =  {}
         else:
             template = "OB/log_in.html"
@@ -97,13 +97,19 @@ def create_room(request):
         context[error_message] = "Room must have a name.",
         return render(request, template, context)
 
-    if Room.objects.get(name=room_name):
+    if Room.objects.filter(name=room_name).exists():
         context["error_message"] = "Room name already in use."
         return render(request, template, context)
 
     room = Room(name=room_name, owner=owner)
 
 def room(request, room_name):
-    template = "OB/room.html"
-    context = {"room_name_json": mark_safe(json.dumps(room_name))}
+    # TODO: un-negate this when not_room.html is made
+    if not Room.objects.filter(name=room_name).exists():
+        template = "OB/room.html"
+        context = {"room_name_json": mark_safe(json.dumps(room_name))}
+    else:
+        template = "OB/not_room.html" # TODO: make this template
+        context = {"room_name": room_name}
+
     return render(request, template, context)
