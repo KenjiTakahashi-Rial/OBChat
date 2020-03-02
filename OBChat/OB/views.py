@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import OBUser, Room
@@ -31,14 +31,18 @@ def sign_up(request):
     }
 
     if not all([username, email, password, display_name]):
-        context[error_message] = "Please fill out all required fields."
+        context["error_message"] = "Please fill out all required fields."
         return render(request, template, context)
 
-    if User.objects.get(username=username).exists():
+    if " " in username:
+        context["error_message"] = "Username may not contain spaces"
+        return render(request, template, context)
+
+    if User.objects.filter(username=username).exists():
         context["error_message"] = "Username already in use."
         return render(request, template, context)
 
-    if User.objects.get(email=email).exists():
+    if User.objects.filter(email=email).exists():
         context["error_message"] = "Email already in use."
         return render(request, template, context)
 
@@ -70,8 +74,7 @@ def log_in(request):
     return HttpResponseRedirect(reverse("OB:OB-chat"))
 
 def chat(request):
-    template = "OB/room.html"
-    return render(request, template)
+    return None
 
 def create_room(request):
     if request.method != "POST":
