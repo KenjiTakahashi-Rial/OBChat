@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .constants import *
+from .constants import DISPLAY_NAME_MAX_LENGTH, ROOM_NAME_MAX_LENGTH, MESSAGE_MAX_LENGTH
 
 
 class OBUser(models.Model):
@@ -27,7 +27,7 @@ class Room(models.Model):
 class Admin(models.Model):
     user = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
-    # admin must appeal to an unlimited admin or the owner to ban a user
+    # admin must apply to an unlimited admin to make/remove limited admins
     is_limited = models.BooleanField(default=True)
     is_revoked = models.BooleanField(default=False)
 

@@ -6,7 +6,12 @@ from channels.generic.websocket import WebsocketConsumer
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f"room_{self.room_name}"
+        
+        if self.room_name == "OBLine":
+            # TODO: Get username from url
+            self.room_group_name = f"room_{"username"}_OBLine"
+        else:
+            self.room_group_name = f"room_{self.room_name}"
 
         # Join room group
         async_to_sync(self.channel_layer.group_add) (
@@ -32,13 +37,13 @@ class ChatConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_send) (
             self.room_group_name,
             {
-                "type": "chat_message",
+                "type": "receive_from_group",
                 "message": message
             }
         )
 
     # Receive messages from room group
-    def chat_message(self, event):
+    def receive_from_group(self, event):
         message = event["message"]
 
         # Send message to WebSocket
