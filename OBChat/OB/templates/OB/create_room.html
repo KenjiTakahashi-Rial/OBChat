@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      OB a room
+    </title>
+  </head>
+  <body>
+    <h1>
+      {% if not error_message %}
+        It's aliiive!
+      {% else %}
+        Yikes
+      {% endif %}
+    </h1>
+
+    {% if error_message %}
+      <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+    {% endif %}
+
+    <form action="{% url 'OB:OB-create_room' %}" method="post">
+      {% csrf_token %}
+      <label>Room Name</label><br>
+      <input type="text" name="room_name" placeholder="OBChat"
+           value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>

@@ -9,7 +9,7 @@ class ChatConsumer(WebsocketConsumer):
         
         if self.room_name == "OBLine":
             # TODO: Get username from url
-            self.room_group_name = f"room_{"username"}_OBLine"
+            self.room_group_name = "OBLine_username"
         else:
             self.room_group_name = f"room_{self.room_name}"
 

@@ -3,11 +3,17 @@
   <head>
     <meta charset="utf-8">
     <title>
-      Log In
+      Secret Handshake
     </title>
   </head>
   <body>
-    <h1>Log In</h1>
+    <h1>
+      {% if not error_message %}
+        What's the password?
+      {% else %}
+        You dun goof'd
+      {% endif %}
+    </h1>
 
     {% if error_message %}
       <p><font color="red"><strong>{{ error_message }}</strong></font></p>
@@ -25,6 +31,6 @@
       <input type="submit" value="Submit">
     </form><br>
 
-    <a href="{% url 'OB:OB-sign_up' %}">Don't have an account? Click here to sign up!</a>
+    <p>You still don't have an account? <a href="{% url 'OB:OB-sign_up' %}">Click here to join the coolest site on the web!</a></p>
   </body>
 </html>

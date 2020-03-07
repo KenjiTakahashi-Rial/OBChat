@@ -52,8 +52,7 @@ def sign_up(request):
                                         first_name=first_name,
                                         last_name=last_name)
         
-        ob_user = OBUser(user=user, display_name=display_name)
-        ob_user.save()
+        OBUser(user=user, display_name=display_name).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
@@ -83,7 +82,7 @@ def chat(request):
 def create_room(request):
     if request.method == "GET":
         if request.user.is_authenticated:
-            template = "OB/create_room.html" # TODO: make this template
+            template = "OB/create_room.html"
             context =  {}
         else:
             template = "OB/log_in.html"
@@ -106,18 +105,17 @@ def create_room(request):
             context["error_message"] = "Room name already in use."
             return render(request, template, context)
 
-        Room(name=room_name, owner=owner)
+        Room(name=room_name, owner=owner).save()
 
-        return HttpResponseRedirect(reverse("OB:OB-room", room_name={"room_name": room_name}))
+        return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
 def room(request, room_name):
     if request.method == "GET":
-        # TODO: un-negate this when not_room.html is made
-        if not Room.objects.filter(name=room_name).exists():
+        if Room.objects.filter(name=room_name).exists():
             template = "OB/room.html"
             context = {"room_name_json": mark_safe(json.dumps(room_name))}
         else:
-            template = "OB/not_room.html" # TODO: make this template
+            template = "OB/not_room.html"
             context = {"room_name": room_name}
 
         return render(request, template, context)
@@ -131,4 +129,4 @@ def room(request, room_name):
 
         if message[0] == '/':
             if len(message) == 1 or message[1] != '/':
-                command(message)
+                command(request, message)

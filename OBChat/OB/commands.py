@@ -1,20 +1,20 @@
 from channels.layers import get_channel_layer
-from .constants import COMMANDS, VALID_COMMANDS
-from .models import Admin, Room
+from . import constants, models
 
 
-def command(self, input, client):
+def command(request, input):
     # Separate by whitespace to get arguments
     separated = input.split()
     command = separated[0]
     args = separated[1:]
 
     try:
-        COMMANDS[command](self, args, client)
+        COMMANDS[command](request, args)
     except KeyError:
-        self.send(VALID_COMMANDS, client)
+        send(request, VALID_COMMANDS)
 
-def send(request, message):
+def send(request, message, group):
+
     # Send message to room group
     async_to_sync(get_channel_layer().group_send) (
         self.room_group_name, # TODO: Get room name from url
@@ -37,7 +37,7 @@ def send(request, message):
 #         False if an error occurred
 #     """
 
-#     self.send("Available rooms:", client)
+#     send("Available rooms:", client)
 
 #     for room in self.rooms:
 #         room_str = f" * {room} ({len(self.rooms[room].users)})"
@@ -58,60 +58,61 @@ def send(request, message):
 #         if client.username in room.banned:
 #             room_str += " (banned)"
 
-#         self.send(room_str, client)
+#         send(room_str, client)
 
-#     self.send("End list", client)
+#     send("End list", client)
 
 #     return True
 
-def who(self, args, client):
-    if len(args) > 1:
-        self.send("Room name cannot contain spaces.", client)
-        return
-
-    if len(args) == 0:
+def who(request, args):
+    if not args:
         if room_name is None:
-            self.send("You're not in a room.", client)
+            send(request, "You're not in a room.")
             return
 
-        args.append(client.room.name)
-
-    if args[0] not in self.rooms:
-        self.send(f"Room does not exist: {args[0]}", client)
+    if len(args) > 1:
+        send(request, "Room name cannot contain spaces.")
         return
 
-    if len(self.rooms[args[0]].users) == 0:
-        self.send(f"No users in: {args[0]}", client)
+        # TODO: Get room name from url
+        args.append("room_name")
+
+    if not Room.objects.filter(name=args[0]).exists():
+        send(request, f"\"{args[0]}\" doesn't exist, so that probably means nobody is in there.")
+        return
+
+    channel = get_channel_layer()
+    group = Group(channel).channel_layer.group_channels(channel)
+    if len(group) == 0:
+        send(request, f"\"{args[0]}\" is all empty!")
         return
 
     # Iterate through users in room
-    self.send(f"Users in: {args[0]} ({len(self.rooms[args[0]].users)})",
-              client)
+    send(request, f"Users in: \"{args[0]}\" ({group})")
 
-    for user in self.rooms[args[0]].users:
+    room = Rooms.objects.get(name=room_name)
+
+    for user in group:
         who_user = user.username
 
         # Tag user appropriately
-        if user.username == self.rooms[args[0]].owner:
+        if user == room.owner:
             who_user += " (owner)"
 
-        if user.username in self.rooms[args[0]].admins:
+        if Admin.objects.filter(user=user, room=room).exists():
             who_user += " (admin)"
 
-        if user.username == client.username:
+        if user == request.user:
             who_user += " (you)"
 
-        self.send(f" * {who_user}", client)
+        send(f" * {who_user}")
 
-    self.send("End list", client)
-
-    return True
-
+    send("End list")
 
 # def leave(self, args, client, exit=False):
 #     # Client is not in a room
 #     if client.room is None:
-#         self.send("Not in a room", client)
+#         send("Not in a room", client)
 
 #         return False
 
@@ -128,7 +129,7 @@ def who(self, args, client):
 
 #     # Don't print the leave message when exiting
 #     if not exit:
-#         self.send(f"Left the room: {client.room.name}", client)
+#         send(f"Left the room: {client.room.name}", client)
 
 #     client.room.users.remove(client)
 #     client.room = None
@@ -136,19 +137,19 @@ def who(self, args, client):
 #     return True
 
 
-def private(self, args, client):
+def private(request, args):
     if not args:
-        self.send("Usage: /private /<user> <message>", client)
-    else if args[0][0] != '/':
-        self.send("Looks like you forgot a \"/\" before the username. I'll let it slide.")
+        send("Usage: /private /<user> <message>")
+    elif args[0][0] != '/':
+        send("Looks like you forgot a \"/\" before the username. I'll let it slide.")
 
     user_query = User.objects.filter(username=args[0][1:])
     
     if not user_query.exists():
-        self.send(f"\"{args[0]}\" doesn't exist. Your private message will broadcasted into space instead.", client)
+        send(f"\"{args[0]}\" doesn't exist. Your private message will broadcasted into space instead.", client)
 
     if len(args) == 1:
-        self.send("No message specified. Did you give up halfway through?", client)
+        send("No message specified. Did you give up halfway through?", client)
         return
 
     send_to = user_query[0]
@@ -156,101 +157,102 @@ def private(self, args, client):
     # Reconstruct message from args
     message = " ".join(args[1:])
 
-    sent_to = self.send(f"{client.username} (private): {message}", send_to)
-    sent_from = self.send(f"{client.username} (private): {message}", client)
+    send(request, message, send_to)
+    send(request, message, client)
 
 def room(self, args, client):
     if not args:
-        self.send("Usage: /room <name>", client)
-    else if not request.user.is_authenticated:
-        self.send("Identify yourself! Must log in to create a room.", client)
-    else if len(args) > 1:
-        self.send("Room name cannot contain spaces.", client)
-    else if Room.objects.filter(name=room_name).exists():
-        self.send(f"Someone beat you to it. \"{args[0]}\" already exists.")
+        send("Usage: /room <name>", client)
+    elif not request.user.is_authenticated:
+        send("Identify yourself! Must log in to create a room.", client)
+    elif len(args) > 1:
+        send("Room name cannot contain spaces.", client)
+    elif Room.objects.filter(name=room_name).exists():
+        send(f"Someone beat you to it. \"{args[0]}\" already exists.")
     else:
         Room(name=room_name, owner=owner)
-        self.send(f"Sold! Check out your new room: \"{args[0]}\"", client)
+        send(f"Sold! Check out your new room: \"{args[0]}\"", client)
 
 def hire(self, args):
     if client.username != client.room.owner:
-        self.send("That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /apply to be unlimited.")
+        send("That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /apply to be unlimited.")
 
     if len(args) == 0:
-        self.send("Usage: /admin <user1> <user2> ...", client)
+        send("Usage: /admin <user1> <user2> ...", client)
 
     for username in args:
         if username not in self.passwords:
             if username not in self.usernames:
-                self.send(f"\"{username}\" does not exist. Your imaginary friend needs an account before they can be an admin.")
+                send(f"\"{username}\" does not exist. Your imaginary friend needs an account before they can be an admin.")
             else:
-                self.send(f"\"{username}\" hasn't signed up yet. they cannot be trusted with the immense responsibility that is adminship.")
+                send(f"\"{username}\" hasn't signed up yet. they cannot be trusted with the immense responsibility that is adminship.")
 
         user = self.usernames[username]
 
         if username in client.room.admins:
-            self.send(f"{username} already works for you. I can't believe you forgot. Did you mean /promote?")
+            send(f"{username} already works for you. I can't believe you forgot. Did you mean /promote?")
             continue
 
         if username == client.username:
-            self.send("You're already an admin, you can't be a DOUBLE admin.", client)
+            send("You're already an admin, you can't be a DOUBLE admin.", client)
             continue
 
         client.room.admins.append(user.username)
 
         # Notify all parties that a user was made admin
-        self.send(f"With great power comes great responsibility. You were promoted to admin in \"{client.room.name}\"!")
-        self.send(f"Promoted {username} to admin. Keep an eye on them.", client)
+        send(f"With great power comes great responsibility. You were promoted to admin in \"{client.room.name}\"!")
+        send(f"Promoted {username} to admin. Keep an eye on them.", client)
         self.distribute(f"{username} was promoted to admin. Drinks on them!", [client.room.name], None, [client, user])
 
 def fire(self, args, client):
     if len(args) == 0:
-        self.send("Usage: /fire <user1> <user2> ...", client)
+        send("Usage: /fire <user1> <user2> ...", client)
         return
 
-    if # not unlimited or owner:
-        self.send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
+    if True: # TODO: not unlimited or owner:
+        print("There is an 'if True' here, preventing this command from resolvng.")
+        send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
         return
 
     for username in args:
         if username not in self.usernames and username not in self.passwords:
-            self.send(f"\"{username}\" does not exist. You can't fire a ghost... can you?", client)
+            send(f"\"{username}\" does not exist. You can't fire a ghost... can you?", client)
             continue
 
         if username not in client.room.admins:
-            self.send(f"\"{username}\" is just a regular old user, so you can't fire them. You can /ban them if you want.", client)
+            send(f"\"{username}\" is just a regular old user, so you can't fire them. You can /ban them if you want.", client)
             continue
 
         client.room.admins.remove(username)
 
         if username in self.usernames:
-            self.send(f"Clean out your desk. You lost your adminship at \"{client.room.name}\".")
+            send(f"Clean out your desk. You lost your adminship at \"{client.room.name}\".")
 
-        self.send(f"It had to be done. You fired \"{username}\"", client)
+        send(f"It had to be done. You fired \"{username}\"", client)
 
         self.distribute(f"{username} was fired! Those budget cuts are killer.")
 
 
 def kick(self, args, client):
     if len(args) == 0:
-        self.send("Usage: /kick <user1> <user2> ...", client)
+        send("Usage: /kick <user1> <user2> ...", client)
         return
 
     if client.username != client.room.owner:
         if client.username not in client.room.admins:
-            self.send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
+            send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
             return
 
     for username in args:
         if username not in self.usernames and username not in self.passwords:
-            self.send(f"Nobody named \"{username}\" in this room. Are you seeing things?", client)
+            send(f"Nobody named \"{username}\" in this room. Are you seeing things?", client)
             continue
 
         user = self.usernames[username]
 
         if username in client.room.admins:
             if client.username != client.room.owner:
-                self.send("Insufficient privileges to kick admin: " +
+                send("Insufficient privileges to kick admin: " +
                           f"{username}", client)
 
                 no_errors = False
@@ -258,14 +260,14 @@ def kick(self, args, client):
 
         # Do not allow users to kick themselves
         if username == client.username:
-            self.send("Cannot kick self", client)
+            send("Cannot kick self", client)
 
             no_errors = False
             continue
 
         # Owner cannot be kicked
         if username == client.room.owner:
-            self.send(f"Cannot kick owner: {client.room.owner}",
+            send(f"Cannot kick owner: {client.room.owner}",
                       client)
 
             no_errors = False
@@ -277,10 +279,10 @@ def kick(self, args, client):
         client.room.users.remove(user)
 
         # Notify all parties that a user was kicked
-        self.send(f"You were kicked from: {client.room.name}",
+        send(f"You were kicked from: {client.room.name}",
                   user)
 
-        self.send(f"Kicked user: {username}", client)
+        send(f"Kicked user: {username}", client)
 
         self.distribute(f"{username} was kicked",
                         [client.room.name], None, [client])
@@ -303,19 +305,19 @@ def ban(self, args, client):
     """
 
     if len(args) == 0:
-        self.send("Usage: /ban <user1> <user2> ...", client)
+        send("Usage: /ban <user1> <user2> ...", client)
 
         return False
 
     if client.room is None:
-        self.send("Not in a room", client)
+        send("Not in a room", client)
 
         return False
 
     # Check privileges
     if client.username != client.room.owner:
         if client.username not in client.room.admins:
-            self.send("Insufficient privileges to ban from: " +
+            send("Insufficient privileges to ban from: " +
                       client.room.name, client)
 
             return False
@@ -325,13 +327,13 @@ def ban(self, args, client):
     for username in args:
 
         if username not in self.usernames and username not in self.passwords:
-            self.send(f"User does not exist: {username}", client)
+            send(f"User does not exist: {username}", client)
 
             no_errors = False
             continue
 
         if username in client.room.banned:
-            self.send(f"User already banned: {username}", client)
+            send(f"User already banned: {username}", client)
 
             no_errors = False
             continue
@@ -339,7 +341,7 @@ def ban(self, args, client):
         # Must be owner to ban admin
         if username in client.room.admins:
             if client.username != client.room.owner:
-                self.send("Insufficient privileges to ban admin: " +
+                send("Insufficient privileges to ban admin: " +
                           f"{username}", client)
 
                 no_errors = False
@@ -347,14 +349,14 @@ def ban(self, args, client):
 
         # Do not allow users to ban themselves
         if username == client.username:
-            self.send("Cannot ban self", client)
+            send("Cannot ban self", client)
 
             no_errors = False
             continue
 
         # Owner cannot be banned
         if username == client.room.owner:
-            self.send(f"Cannot ban owner: {client.room.owner}",
+            send(f"Cannot ban owner: {client.room.owner}",
                       client)
 
             no_errors = False
@@ -373,10 +375,10 @@ def ban(self, args, client):
 
         # Notify all parties that a user was banned
         if username in self.usernames:
-            self.send(f"You were banned from: {client.room.name}",
+            send(f"You were banned from: {client.room.name}",
                       user)
 
-        self.send(f"Banned user: {username}", client)
+        send(f"Banned user: {username}", client)
 
         self.distribute(f"{username} was banned",
                         [client.room.name], None, [client])
@@ -384,7 +386,7 @@ def ban(self, args, client):
     return no_errors
 
 
-def unban(self, args, client):
+def lift_ban(self, args, client):
     """
     Description:
         Lift ban on a user from a room
@@ -399,19 +401,19 @@ def unban(self, args, client):
     """
 
     if len(args) == 0:
-        self.send("Usage: /unban <user1> <user2> ...", client)
+        send("Usage: /lift <user1> <user2> ...", client)
 
         return False
 
     if client.room is None:
-        self.send("Not in a room", client)
+        send("Not in a room", client)
 
         return False
 
     # Check privileges
     if client.username != client.room.owner:
         if client.username not in client.room.admins:
-            self.send("Insufficient privileges to unban in: " +
+            send("Insufficient privileges to unban in: " +
                       client.room.name, client)
 
             return False
@@ -421,13 +423,13 @@ def unban(self, args, client):
     for username in args:
 
         if username not in self.usernames and username not in self.passwords:
-            self.send(f"User does not exist: {username}", client)
+            send(f"User does not exist: {username}", client)
 
             no_errors = False
             continue
 
         if username not in client.room.banned:
-            self.send(f"User not banned: {username}", client)
+            send(f"User not banned: {username}", client)
 
             no_errors = False
             continue
@@ -435,7 +437,7 @@ def unban(self, args, client):
         # Must be owner to lift ban on admin
         if username in client.room.admins:
             if client.username != client.room.owner:
-                self.send("Insufficient privileges to unban admin: " +
+                send("Insufficient privileges to unban admin: " +
                           f"{username}", client)
 
                 no_errors = False
@@ -445,10 +447,10 @@ def unban(self, args, client):
 
         # Notify all parties that a user was banned
         if username in self.usernames:
-            self.send(f"Your were unbanned from: {client.room.name}",
+            send(f"Your were unbanned from: {client.room.name}",
                       self.usernames[username])
 
-        self.send(f"Unbanned user: {username}", client)
+        send(f"Unbanned user: {username}", client)
 
         self.distribute(f"{username} was unbanned",
                         [client.room.name], None, [client])
@@ -456,7 +458,7 @@ def unban(self, args, client):
     return no_errors
 
 
-def delete(self, args, client):
+def delete_room(self, args, client):
     """
     Description:
         Delete a room
@@ -471,7 +473,7 @@ def delete(self, args, client):
     """
 
     if len(args) > 1:
-        self.send("Room name cannot contain spaces", client)
+        send("Room name cannot contain spaces", client)
 
         return False
 
@@ -479,12 +481,12 @@ def delete(self, args, client):
         args.append(client.room.name)
 
     if args[0] not in self.rooms:
-        self.send(f"Room does not exist: {args[0]}", client)
+        send(f"Room does not exist: {args[0]}", client)
 
         return False
 
     if client.username != self.rooms[args[0]].owner:
-        self.send(f"Insufficient privileges to delete: {args[0]}", client)
+        send(f"Insufficient privileges to delete: {args[0]}", client)
 
         return False
 
@@ -496,10 +498,10 @@ def delete(self, args, client):
         user.typing = ""
 
         if user.username != room.owner:
-            self.send(f"The room was deleted: {room.name}", user)
+            send(f"The room was deleted: {room.name}", user)
 
     del self.rooms[args[0]]
 
-    self.send(f"Deleted room: {args[0]}", client)
+    send(f"Deleted room: {args[0]}", client)
 
     return True
