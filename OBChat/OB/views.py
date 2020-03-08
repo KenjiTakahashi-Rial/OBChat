@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .commands import command
-from .models import OBUser, Room
+from .models import OBUser, Room, Message
 
 
 def sign_up(request):
@@ -77,7 +77,10 @@ def log_in(request):
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
 def chat(request):
-    return None # TODO: this
+    if request.method == "GET":
+        template = "OB/chat.html"
+        context = {"rooms": Room.objects.all()}
+        return render(request, template, context)
 
 def create_room(request):
     if request.method == "GET":
@@ -111,16 +114,18 @@ def create_room(request):
 
 def room(request, room_name):
     if request.method == "GET":
+        context = {"room_name": room_name}
+
         if Room.objects.filter(name=room_name).exists():
             template = "OB/room.html"
-            context = {"room_name_json": mark_safe(json.dumps(room_name))}
+            context["room_name_json"] = mark_safe(json.dumps(room_name))
         else:
             template = "OB/not_room.html"
-            context = {"room_name": room_name}
 
         return render(request, template, context)
 
-    # This only handles commands, messages are sent in consumers.py
+    # Handles commands and saves the message
+    # The message is actually sent in consumers.py
     if request.method == "POST":
         message = request.POST["message"].strip()
         
