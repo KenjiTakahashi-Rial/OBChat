@@ -128,6 +128,7 @@ def room(request, room_name):
     # The message is actually sent in consumers.py
     if request.method == "POST":
         message = request.POST["message"].strip()
+        print(message)
         
         if not message:
             return
