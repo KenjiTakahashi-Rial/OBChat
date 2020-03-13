@@ -1,23 +1,25 @@
 from channels.layers import get_channel_layer
 from . import constants, models
+from .consumers import ChatConsumer, GroupTypes
 
 
-def command(request, input):
+def command(request, room_name, input):
     # Separate by whitespace to get arguments
     separated = input.split()
     command = separated[0]
     args = separated[1:]
 
     try:
-        COMMANDS[command](request, args)
+        constants.COMMANDS[command](request, args)
     except KeyError:
-        send(request, VALID_COMMANDS)
+        group = ChatConsumer.GroupName(GroupTypes.Room, room_name)
+        send(request, constants.VALID_COMMANDS, group)
 
 def send(request, message, group):
 
     # Send message to room group
     async_to_sync(get_channel_layer().group_send) (
-        self.room_group_name, # TODO: Get room name from url
+        group, # TODO: Get room name from url
         {
             "type": "receive_from_group",
             "message": message

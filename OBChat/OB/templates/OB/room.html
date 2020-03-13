@@ -2,7 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8"/>
+    {% load static %}
+    <script src="{% static "cookie.js" %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</script>
     <title>Let's chat!</title>
 </head>
 <body>
@@ -13,6 +16,7 @@
 </body>
 <script>
     var roomName = {{ room_name_json }};
+    var token = getCookie("csrftoken");
 
     var chatSocket = new WebSocket(
         "ws://" + window.location.host +
@@ -36,28 +40,26 @@
     };
 
     document.querySelector("#submit").onclick = function(e) {
-        var messageInputDom = document.querySelector("#input");
-        var message = messageInputDom.value;
+        var message = document.querySelector("#input").value;
         chatSocket.send(JSON.stringify({
             "message": message
         }));
-
-        messageInputDom.value = "";
     };
 
     $(document).ready(function() {
         $("#submit").click(function(e) {
+            var url = "/OB/chat/" + roomName + "/";
             var messageInputDom = document.querySelector("#input");
             var message = messageInputDom.value;
-            var url = "/OB/chat/" + roomName + "/";
-            console.log(url);
             $.ajax({
+                headers: { "X-CSRFToken": token},
                 type: "POST",
                 url: url,
                 data: {
                     "message": message
                 },
             });
+            messageInputDom.value = "";
         });
     });
 </script>

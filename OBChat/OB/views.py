@@ -124,15 +124,13 @@ def room(request, room_name):
 
         return render(request, template, context)
 
-    # Handles commands and saves the message
-    # The message is actually sent in consumers.py
+    # Handles commands and saves the message in the database
+    # The message is sent to others in consumers.py
     if request.method == "POST":
         message = request.POST["message"].strip()
-        print(message)
-        
-        if not message:
-            return
 
-        if message[0] == '/':
+        if message and message[0] == '/':
             if len(message) == 1 or message[1] != '/':
-                command(request, message)
+                command(request, room_name, message)
+
+        return HttpResponse()

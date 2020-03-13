@@ -1,7 +1,24 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from enum import Enum
 
+# TODO: Move these around so they're more organized
+class GroupTypes(Enum):
+    Invalid = 0
+    Line = 1
+    Room = 2
+    Private = 3
+
+def GroupName(group_type, name, second_name=""):
+    switch = {
+        GroupTypes.Invalid: name,
+        GroupTypes.Line: f"OBLine_{name}",
+        GroupTypes.Room: f"room_{name}",
+        GroupTypes.Private: f"{min(name, second_name)}_{max(name, second_name)}"
+    }
+
+    return switch[group_type]
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -9,9 +26,9 @@ class ChatConsumer(WebsocketConsumer):
         
         if self.room_name == "OBLine":
             # TODO: Get username from url
-            self.room_group_name = "OBLine_username"
+            self.room_group_name = GroupName(GroupType.Line, "username")
         else:
-            self.room_group_name = f"room_{self.room_name}"
+            self.room_group_name = GroupName(GroupTypes.Room, self.room_name)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add) (
