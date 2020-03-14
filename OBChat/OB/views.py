@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -116,10 +117,15 @@ def room(request, room_name):
     if request.method == "GET":
         context = {"room_name": room_name}
 
-        if Room.objects.filter(name=room_name).exists():
+        try:
+            room = Room.objects.get(name=room_name)
+            messages = Message.objects.filter(room=room)
+
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
-        else:
+            context["messages_json"] = mark_safe(json.dumps(serializers.serialize("json", messages) if messages.exists() else [])) 
+        except Exception as e:
+            print(e)
             template = "OB/not_room.html"
 
         return render(request, template, context)
@@ -129,8 +135,17 @@ def room(request, room_name):
     if request.method == "POST":
         message = request.POST["message"].strip()
 
-        if message and message[0] == '/':
-            if len(message) == 1 or message[1] != '/':
-                command(request, room_name, message)
+        if message:
+            if message[0] == '/':
+                if len(message) == 1 or message[1] != '/':
+                    command(request, room_name, message)
+            else:
+                try:
+                    sender = OBUser.objects.get(user=request.user)
+                    room = Room.objects.get(name=room_name)
+
+                    Message(message=message, sender=sender, room=room).save()
+                except Exception as e:
+                    print(e)
 
         return HttpResponse()

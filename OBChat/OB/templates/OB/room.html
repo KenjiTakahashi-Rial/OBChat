@@ -2,21 +2,40 @@
 <html>
 <head>
     <meta charset="utf-8"/>
+    
     {% load static %}
     <script src="{% static "cookie.js" %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-</script>
+    
+    <style>
+        textarea {
+            overflow-y: scroll;
+            resize: none;
+            width: 1000px;
+            height: 350px;
+        }
+    </style>
+
     <title>Let's chat!</title>
 </head>
 <body>
     <h1>{{ room_name }}</h1>
-    <textarea readonly id="log" cols="100" rows="20"></textarea><br/>
+    <textarea readonly id="log"></textarea><br/>
     <input id="input" type="text" size="100"/><br/>
     <input id="submit" type="button" value="Send"/>
 </body>
 <script>
     var roomName = {{ room_name_json }};
+    var messages = JSON.parse({{ messages_json }});
     var token = getCookie("csrftoken");
+    var log = document.querySelector("#log")
+    var input = document.querySelector("#input");
+    var submit = document.querySelector("#submit");
+
+    // Fill in previous messages
+    for (var i = 0; i < messages.length; i++) {
+        log.value += messages[i].fields["message"];
+    }
 
     var chatSocket = new WebSocket(
         "ws://" + window.location.host +
@@ -25,22 +44,28 @@
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data["message"];
-        document.querySelector("#log").value += (message + "\n");
+        log.value += (message + "\n");
+        log.scrollTop = log.scrollHeight;
     };
 
     chatSocket.onclose = function(e) {
         console.error("Chat socket closed unexpectedly");
     };
 
-    document.querySelector("#input").focus();
-    document.querySelector("#input").onkeyup = function(e) {
+    input.focus();
+    input.onkeyup = function(e) {
         if (e.keyCode === 13) {  // enter, return
-            document.querySelector("#submit").click();
+            submit.click();
         }
     };
 
     document.querySelector("#submit").onclick = function(e) {
-        var message = document.querySelector("#input").value;
+        var message = input.value.trim();
+
+        if (message === "") {
+            return;
+        }
+
         chatSocket.send(JSON.stringify({
             "message": message
         }));
@@ -49,17 +74,15 @@
     $(document).ready(function() {
         $("#submit").click(function(e) {
             var url = "/OB/chat/" + roomName + "/";
-            var messageInputDom = document.querySelector("#input");
-            var message = messageInputDom.value;
             $.ajax({
                 headers: { "X-CSRFToken": token},
                 type: "POST",
                 url: url,
                 data: {
-                    "message": message
+                    "message": input.value.trim()
                 },
             });
-            messageInputDom.value = "";
+            input.value = "";
         });
     });
 </script>
