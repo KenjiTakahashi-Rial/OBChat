@@ -5,14 +5,50 @@
     
     {% load static %}
     <script src="{% static "cookie.js" %}"></script>
+     <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
     
     <style>
-        textarea {
-            overflow-y: scroll;
-            resize: none;
-            width: 1000px;
-            height: 350px;
+        /* TODO: Change measurements to percent later on */
+        .log-panel {
+            min-height: 350px;
+            max-height: 350px;
+            max-width: 1000px;
+            min-width: 1000px;
+            overflow: auto;
+        }
+        .user-icon {
+            min-height: 50px;
+            max-height: 50px;
+            min-width: 50px;
+            max-width: 50px;
+        }
+        .user-icon-div {
+            min-width: 75px;
+            max-width: 75px;
+            display: table-cell;
+        }
+        .display-name {
+            min-height: 30px;
+            max-height: 30px;
+        }
+        .timestamp {
+            display: table-cell;
+            float: right;
+        }
+        .message-input {
+            min-width: 900px;
+            max-width: 900px;
+            overflow: auto;
+            float: left;
+        }
+        .send-button {
+            max-width: 100px;
+            min-width: 100px;
         }
     </style>
 
@@ -20,9 +56,28 @@
 </head>
 <body>
     <h1>{{ room_name }}</h1>
-    <textarea readonly id="log"></textarea><br/>
-    <input id="input" type="text" size="100"/><br/>
-    <input id="submit" type="button" value="Send"/>
+    <div class="panel log-panel" id="log">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="panel panel-default">
+                    <div class=user-icon-div>
+                        <img class="user-icon" src="{% static "favicon.ico" %}" alt="user"></img>
+                    </div>
+                    <div style="display: table-cell;">
+                        <p class="display-name"><strong>{{ message.sender.display_name }}</strong></p>
+                        <p>{{ message.message }}</p>
+                    </div>
+                    <p class="timestamp">
+                        {{ message.timestamp}}
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            No messages yet. First one gets a prize!
+        {% endif%}
+    </div>
+    <input class="form-control message-input" id="input" type="text" size="100"/><br/>
+    <input class="btn send-button" id="submit" type="button" value="Send"/>
 </body>
 <script>
     var roomName = {{ room_name_json }};
@@ -32,10 +87,7 @@
     var input = document.querySelector("#input");
     var submit = document.querySelector("#submit");
 
-    // Fill in previous messages
-    for (var i = 0; i < messages.length; i++) {
-        log.value += messages[i].fields["message"];
-    }
+    log.scrollTop = log.scrollHeight;
 
     var chatSocket = new WebSocket(
         "ws://" + window.location.host +
@@ -44,12 +96,23 @@
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data["message"];
-        log.value += (message + "\n");
+
+        // Append a message panel to the log
+        var messageInnerDiv = document.createElement("div");
+        messageInnerDiv.className = "panel-body";
+        messageInnerDiv.innerHTML = message;
+
+        var messageOuterDiv = document.createElement("div");
+        messageOuterDiv.className = "panel panel-default";
+        messageOuterDiv.appendChild(messageInnerDiv);
+
+        log.appendChild(messageOuterDiv);
+
         log.scrollTop = log.scrollHeight;
     };
 
     chatSocket.onclose = function(e) {
-        console.error("Chat socket closed unexpectedly");
+        console.error("Chat socket closed.");
     };
 
     input.focus();
@@ -59,6 +122,7 @@
         }
     };
 
+    // Send the message to other WebSockets in this group
     document.querySelector("#submit").onclick = function(e) {
         var message = input.value.trim();
 
@@ -71,6 +135,7 @@
         }));
     };
 
+    // AJAX POST the message to be saved or commands to be interpreted
     $(document).ready(function() {
         $("#submit").click(function(e) {
             var url = "/OB/chat/" + roomName + "/";

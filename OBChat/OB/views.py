@@ -123,7 +123,7 @@ def room(request, room_name):
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
-            context["messages_json"] = mark_safe(json.dumps(serializers.serialize("json", messages) if messages.exists() else [])) 
+            context["messages"] = messages if messages.exists() else None
         except Exception as e:
             print(e)
             template = "OB/not_room.html"
