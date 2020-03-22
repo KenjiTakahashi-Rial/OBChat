@@ -14,5 +14,6 @@ urlpatterns = [
     path("chat/", views.chat, name="OB-chat"),
     path("", views.chat, name="OB-/"),
     path("create_room/", views.create_room, name="OB-create_room"),
-    url(r"^chat/(?P<room_name>[-\w]+)/$", views.room, name="OB-room")
+    url(r"^chat/(?P<room_name>[-\w]+)/$", views.room, name="OB-room"),
+    url(r"^user/(?P<username>[-\w]+)/$", views.user, name="OB-user")
 ]

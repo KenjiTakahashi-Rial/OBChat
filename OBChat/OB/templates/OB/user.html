@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Knock Knock, Who's There?
+    </title>
+  </head>
+  <body>
+    <h1>User Info</h1>
+    {% if ob_user.is_expelled %}
+        <p><font color="red"><strong>EXPELLED</strong></font></p>
+    {% endif %}
+    
+    {% if request.user.username == ob_user.user.username %}
+      <div id="edit-info">
+        <h3>Username</h3>
+        <p>{{ ob_user.user.username }}</p>
+        
+        <h3>Display Name</h3>
+        <input type="text" class="form-control"  value="{{ ob_user.display_name }}">
+        
+        <h3>First Name</h3>
+        <input type="text" class="form-control"  value="{{ ob_user.user.first_name">
+        <label><input type="checkbox" value="{{ ob_user.show_first_name }}">Show first name to strangers?</label>
+        
+        <h3>Last Name</h3>
+        <input type="text" class="form-control"  value="{{ ob_user.user.last_name }}">
+        <label><input type="checkbox" value="{{ ob_user.show_full_name }}">Show full name to strangers?</label>
+        
+        <h3>Birthday</h3>
+        <input value="{{ ob_user.birthday }}">
+        <label><input type="checkbox" value="{{ ob_user.show_birthday }}">Show birthday to strangers?</label>
+        
+        <h3>Email</h3>
+        <input value="{{ ob_user.user.email }}">
+        <label><input type="checkbox" value="{{ ob_user.show_email }}">Show email to strangers?</label>
+        
+        <h3>Joined</h3>
+        <input value="{{ ob_user.user.date_joined }}">
+        
+        <h3>Last Login</h3>
+        <input value="{{ ob_user.user.last_login }}">
+        <label><input type="checkbox" value="{{ ob_user.show_last_login }}">Show last_login to strangers?</label>
+
+        <input type="submit" value="Save">
+        <button id="cancel-button">Cancel</button>
+      </div>
+    {% endif %}
+    <div id="display-info">
+      {% if request.user.username == username %}
+        <button id=edit-button>Edit</button>
+      {% endif %}
+
+      <h3>Username</h3>
+      <p>{{ ob_user.user.username }}</p>
+      <h3>Display Name</h3>
+      <p>{% if ob_user.display_name is None %} {{ ob_user.user.username }} {% else %} {{ ob_user.display_name }} {% endif %}</p>
+      <h3>Real Name</h3>
+      <p>{{ ob_user.user.first_name }} {{ ob_user.user.last_name }}</p>
+      <h3>Birthday</h3>
+      <p>{{ ob_user.birthday }}</p>
+      <h3>Email</h3>
+      <p>{{ ob_user.user.email }}</p>
+      <h3>Joined</h3>
+      <p>{{ ob_user.user.date_joined }}</p>
+      <h3>Last Login</h3>
+      <p>{{ ob_user.user.last_login }}</p>
+    </div>
+  </body>
+</html>

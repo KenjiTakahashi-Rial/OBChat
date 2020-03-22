@@ -1,8 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.core import serializers
-from django.db.utils import IntegrityError
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -23,6 +22,7 @@ def sign_up(request):
         display_name = request.POST["display_name"].strip()
         first_name = request.POST["first_name"].strip()
         last_name = request.POST["last_name"].strip()
+        birthday = request.POST["birthday"]
 
         template = "OB/sign_up.html"
         context = {
@@ -30,32 +30,31 @@ def sign_up(request):
             "email": email,
             "display_name": display_name,
             "first_name": first_name,
-            "last_name": last_name
-        }   
+            "last_name": last_name,
+            "birthday": birthday
+        }
 
         if not all([username, email, password, display_name]):
             context["error_message"] = "Please fill out all required fields."
-            return render(request, template, context)
-
-        if " " in username:
+        elif " " in username:
             context["error_message"] = "Username may not contain spaces"
-            return render(request, template, context)
-
-        if User.objects.filter(username=username).exists():
+        elif User.objects.filter(username=username).exists():
             context["error_message"] = "Username already in use."
-            return render(request, template, context)
-
-        if User.objects.filter(email=email).exists():
+        elif User.objects.filter(email=email).exists():
             context["error_message"] = "Email already in use."
+
+        if "error_message" in context:
             return render(request, template, context)
 
-        user = User.objects.create_user(username, email, password,
-                                        first_name=first_name,
-                                        last_name=last_name)
-        
-        OBUser(user=user, display_name=display_name).save()
+        user_entry = User.objects.create_user(username, email, password,
+                                              first_name=first_name,
+                                              last_name=last_name)
+
+        OBUser(user=user_entry, display_name=display_name).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
+
+    return None
 
 
 def log_in(request):
@@ -67,15 +66,17 @@ def log_in(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
-        user = authenticate(username=username, password=password)
+        user_entry = authenticate(username=username, password=password)
 
         if user is None:
             context = {"error_message": "Invalid username or password."}
             return render(request, template, context)
 
-        login(request, user)
+        login(request, user_entry)
 
         return HttpResponseRedirect(reverse("OB:OB-chat"))
+
+    return None
 
 def chat(request):
     if request.method == "GET":
@@ -83,11 +84,13 @@ def chat(request):
         context = {"rooms": Room.objects.all()}
         return render(request, template, context)
 
+    return None
+
 def create_room(request):
     if request.method == "GET":
         if request.user.is_authenticated:
             template = "OB/create_room.html"
-            context =  {}
+            context = {}
         else:
             template = "OB/log_in.html"
             context = {"error_message": "Must be logged in to create a room."}
@@ -102,7 +105,7 @@ def create_room(request):
         context = {"room_name": room_name}
 
         if not room_name:
-            context["error_message"] = "Room must have a name.",
+            context["error_message"] = "Room must have a name."
             return render(request, template, context)
 
         if Room.objects.filter(name=room_name).exists():
@@ -113,19 +116,21 @@ def create_room(request):
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
+    return None
+
 def room(request, room_name):
     if request.method == "GET":
         context = {"room_name": room_name}
 
         try:
-            room = Room.objects.get(name=room_name)
-            messages = Message.objects.filter(room=room)
+            room_entry = Room.objects.get(name=room_name)
+            messages = Message.objects.filter(room=room_entry)
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
             context["messages"] = messages if messages.exists() else None
-        except Exception as e:
-            print(e)
+        except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
+            print(exception)
             template = "OB/not_room.html"
 
         return render(request, template, context)
@@ -141,11 +146,33 @@ def room(request, room_name):
                     command(request, room_name, message)
             else:
                 try:
-                    sender = OBUser.objects.get(user=request.user)
-                    room = Room.objects.get(name=room_name)
+                    sender_entry = OBUser.objects.get(user=request.user)
+                    room_entry = Room.objects.get(name=room_name)
 
-                    Message(message=message, sender=sender, room=room).save()
-                except Exception as e:
-                    print(e)
+                    Message(message=message, sender=sender_entry, room=room_entry).save()
+                except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
+                    print(exception)
 
         return HttpResponse()
+
+    return None
+
+def user(request, username):
+    if request.method == "GET":
+        user_entry = User.objects.filter(username=username)
+
+        if user_entry.exists():
+            ob_user_entry = OBUser.objects.get(user=user_entry.first())
+
+            template = "OB/user.html"
+            context = {"ob_user": ob_user_entry}
+        else:
+            template = "OB/not_user.html"
+            context = {}
+
+        return render(request, template, context)
+
+    if request.method == "POST":
+        return None
+
+    return None
