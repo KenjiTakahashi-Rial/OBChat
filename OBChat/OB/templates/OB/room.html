@@ -59,15 +59,21 @@
     <div class="panel log-panel" id="log">
         {% if messages %}
             {% for message in messages %}
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="message-outer-div">
                     <div class=user-icon-div>
-                        <img class="user-icon" src="{% static "favicon.ico" %}" alt="user"></img>
+                        <img class="user-icon" src="{% static "favicon.ico" %}" id="user-icon" alt="user"></img>
                     </div>
-                    <div style="display: table-cell;">
-                        <p class="display-name"><strong>{{ message.sender.display_name }}</strong></p>
-                        <p>{{ message.message }}</p>
+                    <div style="display: table-cell;" id="message-inner-div">
+                        <p class="display-name" id="display-name"><strong>
+                            {% if message.sender.display_name %} 
+                                {{ message.sender.display_name }} 
+                            {% else %} 
+                                {{ message.sender.user.username }} 
+                            {% endif %}
+                        </strong></p>
+                        <p id="message-text">{{ message.message }}</p>
                     </div>
-                    <p class="timestamp">
+                    <p class="timestamp" id="timestamp">
                         {{ message.timestamp}}
                     </p>
                 </div>
@@ -81,7 +87,6 @@
 </body>
 <script>
     var roomName = {{ room_name_json }};
-    var messages = JSON.parse({{ messages_json }});
     var token = getCookie("csrftoken");
     var log = document.querySelector("#log")
     var input = document.querySelector("#input");
@@ -98,16 +103,15 @@
         var message = data["message"];
 
         // Append a message panel to the log
-        var messageInnerDiv = document.createElement("div");
-        messageInnerDiv.className = "panel-body";
-        messageInnerDiv.innerHTML = message;
+        var oldMessage = document.getElementById("message-outer-div");
 
-        var messageOuterDiv = document.createElement("div");
-        messageOuterDiv.className = "panel panel-default";
-        messageOuterDiv.appendChild(messageInnerDiv);
+        var newMessage = oldMessage.cloneNode(true);
+        newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
+        newMessage.querySelector("#user-icon").alt = "user";
+        newMessage.querySelector("#message-text").innerHTML = message;
+        newMessage.querySelector("#timestamp").innerHTML = Date.now();
 
-        log.appendChild(messageOuterDiv);
-
+        log.appendChild(newMessage);
         log.scrollTop = log.scrollHeight;
     };
 

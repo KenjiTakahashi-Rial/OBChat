@@ -34,7 +34,7 @@ def sign_up(request):
             "birthday": birthday
         }
 
-        if not all([username, email, password, display_name]):
+        if not all([username, email, password]):
             context["error_message"] = "Please fill out all required fields."
         elif " " in username:
             context["error_message"] = "Username may not contain spaces"
@@ -50,12 +50,11 @@ def sign_up(request):
                                               first_name=first_name,
                                               last_name=last_name)
 
-        OBUser(user=user_entry, display_name=display_name).save()
+        OBUser(user=user_entry, display_name=display_name, birthday=birthday).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
     return None
-
 
 def log_in(request):
     if request.method == "GET":
