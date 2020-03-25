@@ -16,7 +16,7 @@ class OBUser(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
-    owner = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_suspended = models.BooleanField(default=False)
 
@@ -25,29 +25,29 @@ class Room(models.Model):
 
 
 class Admin(models.Model):
-    ob_user = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
     # admin must apply to an unlimited admin to make/remove limited admins
     is_limited = models.BooleanField(default=True)
     is_revoked = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.ob_user.user.username}:{self.room.name}"
+        return f"{self.user.username}:{self.room.name}"
 
 
 class Ban(models.Model):
-    ob_user = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_lifted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.ob_user.user.username}:{self.room.name}"
+        return f"{self.user.username}:{self.room.name}"
 
 
 class Message(models.Model):
     message = models.TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = models.ForeignKey(OBUser, on_delete=models.CASCADE, default=0)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_edited = models.BooleanField(default=False)

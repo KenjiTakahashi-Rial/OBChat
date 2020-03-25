@@ -1,7 +1,8 @@
 import json
+from enum import Enum
+
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from enum import Enum
 
 # TODO: Move these around so they're more organized
 class GroupTypes(Enum):
@@ -10,7 +11,7 @@ class GroupTypes(Enum):
     Room = 2
     Private = 3
 
-def GroupName(group_type, name, second_name=""):
+def group_name(group_type, name, second_name=""):
     switch = {
         GroupTypes.Invalid: name,
         GroupTypes.Line: f"OBLine_{name}",
@@ -21,14 +22,17 @@ def GroupName(group_type, name, second_name=""):
     return switch[group_type]
 
 class ChatConsumer(WebsocketConsumer):
+    room_name = None
+    room_group_name = None
+
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        
+
         if self.room_name == "OBLine":
             # TODO: Get username from url
-            self.room_group_name = GroupName(GroupType.Line, "username")
+            self.room_group_name = group_name(GroupTypes.Line, "username")
         else:
-            self.room_group_name = GroupName(GroupTypes.Room, self.room_name)
+            self.room_group_name = group_name(GroupTypes.Room, self.room_name)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add) (
@@ -38,20 +42,20 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept()
 
-    def disconnect(self, close_code):
+    def disconnect(self, code):
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard) (
+        async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
 
     # Receive message from WebSocket
-    def receive(self, text_data):
+    def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
 
         # Send message to room group
-        async_to_sync(self.channel_layer.group_send) (
+        async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
                 "type": "receive_from_group",

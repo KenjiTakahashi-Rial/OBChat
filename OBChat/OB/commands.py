@@ -1,25 +1,24 @@
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from . import constants, models
-from .consumers import ChatConsumer, GroupTypes
+from .consumers import ChatConsumer, GroupTypes, group_name
 
-
-def command(request, room_name, input):
+def command(data, user, room_name):
     # Separate by whitespace to get arguments
-    separated = input.split()
-    command = separated[0]
+    separated = data.split()
+    command_name = separated[0]
     args = separated[1:]
 
     try:
-        constants.COMMANDS[command](request, args)
+        constants.COMMANDS[command_name](args, user, room_name)
     except KeyError:
-        group = ChatConsumer.GroupName(GroupTypes.Room, room_name)
-        send(request, constants.VALID_COMMANDS, group)
+        # Invalid command, send the list of valid commands
+        send(constants.VALID_COMMANDS, room_name)
 
-def send(request, message, group):
-
+def send(message, group):
     # Send message to room group
-    async_to_sync(get_channel_layer().group_send) (
-        group, # TODO: Get room name from url
+    async_to_sync(get_channel_layer().group_send)(
+        group,
         {
             "type": "receive_from_group",
             "message": message
@@ -66,50 +65,50 @@ def send(request, message, group):
 
 #     return True
 
-def who(request, args):
-    if not args:
-        if room_name is None:
-            send(request, "You're not in a room.")
-            return
+def who(args, user, room_name):
+    if not args and room_name is None:
+        error_message = "You're not in a room."
+    elif len(args) > 1:
+        error_message = "Room name cannot contain spaces."
+    else:
+        args.append(room_name)
 
-    if len(args) > 1:
-        send(request, "Room name cannot contain spaces.")
-        return
+    if not models.Room.objects.filter(name=args[0]).exists():
+        error_message = f"\"{args[0]}\" doesn't exist, so that probably means nobody is in there."
+    else:
+        channel = get_channel_layer()
+        group = Group(channel).channel_layer.group_channels(channel)
+    
+        if len(group) == 0:
+            error_message = f"\"{args[0]}\" is all empty!"
 
-        # TODO: Get room name from url
-        args.append("room_name")
+    group = group_name(GroupTypes.Room, room_name)
 
-    if not Room.objects.filter(name=args[0]).exists():
-        send(request, f"\"{args[0]}\" doesn't exist, so that probably means nobody is in there.")
-        return
-
-    channel = get_channel_layer()
-    group = Group(channel).channel_layer.group_channels(channel)
-    if len(group) == 0:
-        send(request, f"\"{args[0]}\" is all empty!")
+    if error_message:
+        send(error_message, group)
         return
 
     # Iterate through users in room
-    send(request, f"Users in: \"{args[0]}\" ({group})")
+    user_list = f"Users in: \"{args[0]}\" ({group})\n"
 
-    room = Rooms.objects.get(name=room_name)
+    current_room = models.Room.objects.get(name=room_name)
 
-    for user in group:
-        who_user = user.username
+    for group_user in group:
+        who_user = group_user.username
 
         # Tag user appropriately
-        if user == room.owner:
-            who_user += " (owner)"
+        if group_user == current_room.owner:
+            user_list += " (owner)"
 
-        if Admin.objects.filter(user=user, room=room).exists():
-            who_user += " (admin)"
+        if models.Admin.objects.filter(user=user, room=room).exists():
+            user_list += " (admin)"
 
-        if user == request.user:
-            who_user += " (you)"
+        if group_user == user:
+            user_list += " (you)"
 
-        send(f" * {who_user}")
+        user_list += f"\n * {who_user}\nEnd list"
 
-    send("End list")
+    send(user_list, group)
 
 # def leave(self, args, client, exit=False):
 #     # Client is not in a room
@@ -139,74 +138,90 @@ def who(request, args):
 #     return True
 
 
-def private(request, args):
+def private(args, user, room_name):
     if not args:
-        send("Usage: /private /<user> <message>")
+        error_message = "Usage: /private /<user> <message>"
     elif args[0][0] != '/':
-        send("Looks like you forgot a \"/\" before the username. I'll let it slide.")
+        error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
+    else:
+        user_query = models.User.objects.filter(username=args[0][1:])
 
-    user_query = User.objects.filter(username=args[0][1:])
-    
     if not user_query.exists():
-        send(f"\"{args[0]}\" doesn't exist. Your private message will broadcasted into space instead.", client)
+        error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
+            into space instead.")
+    elif len(args) == 1:
+        error_message = "No message specified. Did you give up halfway through?"
 
-    if len(args) == 1:
-        send("No message specified. Did you give up halfway through?", client)
+    if error_message:
+        send(error_message, room_name)
         return
 
-    send_to = user_query[0]
+    send_to = user_query.first()
 
     # Reconstruct message from args
     message = " ".join(args[1:])
 
-    send(request, message, send_to)
-    send(request, message, client)
+    send(message, group_name(GroupTypes.Private, user.username, send_to.username))
 
-def room(self, args, client):
+def room(args, user, room_name):
     if not args:
-        send("Usage: /room <name>", client)
-    elif not request.user.is_authenticated:
-        send("Identify yourself! Must log in to create a room.", client)
+        return_message = "Usage: /room <name>"
+    elif not user.is_authenticated:
+        return_message = "Identify yourself! Must log in to create a room."
     elif len(args) > 1:
-        send("Room name cannot contain spaces.", client)
-    elif Room.objects.filter(name=room_name).exists():
-        send(f"Someone beat you to it. \"{args[0]}\" already exists.")
+        return_message = "Room name cannot contain spaces."
+    elif models.Room.objects.filter(name=room_name).exists():
+        return_message = f"Someone beat you to it. \"{args[0]}\" already exists."
     else:
-        Room(name=room_name, owner=owner)
-        send(f"Sold! Check out your new room: \"{args[0]}\"", client)
+        models.Room(name=room_name, owner=user).save()
+        return_message = f"Sold! Check out your new room: \"{args[0]}\""
 
-def hire(self, args):
-    if client.username != client.room.owner:
-        send("That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /apply to be unlimited.")
+    send (return_message, group_name(GroupTypes.Room, room_name))
 
-    if len(args) == 0:
-        send("Usage: /admin <user1> <user2> ...", client)
+def hire(args, user, room_name):
+    current_room = models.Room.objects.get(room_name)
+    valid_hires = []
+    error_messages = []
 
-    for username in args:
-        if username not in self.passwords:
-            if username not in self.usernames:
-                send(f"\"{username}\" does not exist. Your imaginary friend needs an account before they can be an admin.")
+    has_privilege = user == current_room.owner or models.Admin.objects.filter(
+        username=user.username, is_unlimited=True).exists()
+    if not has_privilege:
+        error_messages += "That's a little outside your pay-grade. Only Unlimited Admins may \
+            hire admins. Try to /apply to be unlimited."
+    elif len(args) == 0:
+        error_messages += "Usage: /admin <user1> <user2> ..."
+    else:
+        for username in args:
+            user_query = models.User.objects.filter(username=username)
+            
+            if not user_query.exists():
+                error_messages += f"\"{username}\" does not exist. Your imaginary friend needs an \
+                    account before they can be an admin."
+            elif False: # TODO: check for anonymous user
+                error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
+                    with the immense responsibility that is adminship."
+            elif models.Admin.objects.filter(user=user_query.first()):
+                error_messages += f"{username} already works for you. I can't believe you \
+                    forgot. Did you mean /promote?"
+            elif username == user.username:
+                error_messages += "You're already an admin, you can't be a DOUBLE admin."
             else:
-                send(f"\"{username}\" hasn't signed up yet. they cannot be trusted with the immense responsibility that is adminship.")
+                valid_hires += username
 
-        user = self.usernames[username]
+    if error_messages:
+        send("\n".join(error_messages), group_name(GroupTypes.Room, room_name))
 
-        if username in client.room.admins:
-            send(f"{username} already works for you. I can't believe you forgot. Did you mean /promote?")
-            continue
+    # Add admin and notify all parties that a user was made admin
+    for new_admin in valid_hires:
+        models.Admin(user=new_admin, room=current_room).save()
+        send((f"With great power comes great responsibility. You were promoted to admin in \
+            \"{room_name}\"!"), group_name(GroupTypes.Line, new_admin.username))
+        send(f"Promoted {new_admin.username} to admin. Keep an eye on them.", group_name(
+            GroupTypes.Line, user.username))
+        send(f"{new_admin.username} was promoted to admin. Drinks on them!", group_name(
+            GroupTypes.Room, room_name))
 
-        if username == client.username:
-            send("You're already an admin, you can't be a DOUBLE admin.", client)
-            continue
-
-        client.room.admins.append(user.username)
-
-        # Notify all parties that a user was made admin
-        send(f"With great power comes great responsibility. You were promoted to admin in \"{client.room.name}\"!")
-        send(f"Promoted {username} to admin. Keep an eye on them.", client)
-        self.distribute(f"{username} was promoted to admin. Drinks on them!", [client.room.name], None, [client, user])
-
-def fire(self, args, client):
+def fire(args, user, room_name):
     if len(args) == 0:
         send("Usage: /fire <user1> <user2> ...", client)
         return
@@ -235,7 +250,7 @@ def fire(self, args, client):
         self.distribute(f"{username} was fired! Those budget cuts are killer.")
 
 
-def kick(self, args, client):
+def kick(args, user, room_name):
     if len(args) == 0:
         send("Usage: /kick <user1> <user2> ...", client)
         return
@@ -292,7 +307,7 @@ def kick(self, args, client):
     return no_errors
 
 
-def ban(self, args, client):
+def ban(args, user, room_name):
     """
     Description:
         Ban one or more users from a room
@@ -388,7 +403,7 @@ def ban(self, args, client):
     return no_errors
 
 
-def lift_ban(self, args, client):
+def lift_ban(args, user, room_name):
     """
     Description:
         Lift ban on a user from a room
@@ -460,7 +475,7 @@ def lift_ban(self, args, client):
     return no_errors
 
 
-def delete_room(self, args, client):
+def delete_room(args, user, room_name):
     """
     Description:
         Delete a room
