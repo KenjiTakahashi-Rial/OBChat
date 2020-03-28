@@ -148,7 +148,7 @@ def private(args, user, room_name):
 
     if not user_query.exists():
         error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
-            into space instead.")
+            into space instead."
     elif len(args) == 1:
         error_message = "No message specified. Did you give up halfway through?"
 
@@ -183,128 +183,147 @@ def hire(args, user, room_name):
     valid_hires = []
     error_messages = []
 
-    has_privilege = user == current_room.owner or models.Admin.objects.filter(
+    is_unlimited = user == current_room.owner or models.Admin.objects.filter(
         username=user.username, is_unlimited=True).exists()
-    if not has_privilege:
-        error_messages += "That's a little outside your pay-grade. Only Unlimited Admins may \
+    
+    if not is_unlimited:
+        error_messages += "That's a little outside your pay-grade. Only unlimited admins may \
             hire admins. Try to /apply to be unlimited."
     elif len(args) == 0:
         error_messages += "Usage: /admin <user1> <user2> ..."
     else:
         for username in args:
             user_query = models.User.objects.filter(username=username)
+            admin_query = models.Admin.objects.filter(user=user_query.first())
             
             if not user_query.exists():
                 error_messages += f"\"{username}\" does not exist. Your imaginary friend needs an \
                     account before they can be an admin."
+            elif user == user_query.first():
+                error_messages += f"You can't hire yourself. I don't care how good your \
+                    letter of recommendation is."
+            elif user_query.first() == current_room.owner:
+                error_messages += f"That's the owner. You know, your BOSS. Nice try."
             elif False: # TODO: check for anonymous user
                 error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
                     with the immense responsibility that is adminship."
-            elif models.Admin.objects.filter(user=user_query.first()):
+            elif admin_query.exists():
                 error_messages += f"{username} already works for you. I can't believe you \
                     forgot. Did you mean /promote?"
-            elif username == user.username:
-                error_messages += "You're already an admin, you can't be a DOUBLE admin."
             else:
-                valid_hires += username
+                valid_hires += user_query
 
-    if error_messages:
-        send("\n".join(error_messages), group_name(GroupTypes.Room, room_name))
+    # Add admin(s) and notify all parties that a user was hired
+    send_to_sender = error_messages
+    send_to_others = []
 
-    # Add admin and notify all parties that a user was made admin
-    for new_admin in valid_hires:
-        models.Admin(user=new_admin, room=current_room).save()
-        send((f"With great power comes great responsibility. You were promoted to admin in \
-            \"{room_name}\"!"), group_name(GroupTypes.Line, new_admin.username))
-        send(f"Promoted {new_admin.username} to admin. Keep an eye on them.", group_name(
-            GroupTypes.Line, user.username))
-        send(f"{new_admin.username} was promoted to admin. Drinks on them!", group_name(
-            GroupTypes.Room, room_name))
+    for hired_user in valid_hires:
+        models.Admin(user=hired_user, room=current_room).save()
+
+        send(f"With great power comes great responsibility. You were promoted to admin in \"\
+            {room_name}\"!", group_name(GroupTypes.Line, hired_user.username))
+        
+        send_to_sender += f"Promoted {hired_user.username} to admin. Keep an eye on them."
+        send_to_others += f"{hired_user.username} was promoted to admin. Drinks on them!"
+
+    if send_to_sender:
+        send("\n".join(send_to_sender), group_name(GroupTypes.Line, user.username))
+    if send_to_others:
+        send("\n".join(send_to_others), group_name(GroupTypes.Room, room_name))
 
 def fire(args, user, room_name):
-    if len(args) == 0:
-        send("Usage: /fire <user1> <user2> ...", client)
-        return
+    current_room = models.Room.objects.get(room_name)
+    valid_fires = []
+    error_messages = []
 
-    if True: # TODO: not unlimited or owner:
-        print("There is an 'if True' here, preventing this command from resolvng.")
-        send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
-        return
+    is_unlimited = user == current_room.owner or models.Admin.objects.filter(
+        username=user.username, is_unlimited=True).exists()
 
-    for username in args:
-        if username not in self.usernames and username not in self.passwords:
-            send(f"\"{username}\" does not exist. You can't fire a ghost... can you?", client)
-            continue
+    if not is_unlimited:
+        error_messages += "That's a little outside your pay-grade. Only unlimited admins may \
+            fire admins. Try to /apply to be unlimited."
+    elif len(args) == 0:
+        error_messages += "Usage: /fire <user1> <user2> ..."
+    else:
+        for username in args:
+            user_query = models.User.objects.filter(username=username)
+            admin_query = models.Admin.objects.filter(user=user_query.first())
 
-        if username not in client.room.admins:
-            send(f"\"{username}\" is just a regular old user, so you can't fire them. You can /ban them if you want.", client)
-            continue
+            if not user_query.exists():
+                error_messages += "\"{username}\" does not exist. You can't fire a ghost... can \
+                    you?"
+            elif user == user_query.first():
+                error_messages += "You can't fire yourself. I don't care how bad your \
+                    performance reviews are."
+            elif user_query.first() == current_room.owner:
+                error_messages += f"That's the owner. You know, your BOSS. Nice try."
+            elif not admin_query.exists():
+                error_messages += f"\"{username}\" is just a regular old user, so you can't fire \
+                    them. You can /ban them if you want."
+            elif not user == current_room.owner and  not admin_query.first().is_limited:
+                error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
+                     lease direct all complaints to your local room owner, I'm sure they'll \
+                    love some more paperwork to do..."
+            else:
+                valid_fires += (user_query, admin_query)
+            
+    # Remove admin(s) and notify all parties that a user was fired 
+    send_to_sender = error_messages
+    send_to_others = []
+    
+    for fired_user in valid_fires:
+        fired_user[1].delete()
 
-        client.room.admins.remove(username)
+        send(f"Clean out your desk. You lost your adminship at \"{room_name}\".",  
+            group_name(GroupTypes.Line, fired_user[0].username)) 
 
-        if username in self.usernames:
-            send(f"Clean out your desk. You lost your adminship at \"{client.room.name}\".")
+        send_to_sender += f"It had to be done. You fired \"{fired_user[0].username}\""
+        send_to_others += f"{fired_user[0].username} was fired! Those budget cuts are killer."
 
-        send(f"It had to be done. You fired \"{username}\"", client)
-
-        self.distribute(f"{username} was fired! Those budget cuts are killer.")
-
+    if send_to_sender:
+        send("\n".join(send_to_sender), group_name(GroupTypes.Line, user.username))
+    if send_to_others:
+        send("\n".join(send_to_others), group_name(GroupTypes.Room, room_name))
 
 def kick(args, user, room_name):
+    current_room = models.Room.objects.get(room_name)
+    valid_kicks = []
+    error_messages = []
+
+    admin_query = models.Admin.objects.filter(username=user.username)
+    is_admin = user == current_room.owner or admin_query.exists()
+    is_unlimited = user == current_room.owner or (admin_query.exists() and admin_query.is_unlimited)
+
+    if not is_admin:
+        error_messages += "That's a little outside your pay-grade. Only admins may kick users. \
+            Try to /apply to be an admin."
     if len(args) == 0:
-        send("Usage: /kick <user1> <user2> ...", client)
-        return
+        error_messages += "Usage: /kick <user1> <user2> ..."
+    else:
+        for username in args:
+            user_query = models.User.objects.filter(username=username)
+            admin_query = models.Admin.objects.filter(user=user_query.first())
 
-    if client.username != client.room.owner:
-        if client.username not in client.room.admins:
-            send("That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be unlimited.")
-            return
+            if not user_query.exists():
+                error_messages += f"Nobody named \"{username}\" in this room. Are you seeing things?"
+            elif user == user_query.first():
+                error_messages += f"You can't kick yourself. Just leave the room. Or put \
+                    yourself on time-out."
+            elif user_query.first() == current_room.owner:
+                error_messages += f"That's the owner. You know, your BOSS. Nice try."
+            elif admin_query.exists() and not is_unlimited:
+                error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
+                    Please direct all complaints to your local room owner, I'm sure they'll \
+                    love some more paperwork to do..."
+            else:
+                valid_kicks += user_query
+    
+    # Remove user(s) and notify all parties that a user was kicked
+    send_to_sender = error_messages
+    send_to_others = []
 
-    for username in args:
-        if username not in self.usernames and username not in self.passwords:
-            send(f"Nobody named \"{username}\" in this room. Are you seeing things?", client)
-            continue
-
-        user = self.usernames[username]
-
-        if username in client.room.admins:
-            if client.username != client.room.owner:
-                send("Insufficient privileges to kick admin: " +
-                          f"{username}", client)
-
-                no_errors = False
-                continue
-
-        # Do not allow users to kick themselves
-        if username == client.username:
-            send("Cannot kick self", client)
-
-            no_errors = False
-            continue
-
-        # Owner cannot be kicked
-        if username == client.room.owner:
-            send(f"Cannot kick owner: {client.room.owner}",
-                      client)
-
-            no_errors = False
-            continue
-
-        # Actually remove the user
-        user.room = None
-        user.typing = ""
-        client.room.users.remove(user)
-
-        # Notify all parties that a user was kicked
-        send(f"You were kicked from: {client.room.name}",
-                  user)
-
-        send(f"Kicked user: {username}", client)
-
-        self.distribute(f"{username} was kicked",
-                        [client.room.name], None, [client])
-
-    return no_errors
+    for kicked_user in valid_kicks:
+        # TODO: finish this
 
 
 def ban(args, user, room_name):
