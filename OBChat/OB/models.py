@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .constants import DISPLAY_NAME_MAX_LENGTH, ROOM_NAME_MAX_LENGTH, MESSAGE_MAX_LENGTH
+
+DISPLAY_NAME_MAX_LENGTH = 15
+ROOM_NAME_MAX_LENGTH = 15
+MESSAGE_MAX_LENGTH = 100
 
 
 class OBUser(models.Model):
@@ -16,9 +19,10 @@ class OBUser(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=0, related_name="owned_room")
     timestamp = models.DateTimeField(auto_now_add=True)
     is_suspended = models.BooleanField(default=False)
+    occupants = models.ManyToManyField(User, related_name="occupied_room")
 
     def __str__(self):
         return self.name
@@ -27,7 +31,7 @@ class Room(models.Model):
 class Admin(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
-    # admin must apply to an unlimited admin to make/remove limited admins
+    # admin must apply to an unlimited admin to promote/demote limited admins
     is_limited = models.BooleanField(default=True)
     is_revoked = models.BooleanField(default=False)
 

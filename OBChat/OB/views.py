@@ -6,7 +6,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .commands import command
+
+import OB.commands.command_handler as command_handler
 from .models import OBUser, Room, Message
 
 
@@ -142,7 +143,7 @@ def room(request, room_name):
         if message:
             if message[0] == '/':
                 if len(message) == 1 or message[1] != '/':
-                    command(request, room_name, message)
+                    command_handler.handle_command(request, room_name, message)
             else:
                 try:
                     sender_entry = OBUser.objects.get(user=request.user)
