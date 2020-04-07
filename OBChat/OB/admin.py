@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import *
+
+from .models import Admin, Ban, Message, OBUser, Room
 
 admin.site.register(OBUser)
 admin.site.register(Room)

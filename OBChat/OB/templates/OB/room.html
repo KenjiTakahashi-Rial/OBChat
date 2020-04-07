@@ -65,10 +65,10 @@
                     </div>
                     <div style="display: table-cell;" id="message-inner-div">
                         <p class="display-name" id="display-name"><strong>
-                            {% if message.sender.display_name %} 
-                                {{ message.sender.display_name }} 
+                            {% if message.sender.OBUser.display_name %} 
+                                {{ message.sender.OBUser.display_name }} 
                             {% else %} 
-                                {{ message.sender.user.username }} 
+                                {{ message.sender.username }} 
                             {% endif %}
                         </strong></p>
                         <p id="message-text">{{ message.message }}</p>

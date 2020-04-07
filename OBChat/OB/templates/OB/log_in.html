@@ -23,7 +23,7 @@
       {% csrf_token %}
       <label>Username</label><br>
       <input type="text" name="username" placeholder="OB"
-           value="{% if username %} {{ username }} {% endif %}"><br>
+           value="{% if username %}{{ username }}{% endif %}"><br>
 
       <label>Password</label><br>
       <input type="password" name="password"><br><br>

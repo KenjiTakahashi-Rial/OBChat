@@ -1,5 +1,5 @@
 from OB.enums import GroupTypes
-from OB.models import Admin, Room, User
+from OB.models import Admin, Room, OBUser
 from OB.utilities import get_group_name, send_chat_message
 
 def who(args, user, room_name):
@@ -23,7 +23,7 @@ def who(args, user, room_name):
         return
 
     # Iterate through users in room
-    user_list = f"Users in: \"{args[0]}\" ({room_name})\n"
+    user_list = f"Chatters in: \"{args[0]}\" ({room_name})\n"
 
     room_query = Room.objects.get(name=room_name)
 
@@ -50,7 +50,7 @@ def private(args, user, room_name):
     elif args[0][0] != '/':
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
-        user_query = User.objects.filter(username=args[0][1:])
+        user_query = OBUser.objects.filter(username=args[0][1:])
 
     if not user_query.exists():
         error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \

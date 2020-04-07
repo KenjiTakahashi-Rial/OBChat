@@ -1,8 +1,9 @@
+from OB.utilities import send_chat_message
+
 from .user_level import create_room, who, private
 from .admin_level import kick, ban, lift_ban
 from .unlimited_admin_level import hire, fire
 from .owner_level import delete_room
-from OB.utilities import send_chat_message
 
 # Separate the commands that do the same things into columns
 # pylint: disable=bad-whitespace
@@ -33,7 +34,7 @@ VALID_COMMANDS = ("Valid commands:\n\
                   * To use backslash without a command: //\n\
                   End valid commands")
 
-def command(data, user, room_name):
+def handle_command(data, user, room_name):
     # Separate by whitespace to get arguments
     separated = data.split()
     command_name = separated[0]

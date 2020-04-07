@@ -1,5 +1,5 @@
 from OB.enums import GroupTypes
-from OB.models import Admin, Room, User
+from OB.models import Admin, Room, OBUser
 from OB.utilities import get_group_name, send_chat_message, send_system_operation
 
 def kick(args, user, room_name):
@@ -18,7 +18,7 @@ def kick(args, user, room_name):
         error_messages += "Usage: /kick <user1> <user2> ..."
     else:
         for username in args:
-            user_query = User.objects.filter(username=username)
+            user_query = OBUser.objects.filter(username=username)
             admin_query = Admin.objects.filter(user=user_query.first())
 
             if not user_query.exists():

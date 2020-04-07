@@ -1,6 +1,5 @@
 import json
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -9,7 +8,6 @@ from django.utils.safestring import mark_safe
 
 import OB.commands.command_handler as command_handler
 from .models import OBUser, Room, Message
-
 
 def sign_up(request):
     if request.method == "GET":
@@ -23,7 +21,7 @@ def sign_up(request):
         display_name = request.POST["display_name"].strip()
         first_name = request.POST["first_name"].strip()
         last_name = request.POST["last_name"].strip()
-        birthday = request.POST["birthday"]
+        birthday = request.POST["birthday"] if request.POST["birthday"] else None
 
         template = "OB/sign_up.html"
         context = {
@@ -39,40 +37,45 @@ def sign_up(request):
             context["error_message"] = "Please fill out all required fields."
         elif " " in username:
             context["error_message"] = "Username may not contain spaces"
-        elif User.objects.filter(username=username).exists():
+        elif OBUser.objects.filter(username=username).exists():
             context["error_message"] = "Username already in use."
-        elif User.objects.filter(email=email).exists():
+        elif OBUser.objects.filter(email=email).exists():
             context["error_message"] = "Email already in use."
 
         if "error_message" in context:
             return render(request, template, context)
 
-        user_entry = User.objects.create_user(username, email, password,
-                                              first_name=first_name,
-                                              last_name=last_name)
-
-        OBUser(user=user_entry, display_name=display_name, birthday=birthday).save()
+        OBUser.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            display_name=display_name,
+            birthday=birthday
+        ).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
     return None
 
 def log_in(request):
+    template = "OB/log_in.html"
+
     if request.method == "GET":
-        template = "OB/log_in.html"
         return render(request, template)
 
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
 
-        user_entry = authenticate(username=username, password=password)
+        auth_user = authenticate(username=username, password=password)
 
-        if user is None:
-            context = {"error_message": "Invalid username or password."}
+        if auth_user is None:
+            context = {"username": username, "error_message": "Invalid username or password."}
             return render(request, template, context)
 
-        login(request, user_entry)
+        login(request, auth_user)
 
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
@@ -99,7 +102,7 @@ def create_room(request):
 
     if request.method == "POST":
         room_name = request.POST["room_name"].strip()
-        owner = OBUser.objects.get(user=request.user)
+        owner = OBUser.objects.get(username=request.user.username)
 
         template = "OB/create_room.html"
         context = {"room_name": room_name}
@@ -143,13 +146,13 @@ def room(request, room_name):
         if message:
             if message[0] == '/':
                 if len(message) == 1 or message[1] != '/':
-                    command_handler.handle_command(request, room_name, message)
+                    command_handler.handle_command(message, request.user, room_name)
             else:
                 try:
-                    sender_entry = OBUser.objects.get(user=request.user)
+                    sender_query = OBUser.objects.get(name=request.user.username)
                     room_entry = Room.objects.get(name=room_name)
 
-                    Message(message=message, sender=sender_entry, room=room_entry).save()
+                    Message(message=message, sender=sender_query, room=room_entry).save()
                 except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
                     print(exception)
 
@@ -159,10 +162,10 @@ def room(request, room_name):
 
 def user(request, username):
     if request.method == "GET":
-        user_entry = User.objects.filter(username=username)
+        user_query = OBUser.objects.filter(username=username)
 
-        if user_entry.exists():
-            ob_user_entry = OBUser.objects.get(user=user_entry.first())
+        if user_query.exists():
+            ob_user_entry = OBUser.objects.get(username=user_query.first().username)
 
             template = "OB/user.html"
             context = {"ob_user": ob_user_entry}

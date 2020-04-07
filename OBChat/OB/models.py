@@ -1,61 +1,66 @@
-from django.db import models
-from django.contrib.auth.models import User
+from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
+    ForeignKey, ManyToManyField, Model, TextField
+from django.contrib.auth.models import AbstractUser
 
 DISPLAY_NAME_MAX_LENGTH = 15
 ROOM_NAME_MAX_LENGTH = 15
 MESSAGE_MAX_LENGTH = 100
 
-
-class OBUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default=0)
-    display_name = models.CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
-    birthday = models.DateField(null=True)
-    is_expelled = models.BooleanField(default=False)
-    is_ob = models.BooleanField(default=False)
+class OBUser(AbstractUser):
+    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
+    birthday = DateField(null=True)
+    is_expelled = BooleanField(default=False)
+    is_ob = BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username
+        if self.display_name:
+            name_string = f"{self.display_name} ({self.username})"
+        else:
+            name_string = f"{self.username}"
+
+        return f"<OBUser: {name_string}>"
 
 
-class Room(models.Model):
-    name = models.CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=0, related_name="owned_room")
-    timestamp = models.DateTimeField(auto_now_add=True)
-    is_suspended = models.BooleanField(default=False)
-    occupants = models.ManyToManyField(User, related_name="occupied_room")
+class Room(Model):
+    name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
+    owner = ForeignKey(OBUser, on_delete=CASCADE, default=0, related_name="owned_room")
+    timestamp = DateTimeField(auto_now_add=True)
+    is_suspended = BooleanField(default=False)
+    occupants = ManyToManyField(OBUser, related_name="occupied_room")
 
     def __str__(self):
-        return self.name
+        return f"<Room: {self.name} owned by {self.owner}>"
 
 
-class Admin(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
+class Admin(Model):
+    user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
+    room = ForeignKey(Room, on_delete=CASCADE, default=0)
     # admin must apply to an unlimited admin to promote/demote limited admins
-    is_limited = models.BooleanField(default=True)
-    is_revoked = models.BooleanField(default=False)
+    is_limited = BooleanField(default=True)
+    is_revoked = BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username}:{self.room.name}"
+        return f"<Admin: {self.user} admin of {self.room.name}>"
 
 
-class Ban(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    is_lifted = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user.username}:{self.room.name}"
-
-
-class Message(models.Model):
-    message = models.TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, default=0)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    is_edited = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
+class Ban(Model):
+    user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
+    room = ForeignKey(Room, on_delete=CASCADE, default=0)
+    timestamp = DateTimeField(auto_now_add=True)
+    is_lifted = BooleanField(default=False)
 
     def __str__(self):
-        return self.message
+        lifted_string = " (lifted)" if self.is_lifted else ""
+        return f"<Ban: {self.user} banned in {self.room}{lifted_string}>"
+
+
+class Message(Model):
+    message = TextField(max_length=MESSAGE_MAX_LENGTH)
+    sender = ForeignKey(OBUser, on_delete=CASCADE, default=0)
+    room = ForeignKey(Room, on_delete=CASCADE, default=0)
+    timestamp = DateTimeField(auto_now_add=True)
+    is_edited = BooleanField(default=False)
+    is_deleted = BooleanField(default=False)
+
+    def __str__(self):
+        return f"<Message: {self.message} from {self.sender}>"
