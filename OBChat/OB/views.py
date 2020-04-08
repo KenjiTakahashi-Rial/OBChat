@@ -6,7 +6,6 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-import OB.commands.command_handler as command_handler
 from .models import OBUser, Room, Message
 
 def sign_up(request):
@@ -128,6 +127,7 @@ def room(request, room_name):
         try:
             room_entry = Room.objects.get(name=room_name)
             messages = Message.objects.filter(room=room_entry)
+            print(message for message in messages)
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
@@ -138,23 +138,18 @@ def room(request, room_name):
 
         return render(request, template, context)
 
-    # Handles commands and saves the message in the database
-    # The message is sent to others in consumers.py
+    # Saves the message in the database
     if request.method == "POST":
         message = request.POST["message"].strip()
 
         if message:
-            if message[0] == '/':
-                if len(message) == 1 or message[1] != '/':
-                    command_handler.handle_command(message, request.user, room_name)
-            else:
-                try:
-                    sender_query = OBUser.objects.get(name=request.user.username)
-                    room_entry = Room.objects.get(name=room_name)
-
-                    Message(message=message, sender=sender_query, room=room_entry).save()
-                except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
-                    print(exception)
+            try:
+                sender_query = OBUser.objects.get(username=request.user.username)
+                room_entry = Room.objects.get(name=room_name)
+                Message(message=message, sender=sender_query, room=room_entry).save()
+            
+            except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
+                print(exception)
 
         return HttpResponse()
 
@@ -176,6 +171,7 @@ def user(request, username):
         return render(request, template, context)
 
     if request.method == "POST":
+        # TODO: Save changed user data
         return None
 
     return None

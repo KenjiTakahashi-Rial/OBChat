@@ -2,9 +2,11 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
+
+from OB.commands.command_handler import handle_command
 from .enums import GroupTypes, SystemOperations
 from .models import Room
-from .utilities import get_group_name, send_chat_message
+from .utilities import get_group_name, is_command, send_chat_message
 
 class ChatConsumer(WebsocketConsumer):
     user = None
@@ -38,6 +40,14 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+
+    def send(self, text_data=None, bytes_data=None, close=False):
+        super().send(text_data, bytes_data, close)
+
+        message = json.loads(text_data)["message"]
+
+        if is_command(message):
+            handle_command(message, self.user, self.room_name)
 
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):

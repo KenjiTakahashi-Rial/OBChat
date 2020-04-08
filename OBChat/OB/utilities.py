@@ -31,3 +31,9 @@ def send_system_operation(operation, user, group):
             "user": user
         }
     )
+
+def is_command(message):
+    if len(message) > 1:
+        return message[0] == "/" and message[1] != "/"
+    else:
+        return message and message[0] == "/"
