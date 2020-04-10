@@ -20,7 +20,6 @@ class OBUser(AbstractUser):
 
         return f"<OBUser: {name_string}>"
 
-
 class Room(Model):
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
     owner = ForeignKey(OBUser, on_delete=CASCADE, default=0, related_name="owned_room")
@@ -30,7 +29,6 @@ class Room(Model):
 
     def __str__(self):
         return f"<Room: {self.name} owned by {self.owner}>"
-
 
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -42,7 +40,6 @@ class Admin(Model):
     def __str__(self):
         return f"<Admin: {self.user} admin of {self.room.name}>"
 
-
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
     room = ForeignKey(Room, on_delete=CASCADE, default=0)
@@ -52,7 +49,6 @@ class Ban(Model):
     def __str__(self):
         lifted_string = " (lifted)" if self.is_lifted else ""
         return f"<Ban: {self.user} banned in {self.room}{lifted_string}>"
-
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)

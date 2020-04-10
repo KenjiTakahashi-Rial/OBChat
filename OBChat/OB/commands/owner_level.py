@@ -1,5 +1,5 @@
 from OB.enums import GroupTypes
-from OB.utilities import send_chat_message
+from OB.utilities import send_system_room_message
 
 def delete_room(args, user, room_name):
     """
@@ -16,7 +16,7 @@ def delete_room(args, user, room_name):
     """
 
     if len(args) > 1:
-        send_chat_message("Room name cannot contain spaces", client)
+        send_system_room_message("Room name cannot contain spaces", client)
 
         return False
 
@@ -24,12 +24,12 @@ def delete_room(args, user, room_name):
         args.append(client.room.name)
 
     if args[0] not in self.rooms:
-        send_chat_message(f"Room does not exist: {args[0]}", client)
+        send_system_room_message(f"Room does not exist: {args[0]}", client)
 
         return False
 
     if client.username != self.rooms[args[0]].owner:
-        send_chat_message(f"Insufficient privileges to delete: {args[0]}", client)
+        send_system_room_message(f"Insufficient privileges to delete: {args[0]}", client)
 
         return False
 
@@ -41,10 +41,10 @@ def delete_room(args, user, room_name):
         user.typing = ""
 
         if user.username != room.owner:
-            send_chat_message(f"The room was deleted: {room.name}", user)
+            send_system_room_message(f"The room was deleted: {room.name}", user)
 
     del self.rooms[args[0]]
 
-    send_chat_message(f"Deleted room: {args[0]}", client)
+    send_system_room_message(f"Deleted room: {args[0]}", client)
 
     return True

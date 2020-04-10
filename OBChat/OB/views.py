@@ -138,21 +138,6 @@ def room(request, room_name):
 
         return render(request, template, context)
 
-    # Saves the message in the database
-    if request.method == "POST":
-        message = request.POST["message"].strip()
-
-        if message:
-            try:
-                sender_query = OBUser.objects.get(username=request.user.username)
-                room_entry = Room.objects.get(name=room_name)
-                Message(message=message, sender=sender_query, room=room_entry).save()
-            
-            except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
-                print(exception)
-
-        return HttpResponse()
-
     return None
 
 def user(request, username):

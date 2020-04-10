@@ -1,6 +1,5 @@
-from OB.utilities import get_group_name, send_chat_message
+from OB.utilities import get_system_user, send_room_message
 
-from OB.enums import GroupTypes
 from .user_level import create_room, who, private
 from .admin_level import kick, ban, lift_ban
 from .unlimited_admin_level import hire, fire
@@ -34,14 +33,14 @@ VALID_COMMANDS = ("Valid commands:\n"
                   "Type backslash with only the first letter of a command if you're in a hurry.\n"
                   "To use backslash without a command: //")
 
-def handle_command(data, user, room_name):
+def handle_command(data, user, room):
     # Separate by whitespace to get arguments
     separated = data.split()
     command_name = separated[0]
     args = separated[1:]
 
     try:
-        COMMANDS[command_name](args, user, room_name)
+        COMMANDS[command_name](args, user, room)
     except KeyError:
         # Invalid command, send the list of valid commands
-        send_chat_message(VALID_COMMANDS, get_group_name(GroupTypes.Room, room_name))
+        send_room_message(VALID_COMMANDS, get_system_user(), room)
