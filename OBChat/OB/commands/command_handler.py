@@ -1,4 +1,4 @@
-from OB.utilities import get_system_user, send_room_message
+from OB.utilities import send_system_room_message
 
 from .user_level import create_room, who, private
 from .admin_level import kick, ban, lift_ban
@@ -43,4 +43,4 @@ def handle_command(data, user, room):
         COMMANDS[command_name](args, user, room)
     except KeyError:
         # Invalid command, send the list of valid commands
-        send_room_message(VALID_COMMANDS, get_system_user(), room)
+        send_system_room_message(VALID_COMMANDS, room)

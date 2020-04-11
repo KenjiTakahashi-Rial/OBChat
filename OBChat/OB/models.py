@@ -2,9 +2,7 @@ from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTi
     ForeignKey, ManyToManyField, Model, TextField
 from django.contrib.auth.models import AbstractUser
 
-DISPLAY_NAME_MAX_LENGTH = 15
-ROOM_NAME_MAX_LENGTH = 15
-MESSAGE_MAX_LENGTH = 100
+from .constants import DISPLAY_NAME_MAX_LENGTH, MESSAGE_MAX_LENGTH, ROOM_NAME_MAX_LENGTH
 
 class OBUser(AbstractUser):
     display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)

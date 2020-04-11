@@ -131,7 +131,7 @@ def room(request, room_name):
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
-            context["messages"] = messages if messages.exists() else None
+            context["messages"] = messages
         except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
             print(exception)
             template = "OB/not_room.html"

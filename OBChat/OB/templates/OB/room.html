@@ -55,26 +55,46 @@
     <title>Let's chat!</title>
 </head>
 <body>
+    <!--------------------------------------------------------------------------------------------
+    This is a template for the message div when creating a new message and appending to the log.
+    It is not displayed on the webpage.
+    --------------------------------------------------------------------------------------------->
+    
+    <div class="panel panel-default" id="message-outer-div-template" style="display: none;">
+        <div class=user-icon-div>
+            <img class="user-icon" id="user-icon" alt="user">
+        </div>
+        <div style="display: table-cell;" id="message-inner-div">
+            <p class="display-name"><strong id="display-name"></strong></p>
+            <p id="message-text"></p>
+        </div>
+        <p class="timestamp" id="timestamp"></p>
+    </div>
+    
+    <!--------------------------------------------------------------------------------------------
+    End template
+    --------------------------------------------------------------------------------------------->
+
     <h1>{{ room_name }}</h1>
     <div class="panel log-panel" id="log">
         {% if messages %}
             {% for message in messages %}
-                <div class="panel panel-default" id="message-outer-div">
+                <div class="panel panel-default">
                     <div class=user-icon-div>
-                        <img class="user-icon" src="{% static "favicon.ico" %}" id="user-icon" alt="user"></img>
+                        <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
                     </div>
-                    <div style="display: table-cell;" id="message-inner-div">
-                        <p class="display-name" id="display-name"><strong>
+                    <div style="display: table-cell;">
+                        <p class="display-name"><strong>
                             {% if message.sender.OBUser.display_name %} 
                                 {{ message.sender.OBUser.display_name }} 
                             {% else %} 
                                 {{ message.sender.username }} 
                             {% endif %}
                         </strong></p>
-                        <p id="message-text">{{ message.message }}</p>
+                        <p>{{ message.message }}</p>
                     </div>
-                    <p class="timestamp" id="timestamp">
-                        {{ message.timestamp}}
+                    <p class="timestamp">
+                        {{ message.timestamp }}
                     </p>
                 </div>
             {% endfor %}
@@ -99,18 +119,25 @@
         "/OB/chat/" + roomName + "/");
 
     chatSocket.onmessage = function(e) {
-        var data = JSON.parse(e.data);
-        var message = data["message"];
+        var message = JSON.parse(e.data);
 
-        // Append a message panel to the log
-        var oldMessage = document.getElementById("message-outer-div");
-
-        var newMessage = oldMessage.cloneNode(true);
+        // Copy the message template
+        var messageTemplate = document.getElementById("message-outer-div-template");
+        var newMessage = messageTemplate.cloneNode(true);
+        
+        // Insert the message data
+        newMessage.querySelector("#display-name").innerHTML = message.sender;
+        // TODO: Change this to the user's actual icon
         newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
         newMessage.querySelector("#user-icon").alt = "user";
-        newMessage.querySelector("#message-text").innerHTML = message;
-        newMessage.querySelector("#timestamp").innerHTML = Date.now();
+        newMessage.querySelector("#message-text").innerHTML = message.text;
+        newMessage.querySelector("#timestamp").innerHTML = message.timestamp;
 
+        // Display the message
+        var defaultDisplay = document.getElementById("log").style.display;
+        newMessage.style.display = defaultDisplay;
+
+        // Append the message
         log.appendChild(newMessage);
         log.scrollTop = log.scrollHeight;
     };
@@ -139,6 +166,12 @@
         }));
     };
 
+/* 
+    Messages are now saved to the database when a Consumer receives a WebSocket frame rather than 
+    making a POST request every time a message is sent. See OBConsumer.receive() in consumers.py
+
+    Saving this function so it may be used as a template for a possible future AJAX call
+    
     // AJAX POST the message to be saved or commands to be interpreted
     $(document).ready(function() {
         $("#submit").click(function(e) {
@@ -154,5 +187,6 @@
             input.value = "";
         });
     });
+*/
 </script>
 </html>

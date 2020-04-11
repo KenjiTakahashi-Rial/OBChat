@@ -1,39 +1,54 @@
+import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .enums import GroupTypes
-from .models import Message, OBUser
+from .constants import SYSTEM_USERNAME, GroupTypes, Privilege
+from .models import Admin, Message, OBUser
 
-def get_system_user():
-    return OBUser.objects.get(username="OB-Sys")
+def try_get(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None
 
 def get_group_name(group_type, name, second_name=""):
     switch = {
-        GroupTypes.Invalid: name,
-        GroupTypes.Line: f"{name}_OB-Sys",
-        GroupTypes.Room: f"room_{name}",
-        GroupTypes.Private: f"{min(name, second_name)}_{max(name, second_name)}"
+        GroupTypes.Invalid:
+            name,
+        GroupTypes.Line:
+            f"{name}_OB-Sys",
+        GroupTypes.Room:
+            f"room_{name}",
+        GroupTypes.Private:
+            f"{min(name, second_name)}_{max(name, second_name)}"
     }
 
     return switch[group_type]
 
-def send_room_message(message, sender, room):
+def send_room_message(message_json, room):
     async_to_sync(get_channel_layer().group_send)(
         get_group_name(GroupTypes.Room, room.name),
         {
             "type": "room_message",
-            "message": message
+            "message_json": message_json
         }
     )
 
-    # Save chat message to database
-    if  message:
-        Message(message=message, sender=sender, room=room).save()
+def send_system_room_message(message_text, room):
+    # Save message to database
+    system_user = OBUser.objects.get(username=SYSTEM_USERNAME)
+    message = Message(message=message_text, sender=system_user, room=room)
+    message.save()
 
-def send_system_room_message(message, room):
-    send_room_message(message, get_system_user(), room)
+    message_json = json.dumps({
+        "text": message_text,
+        "sender": SYSTEM_USERNAME,
+        "timestamp": message.timestamp
+    })
 
-def send_private_message(message, sender, recipient):
+    send_room_message(message_json, room)
+
+def send_private_message(message):
     # TODO: Implement this
     pass
 
@@ -52,3 +67,18 @@ def is_command(message):
         return message[0] == "/" and message[1] != "/"
 
     return message and message[0] == "/"
+
+def is_admin(username, room):
+
+    if username == room.owner.username:
+        return Privilege.Owner
+
+    admin_query = try_get(Admin, username=username)
+
+    if admin_query:
+        if admin_query.is_unlimited:
+            return Privilege.UnlimitedAdmin
+
+        return Privilege.Admin
+
+    return Privilege.User

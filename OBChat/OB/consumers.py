@@ -3,11 +3,11 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from OB.commands.command_handler import handle_command
-from .enums import GroupTypes, SystemOperations
+from .constants import GroupTypes, SystemOperations
 from .models import Message, Room
 from .utilities import get_group_name, is_command, send_room_message
 
-class ChatConsumer(WebsocketConsumer):
+class OBConsumer(WebsocketConsumer):
     user = None
     room = None
     room_group_name = None
@@ -49,30 +49,36 @@ class ChatConsumer(WebsocketConsumer):
         super().send(text_data, bytes_data, close)
 
     # Received a message from the client
-    # Send it to this consumer's room group
+    # Send it to this consumer's room group and save it in the database
+    # If the message is a command, handle it
     def receive(self, text_data=None, bytes_data=None):
-        message = json.loads(text_data)["message"]
+        if not text_data and not bytes_data:
+            return
+
+        message_text = json.loads(text_data)["message"]
+
+        # Save message to database
+        message_entry = Message(message=message_text, sender=self.user, room=self.room)
+        message_entry.save()
+
+        message_json = json.dumps({
+            "text": message_text,
+            "sender": self.user.display_name or self.user.username,
+            "timestamp": str(message_entry.timestamp)
+        })
+        print(message_json)
 
         # Send message to room group
-        send_room_message(message, self.user, self.room)
+        send_room_message(message_json, self.room)
 
-        if  message:
-            Message(message=message, sender=self.user, room=self.room).save()
+        # Handle command
+        if is_command(text_data):
+            handle_command(text_data, self.user, self.room)
 
-        if is_command(message):
-            handle_command(message, self.user, self.room)
-
-    # A message was received by another consumer and sent to a group this consumer is in
+    # A message was sent to a group this consumer is in
     def room_message(self, event):
         # Send message to client
-        self.send(text_data=json.dumps({
-            "message": event["message"]
-        }))
-
-    def system_message(self, event):
-        self.send(text_data=json.dumps({
-            "message": event["message"]
-        }))
+        self.send(text_data=event["message_json"])
 
     def system_operation(self, event):
         if event["operation"] == SystemOperations.Kick and event["user"] == self.user:

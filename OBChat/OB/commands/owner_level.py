@@ -1,4 +1,4 @@
-from OB.enums import GroupTypes
+from OB.constants import GroupTypes
 from OB.utilities import send_system_room_message
 
 def delete_room(args, user, room_name):

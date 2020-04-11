@@ -1,15 +1,14 @@
-from OB.enums import GroupTypes, SystemOperations
-from OB.models import Admin, Room, OBUser
+from OB.constants import GroupTypes, SystemOperations
+from OB.models import Admin, OBUser
 from OB.utilities import get_group_name, send_system_room_message, send_system_operation
 
 def kick(args, user, room):
-    current_room = Room.objects.get(room_name)
     valid_kicks = []
     error_messages = []
 
     admin_query = Admin.objects.filter(username=user.username)
-    is_admin = user == current_room.owner or admin_query.exists()
-    is_unlimited = user == current_room.owner or (admin_query.exists() and admin_query.is_unlimited)
+    is_admin = user == room.owner or admin_query.exists()
+    is_unlimited = user == room.owner or (admin_query.exists() and admin_query.is_unlimited)
 
     if not is_admin:
         error_messages += "That's a little outside your pay-grade. Only admins may kick users. \
@@ -22,11 +21,12 @@ def kick(args, user, room):
             admin_query = Admin.objects.filter(user=user_query.first())
 
             if not user_query.exists():
-                error_messages += f"Nobody named \"{username}\" in this room. Are you seeing things?"
+                error_messages += f"Nobody named \"{username}\" in this room. Are you seeing \
+                    things?"
             elif user == user_query.first():
                 error_messages += f"You can't kick yourself. Just leave the room. Or put \
                     yourself on time-out."
-            elif user_query.first() == current_room.owner:
+            elif user_query.first() == room.owner:
                 error_messages += f"That's the owner. You know, your BOSS. Nice try."
             elif admin_query.exists() and not is_unlimited:
                 error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
@@ -40,12 +40,15 @@ def kick(args, user, room):
     send_to_others = []
 
     for kicked_user in valid_kicks:
-        send_system_operation(SystemOperations.Kick, kicked_user, get_group_name(GroupTypes.Room, room.name))
+        send_system_operation(SystemOperations.Kick, kicked_user, get_group_name(GroupTypes.Room, 
+            room.name))
 
-        send_system_room_message(f"You were kicked from {room_name}. Check yourself before you wreck yourself.", room)
+        send_system_room_message(f"You were kicked from {room.name}. Check yourself before you \
+            wreck yourself.", room)
 
-        send_to_sender += f"Kicked {kicked_user.username} from {room_name}. That'll show them."
-        send_to_others += f"{kicked_user.username} was kicked from the room. Let this be a lesson to you all."
+        send_to_sender += f"Kicked {kicked_user.username} from {room.name}. That'll show them."
+        send_to_others += f"{kicked_user.username} was kicked from the room. Let this be a lesson \
+            to you all."
 
     if send_to_sender:
         send_system_room_message("\n".join(send_to_sender), room)
