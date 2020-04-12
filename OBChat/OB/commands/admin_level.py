@@ -1,6 +1,6 @@
-from OB.constants import GroupTypes, SystemOperations
+from OB.constants import GroupTypes
 from OB.models import Admin, OBUser
-from OB.utilities import get_group_name, send_system_room_message, send_system_operation
+from OB.utilities import get_group_name, send_system_room_message, send_room_event
 
 def kick(args, user, room):
     valid_kicks = []
@@ -39,9 +39,11 @@ def kick(args, user, room):
     send_to_sender = error_messages
     send_to_others = []
 
+    kick_event = {"type": "kick"}
+
     for kicked_user in valid_kicks:
-        send_system_operation(SystemOperations.Kick, kicked_user, get_group_name(GroupTypes.Room, 
-            room.name))
+        kick_event["target"] = kicked_user
+        send_room_event(room.name, kick_event)
 
         send_system_room_message(f"You were kicked from {room.name}. Check yourself before you \
             wreck yourself.", room)

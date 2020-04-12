@@ -1,12 +1,12 @@
 import json
 from django.contrib.auth import authenticate, login
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .models import OBUser, Room, Message
+from .utilities import try_get
 
 def sign_up(request):
     if request.method == "GET":
@@ -124,16 +124,15 @@ def room(request, room_name):
     if request.method == "GET":
         context = {"room_name": room_name}
 
-        try:
-            room_entry = Room.objects.get(name=room_name)
+        room_entry = try_get(Room, name=room_name)
+
+        if room_entry:
             messages = Message.objects.filter(room=room_entry)
-            print(message for message in messages)
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
             context["messages"] = messages
-        except (MultipleObjectsReturned, ObjectDoesNotExist) as exception:
-            print(exception)
+        else:
             template = "OB/not_room.html"
 
         return render(request, template, context)

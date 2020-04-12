@@ -8,11 +8,40 @@ from .models import Message, Room
 from .utilities import get_group_name, is_command, send_room_message
 
 class OBConsumer(WebsocketConsumer):
-    user = None
-    room = None
-    room_group_name = None
+    def __init__(self, *args, **kwargs):
+        """
+        Description:
+            Defines the instance variables for this consumer's user, room, and room_group_name.
+
+        Arguments:
+            self (OBConsumer)
+
+        Return values:
+            None
+        """
+
+        self.user = None
+        self.room = None
+        self.room_group_name = None
+
+        super().__init__(*args, **kwargs)
+
+###################################################################################################
+# Connection Methods                                                                              #
+###################################################################################################
 
     def connect(self):
+        """
+        Description:
+            Set the data for a consumer before it accepts an incoming WebSocket.
+
+        Arguments:
+            self (OBConsumer)
+
+        Return values:
+            None
+        """
+
         self.user = self.scope["user"]
 
         room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -29,6 +58,7 @@ class OBConsumer(WebsocketConsumer):
             self.channel_name
         )
 
+        # Add to the occupants list for this room
         room_query = Room.objects.get(name=self.room.name)
         room_query.occupants.add(self.user)
         room_query.save()
@@ -36,37 +66,82 @@ class OBConsumer(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, code):
-        # Leave room group
+        """
+        Description:
+            Leaves the Room group that this consumer was a part of. It will no longer send to or
+            receive from that group. Called when a WebSocket connection is closed.
+
+        Arguments:
+            self (OBConsumer)
+            code: A disconnect code to indicate disconnect conditions
+
+        Return values:
+            None
+        """
+
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
+        print(f"WebSocket disconnected with code {code}.")
 
-    # Send the message to the client
+###################################################################################################
+# Messaging Methods                                                                               #
+###################################################################################################
+
     # pylint: disable=useless-super-delegation
-    # TODO: Revisit this and add to it
+    # It's possible this overridden function will be required later on
     def send(self, text_data=None, bytes_data=None, close=False):
+        """
+        Description:
+            ...
+
+        Arguments:
+            ...
+
+        Return values:
+            ...
+        """
+
         super().send(text_data, bytes_data, close)
 
-    # Received a message from the client
-    # Send it to this consumer's room group and save it in the database
-    # If the message is a command, handle it
     def receive(self, text_data=None, bytes_data=None):
+        """
+        Description:
+            Received a decoded WebSocket frame from the client, NOT from another consumer in this
+            consumers group.
+            Only the consumer whose user sent the message will call this method.
+            This is called first in the process of sending a message.
+            Finally, if the message is acommand (see is_command()), then handle it.
+
+        Arguments:
+            self (OBConsumer)
+            text_data (string): A JSON string containing the message text. Constructed in the JavaScript of
+                room.html.
+            bytes_data: Not used yet, but will contain images or other message contents which
+                cannot be represented by text.
+
+        Return values:
+            None
+        """
+
+        # Skip empty messages
         if not text_data and not bytes_data:
             return
 
-        message_text = json.loads(text_data)["message"]
+        # Decode the JSON
+        message_text = json.loads(text_data)["message_text"]
 
         # Save message to database
         message_entry = Message(message=message_text, sender=self.user, room=self.room)
         message_entry.save()
 
+        # Encode the message data and metadata
         message_json = json.dumps({
             "text": message_text,
             "sender": self.user.display_name or self.user.username,
             "timestamp": str(message_entry.timestamp)
         })
-        print(message_json)
 
         # Send message to room group
         send_room_message(message_json, self.room)
@@ -75,11 +150,39 @@ class OBConsumer(WebsocketConsumer):
         if is_command(text_data):
             handle_command(text_data, self.user, self.room)
 
-    # A message was sent to a group this consumer is in
+###################################################################################################
+# Event Handler Methods                                                                           #
+###################################################################################################
+
     def room_message(self, event):
-        # Send message to client
+        """
+        Description:
+            An event of type "room_message" was sent to a group this consumer is a part of.
+            Send the message JSON to the client associated with this consumer.
+
+        Arguments:
+            self (OBConsumer)
+            event (dict): Contains the message JSON
+
+        Return values:
+            None
+        """
+
         self.send(text_data=event["message_json"])
 
-    def system_operation(self, event):
-        if event["operation"] == SystemOperations.Kick and event["user"] == self.user:
+    def kick(self, event):
+        """
+        Description:
+            An event of type "kick" was sent to a group this consumer is a part of.
+            Perform actions depending on if the user associated with this consumer is specified.
+
+        Arguments:
+            self (OBConsumer)
+            event (dict): Contains the target user
+
+        Return values:
+            None
+        """
+
+        if event["target"] == self.user:
             self.close()

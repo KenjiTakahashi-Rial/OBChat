@@ -114,11 +114,9 @@
 
     log.scrollTop = log.scrollHeight;
 
-    var chatSocket = new WebSocket(
-        "ws://" + window.location.host +
-        "/OB/chat/" + roomName + "/");
+    var socket = new WebSocket("ws://" + window.location.host + "/OB/chat/" + roomName + "/");
 
-    chatSocket.onmessage = function(e) {
+    socket.onmessage = function(e) {
         var message = JSON.parse(e.data);
 
         // Copy the message template
@@ -142,7 +140,7 @@
         log.scrollTop = log.scrollHeight;
     };
 
-    chatSocket.onclose = function(e) {
+    socket.onclose = function(e) {
         console.error("Chat socket closed.");
     };
 
@@ -153,16 +151,16 @@
         }
     };
 
-    // Send the message to other WebSockets in this group
+    // Send the message by WebSocket
     document.querySelector("#submit").onclick = function(e) {
-        var message = input.value.trim();
+        var message_text = input.value.trim();
 
-        if (message === "") {
+        if (message_text === "") {
             return;
         }
 
-        chatSocket.send(JSON.stringify({
-            "message": message
+        socket.send(JSON.stringify({
+            "message_text": message_text
         }));
     };
 
