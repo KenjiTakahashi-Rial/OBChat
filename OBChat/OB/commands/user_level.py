@@ -1,7 +1,20 @@
 from OB.models import Admin, Room, OBUser
-from OB.utilities import send_private_message, send_system_room_message
+from OB.utilities import send_private_message, send_system_room_message, try_get
 
 def who(args, user, room):
+    """
+    Description:
+        Lists all the users currently in a room or sends an error message.
+
+    Arguments:
+        args (list[string])
+        user (OBUser)
+        room (Room)
+
+    Return values:
+        None
+    """
+
     if not args and room is None:
         error_message = "You're not in a room."
     elif len(args) > 1:
@@ -40,14 +53,28 @@ def who(args, user, room):
     send_system_room_message(user_list_string, room)
 
 def private(args, user, room):
+    """
+    Description:
+        Sends a private message to another user or sends an error message.
+
+    Arguments:
+        args (list[string])
+        user (OBUser): Not used, but included as a parameter so the function can be called from the
+            COMMANDS dict.
+        room (Room)
+
+    Return values:
+        None
+    """
+
     if not args:
         error_message = "Usage: /private /<user> <message>"
     elif args[0][0] != '/':
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
-        user_query = OBUser.objects.filter(username=args[0][1:])
+        recipient_object = try_get(OBUser, username=args[0][1:])
 
-    if not user_query.exists():
+    if not recipient_object:
         error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
             into space instead."
     elif len(args) == 1:
@@ -57,14 +84,26 @@ def private(args, user, room):
         send_system_room_message(error_message, room)
         return
 
-    send_to = user_query.first()
-
     # Reconstruct message from args
-    message = " ".join(args[1:])
+    message_text = " ".join(args[1:])
 
-    send_private_message(message, user, send_to)
+    # TODO: Once the function is filled in, put the appropriate arguments
+    send_private_message()
 
 def create_room(args, user, room):
+    """
+    Description:
+        Create a new chat room with the user parameter's argument as the owner.
+
+    Arguments:
+        args (list[string])
+        user (OBUser)
+        room (Room)
+
+    Return values:
+        None
+    """
+
     if not args:
         return_message = "Usage: /room <name>"
     elif not user.is_authenticated:
@@ -74,7 +113,8 @@ def create_room(args, user, room):
     elif Room.objects.filter(name=args).exists():
         return_message = f"Someone beat you to it. \"{args[0]}\" already exists."
     else:
-        Room(name=args, owner=user).save()
+        new_room_object = Room(name=args, owner=user)
+        new_room_object.save()
         return_message = f"Sold! Check out your new room: \"{args[0]}\""
 
     send_system_room_message(return_message, room)

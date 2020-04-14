@@ -40,7 +40,8 @@ def hire(args, user, room):
     send_to_others = []
 
     for hired_user in valid_hires:
-        Admin(user=hired_user, room=room).save()
+        new_admin_object = Admin(user=hired_user, room=room)
+        new_admin_object.save()
 
         send_system_room_message(f"With great power comes great responsibility. You were promoted to admin in \"\
             {room.name}\"!", room)

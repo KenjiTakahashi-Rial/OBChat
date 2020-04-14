@@ -93,14 +93,14 @@ def send_system_room_message(message_text, room):
     """
 
     # Save message to database
-    system_user = OBUser.objects.get(username=SYSTEM_USERNAME)
-    message = Message(message=message_text, sender=system_user, room=room)
-    message.save()
+    system_user_object = OBUser.objects.get(username=SYSTEM_USERNAME)
+    new_message_object = Message(message=message_text, sender=system_user_object, room=room)
+    new_message_object.save()
 
     message_json = json.dumps({
         "text": message_text,
         "sender": SYSTEM_USERNAME,
-        "timestamp": message.timestamp
+        "timestamp": new_message_object.timestamp
     })
 
     # Send the message
@@ -186,7 +186,7 @@ def get_privilege(user, room):
         The Privilege of the user for the room.
     """
 
-    if username == room.owner.username:
+    if user == room.owner:
         return Privilege.Owner
 
     admin_query = try_get(Admin, user=user)

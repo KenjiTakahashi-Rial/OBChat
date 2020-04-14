@@ -5,8 +5,8 @@ from .admin_level import kick, ban, lift_ban
 from .unlimited_admin_level import hire, fire
 from .owner_level import delete_room
 
-# Separate the commands that do the same things into columns
 # pylint: disable=bad-whitespace
+# Separate the commands that do the same things into columns
 COMMANDS = {
     "/room": create_room,   "/r": create_room,
     "/who": who,            "/w": who,
@@ -34,13 +34,27 @@ VALID_COMMANDS = ("Valid commands:\n"
                   "To use backslash without a command: //")
 
 def handle_command(data, user, room):
+    """
+    Description:
+        Tries to execute a command function from the COMMANDS dict with arguments.
+
+    Arguments:
+        data (string): A space-separated string of a command with arguments.
+            ex: "/command arg1 arg2"
+        user (OBUser): The OBUser database object from whom the command originated.
+        room (Room): The Room database object from where the command originated.
+
+    Return values:
+        None
+    """
+    
     # Separate by whitespace to get arguments
     separated = data.split()
     command_name = separated[0]
-    args = separated[1:]
+    arguments = separated[1:]
 
     try:
-        COMMANDS[command_name](args, user, room)
+        COMMANDS[command_name](arguments, user, room)
     except KeyError:
         # Invalid command, send the list of valid commands
         send_system_room_message(VALID_COMMANDS, room)

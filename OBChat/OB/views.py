@@ -9,11 +9,27 @@ from .models import OBUser, Room, Message
 from .utilities import try_get
 
 def sign_up(request):
+    """
+    Description:
+        Handles HTTP requests for the sign-up page.
+        GETs the HTML template for the page.
+        POSTs the user input in the form and returns errors or saves a new OBUser and redirects
+        to the login page.
+
+    Arguments:
+        request (AsgiRequest)
+
+    Return values:
+        The HTML template if GET or if POST and the form had errors.
+        An HTTP response redirecting to the login page if POST and no errors.
+    """
+
     if request.method == "GET":
         template = "OB/sign_up.html"
         return render(request, template)
 
     if request.method == "POST":
+        # Strip all the form data of leading/trailing whitespace
         username = request.POST["username"].strip()
         email = request.POST["email"].strip()
         password = request.POST["password"]
@@ -22,16 +38,9 @@ def sign_up(request):
         last_name = request.POST["last_name"].strip()
         birthday = request.POST["birthday"] if request.POST["birthday"] else None
 
-        template = "OB/sign_up.html"
-        context = {
-            "username": username,
-            "email": email,
-            "display_name": display_name,
-            "first_name": first_name,
-            "last_name": last_name,
-            "birthday": birthday
-        }
+        context = {}
 
+        # Check for errors
         if not all([username, email, password]):
             context["error_message"] = "Please fill out all required fields."
         elif " " in username:
@@ -42,9 +51,20 @@ def sign_up(request):
             context["error_message"] = "Email already in use."
 
         if "error_message" in context:
+            template = "OB/sign_up.html"
+            # Return whichever info was valid to be put back in the form
+            context.update({
+                "username": username,
+                "email": email,
+                "display_name": display_name,
+                "first_name": first_name,
+                "last_name": last_name,
+                "birthday": birthday
+            })
             return render(request, template, context)
 
-        OBUser.objects.create_user(
+        # Save a new OBUser to the database
+        new_user_object = OBUser.objects.create_user(
             username=username,
             email=email,
             password=password,
@@ -52,13 +72,27 @@ def sign_up(request):
             last_name=last_name,
             display_name=display_name,
             birthday=birthday
-        ).save()
+        )
+        new_user_object.save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
-    return None
-
 def log_in(request):
+    """
+    Description:
+        Handles HTTP requests for the login page.
+        GETs the HTML template for the page.
+        POSTs the user input in the form and returns errors or authenticates the user and redirects
+        to the chat list page.
+
+    Arguments:
+        request (AsgiRequest)
+
+    Return values:
+        The HTML template if GET or if POST and the form had errors.
+        An HTTP response redirecting to the chat list page if POST and no errors.
+    """
+
     template = "OB/log_in.html"
 
     if request.method == "GET":
@@ -68,27 +102,54 @@ def log_in(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
+        # Try to authenticate with the data given
         auth_user = authenticate(username=username, password=password)
 
         if auth_user is None:
-            context = {"username": username, "error_message": "Invalid username or password."}
+            context = {
+                "username": username, 
+                "error_message": "Invalid username or password."
+            }
             return render(request, template, context)
 
         login(request, auth_user)
 
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
-    return None
-
 def chat(request):
+    """
+    Description:
+        Handles HTTP requests for the chat list page.
+        GETs the HTML template for the page.
+
+    Arguments:
+        request (AsgiRequest)
+
+    Return values:
+        The HTML template for the chat list.
+    """
+
     if request.method == "GET":
         template = "OB/chat.html"
         context = {"rooms": Room.objects.all()}
         return render(request, template, context)
 
-    return None
-
 def create_room(request):
+    """
+    Description:
+        Handles HTTP requests for the room creation page.
+        GETs the HTML template for the page.
+        POSTs the user input in the form and returns errors or saves a new Room and redirects 
+        to the new room's page.
+
+    Arguments:
+        request (AsgiRequest)
+
+    Return values:
+        The HTML template if GET or if POST and the form had errors.
+        An HTTP response redirecting to the new room's page if POST and no errors.
+    """
+
     if request.method == "GET":
         if request.user.is_authenticated:
             template = "OB/create_room.html"
@@ -118,16 +179,28 @@ def create_room(request):
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
-    return None
-
 def room(request, room_name):
+    """
+    Description:
+        Handles HTTP requests for the chat room page.
+        GETs the HTML template for the page or an error page if it doesn't exist.
+
+    Arguments:
+        request (AsgiRequest)
+        room_name (string): The name of the room which may or may not exist.
+
+    Return values:
+        The HTML template for the room if GET.
+        An error page if GET and the room does not exist.
+    """
+
     if request.method == "GET":
         context = {"room_name": room_name}
 
-        room_entry = try_get(Room, name=room_name)
+        room_object = try_get(Room, name=room_name)
 
-        if room_entry:
-            messages = Message.objects.filter(room=room_entry)
+        if room_object:
+            messages = Message.objects.filter(room=room_object)
 
             template = "OB/room.html"
             context["room_name_json"] = mark_safe(json.dumps(room_name))
@@ -137,17 +210,29 @@ def room(request, room_name):
 
         return render(request, template, context)
 
-    return None
-
 def user(request, username):
+    """
+    Description:
+        Handles HTTP requests for the user info page
+        GETs the HTML template for the page or an error page if it doesn't exist
+        POSTs the user input in the form and returns errors or saves the OBUser
+
+    Arguments:
+        request (AsgiRequest)
+        username (string): The name of the user which may or may not exist.
+
+    Return values:
+        The HTML template for the room if GET or if POST and the form had errors.
+        An error page if GET and the user does not exist.
+        An empty HTTP response if POST and no errors.
+    """
+
     if request.method == "GET":
-        user_query = OBUser.objects.filter(username=username)
+        ob_user_object = try_get(OBUser, username=username)
 
-        if user_query.exists():
-            ob_user_entry = OBUser.objects.get(username=user_query.first().username)
-
+        if ob_user_object:
             template = "OB/user.html"
-            context = {"ob_user": ob_user_entry}
+            context = {"ob_user": ob_user_object}
         else:
             template = "OB/not_user.html"
             context = {}

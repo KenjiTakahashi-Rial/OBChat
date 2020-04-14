@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from OB.commands.command_handler import handle_command
-from .constants import GroupTypes, SystemOperations
+from .constants import GroupTypes
 from .models import Message, Room
 from .utilities import get_group_name, is_command, send_room_message
 
@@ -59,9 +59,9 @@ class OBConsumer(WebsocketConsumer):
         )
 
         # Add to the occupants list for this room
-        room_query = Room.objects.get(name=self.room.name)
-        room_query.occupants.add(self.user)
-        room_query.save()
+        room_object = Room.objects.get(name=self.room.name)
+        room_object.occupants.add(self.user)
+        room_object.save()
 
         self.accept()
 
@@ -116,8 +116,8 @@ class OBConsumer(WebsocketConsumer):
 
         Arguments:
             self (OBConsumer)
-            text_data (string): A JSON string containing the message text. Constructed in the JavaScript of
-                room.html.
+            text_data (string): A JSON string containing the message text. Constructed in the
+            JavaScript of room.html.
             bytes_data: Not used yet, but will contain images or other message contents which
                 cannot be represented by text.
 
@@ -133,14 +133,15 @@ class OBConsumer(WebsocketConsumer):
         message_text = json.loads(text_data)["message_text"]
 
         # Save message to database
-        message_entry = Message(message=message_text, sender=self.user, room=self.room)
-        message_entry.save()
+        new_message_object = Message(message=message_text, sender=self.user, room=self.room)
+        new_message_object.save()
 
         # Encode the message data and metadata
         message_json = json.dumps({
             "text": message_text,
             "sender": self.user.display_name or self.user.username,
-            "timestamp": str(message_entry.timestamp)
+            # TODO: Decide on a format for the timestamp
+            "timestamp": str(new_message_object.timestamp)
         })
 
         # Send message to room group
