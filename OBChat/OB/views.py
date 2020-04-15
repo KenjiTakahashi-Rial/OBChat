@@ -228,11 +228,11 @@ def user(request, username):
     """
 
     if request.method == "GET":
-        ob_user_object = try_get(OBUser, username=username)
+        user_object = try_get(OBUser, username=username)
 
-        if ob_user_object:
+        if user_object:
             template = "OB/user.html"
-            context = {"ob_user": ob_user_object}
+            context = {"ob_user": user_object}
         else:
             template = "OB/not_user.html"
             context = {}

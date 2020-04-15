@@ -1,5 +1,6 @@
+from OB.constants import Privilege
 from OB.models import Admin, OBUser
-from OB.utilities import send_system_room_message
+from OB.utilities import get_privilege, send_system_room_message, try_get
 
 def hire(args, user, room):
     """
@@ -16,43 +17,46 @@ def hire(args, user, room):
         None
     """
 
+    # Check for initial errors
+    if get_privilege(user, room) < Privilege.UnlimitedAdmin:
+        error_message = "That's a little outside your pay-grade. Only unlimited admins may \
+            hire admins. Try to /apply to be unlimited."
+    elif len(args) == 0:
+        error_message = "Usage: /admin <user1> <user2> ..."
+
+    if error_message:
+        send_system_room_message(error_message, room)
+        return
+
     valid_hires = []
     error_messages = []
 
-    is_unlimited = user == room.owner or Admin.objects.filter(
-        username=user.username, is_unlimited=True).exists()
+    for username in args:
+        arg_user_object = try_get(OBUser, username=username)
+        arg_admin_object = try_get(Admin, user=arg_user_object)
 
-    if not is_unlimited:
-        error_messages += "That's a little outside your pay-grade. Only unlimited admins may \
-            hire admins. Try to /apply to be unlimited."
-    elif len(args) == 0:
-        error_messages += "Usage: /admin <user1> <user2> ..."
-    else:
-        for username in args:
-            user_query = OBUser.objects.filter(username=username)
-            admin_query = Admin.objects.filter(user=user_query.first())
+        # Check for per-argument errors
+        if not arg_user_object:
+            error_messages += f"\"{username}\" does not exist. Your imaginary friend needs an \
+                account before they can be an admin."
+        elif arg_user_object == user:
+            error_messages += f"You can't hire yourself. I don't care how good your \
+                letter of recommendation is."
+        elif arg_user_object == room.owner:
+            error_messages += f"That's the owner. You know, your BOSS. Nice try."
+        elif False: # TODO: check for anonymous user
+            error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
+                with the immense responsibility that is adminship."
+        elif arg_admin_object:
+            error_messages += f"{username} already works here. I can't believe you \
+                forgot. Did you mean /promote?"
+        else:
+            valid_hires += arg_user_object
 
-            if not user_query.exists():
-                error_messages += f"\"{username}\" does not exist. Your imaginary friend needs an \
-                    account before they can be an admin."
-            elif user == user_query.first():
-                error_messages += f"You can't hire yourself. I don't care how good your \
-                    letter of recommendation is."
-            elif user_query.first() == room.owner:
-                error_messages += f"That's the owner. You know, your BOSS. Nice try."
-            elif False: # TODO: check for anonymous user
-                error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
-                    with the immense responsibility that is adminship."
-            elif admin_query.exists():
-                error_messages += f"{username} already works for you. I can't believe you \
-                    forgot. Did you mean /promote?"
-            else:
-                valid_hires += user_query
-
-    # Add admin(s) and notify all parties that a user was hired
     send_to_sender = error_messages
     send_to_others = []
 
+    # Make new Admin objects for valid hires (if any) and notify all parties that a user was hired
     for hired_user in valid_hires:
         new_admin_object = Admin(user=hired_user, room=room)
         new_admin_object.save()
@@ -84,44 +88,49 @@ def fire(args, user, room):
         None
     """
 
+    # Check for initial errors
+    if get_privilege(user, room) < Privilege.UnlimitedAdmin:
+        error_message = "That's a little outside your pay-grade. Only unlimited admins may \
+            fire admins. Try to /apply to be unlimited."
+    elif len(args) == 0:
+        error_message = "Usage: /fire <user1> <user2> ..."
+    
+    # Send error message back to the issuing user
+    if error_message:
+        send_system_room_message(error_message, room)
+        return
+
     valid_fires = []
     error_messages = []
 
-    is_unlimited = user == room.owner or Admin.objects.filter(
-        username=user.username, is_unlimited=True).exists()
+    for username in args:
+        arg_user_object = try_get(OBUser, username=username)
+        arg_admin_object = try_get(Admin, user=arg_user_object)
 
-    if not is_unlimited:
-        error_messages += "That's a little outside your pay-grade. Only unlimited admins may \
-            fire admins. Try to /apply to be unlimited."
-    elif len(args) == 0:
-        error_messages += "Usage: /fire <user1> <user2> ..."
-    else:
-        for username in args:
-            user_query = OBUser.objects.filter(username=username)
-            admin_query = Admin.objects.filter(user=user_query.first())
-
-            if not user_query.exists():
-                error_messages += "\"{username}\" does not exist. You can't fire a ghost... can \
-                    you?"
-            elif user == user_query.first():
-                error_messages += "You can't fire yourself. I don't care how bad your \
-                    performance reviews are."
-            elif user_query.first() == room.owner:
-                error_messages += f"That's the owner. You know, your BOSS. Nice try."
-            elif not admin_query.exists():
-                error_messages += f"\"{username}\" is just a regular old user, so you can't fire \
-                    them. You can /ban them if you want."
-            elif not user == room.owner and  not admin_query.first().is_limited:
-                error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
-                     lease direct all complaints to your local room owner, I'm sure they'll \
-                    love some more paperwork to do..."
-            else:
-                valid_fires += (user_query, admin_query)
+        # Check for per-argument errors
+        if not arg_user_object:
+            error_messages += "\"{username}\" does not exist. You can't fire a ghost... can \
+                you?"
+        elif arg_user_object == user:
+            error_messages += "You can't fire yourself. I don't care how bad your \
+                performance reviews are."
+        elif arg_user_object == room.owner:
+            error_messages += f"That's the owner. You know, your BOSS. Nice try."
+        elif not arg_admin_object:
+            error_messages += f"\"{username}\" is just a regular old user, so you can't fire \
+                them. You can /ban them if you want."
+        elif user != room.owner and not arg_admin_object.is_limited:
+            error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
+                please direct all complaints to your local room owner, I'm sure they'll \
+                love some more paperwork to do..."
+        else:
+            valid_fires += (arg_user_object, arg_admin_object)
 
     # Remove admin(s) and notify all parties that a user was fired
     send_to_sender = error_messages
     send_to_others = []
 
+    # Fire valid fires (if any) and notify all parties that a user was fired
     for fired_user in valid_fires:
         fired_user[1].delete()
 

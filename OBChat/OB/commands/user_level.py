@@ -17,19 +17,20 @@ def who(args, user, room):
         None
     """
 
-    if not args and room is None:
-        error_message = "You're not in a room."
-    elif len(args) > 1:
+    # Check for inital errors
+    if len(args) > 1:
         error_message = "Room name cannot contain spaces."
     else:
         args.append(room.name)
 
-    if not Room.objects.filter(name=args[0]).exists():
+    # Check for per-argument errors
+    if not try_get(Room, name=args[0]):
         error_message = f"\"{args[0]}\" doesn't exist, so that probably means nobody is in there."
     else:
         if len(room.occupants.all()) == 0:
             error_message = f"\"{args[0]}\" is all empty!"
 
+    # Send error message back to issuing user
     if error_message:
         send_system_room_message(error_message, room)
         return
@@ -38,20 +39,19 @@ def who(args, user, room):
     user_list_string = f"Chatters in: \"{args[0]}\" ({room.name})\n"
 
     for occupant in room.occupants.all():
-        who_user = occupant.username
+        who_string = occupant.name
 
         # Tag user appropriately
         if occupant == room.owner:
-            user_list_string += " (owner)"
-
-        if Admin.objects.filter(user=user, room=room).exists():
-            user_list_string += " (admin)"
-
+            who_string += " (owner)"
+        if try_get(Admin, user=user, room=room):
+            who_string += " (admin)"
         if occupant == user:
-            user_list_string += " (you)"
+            who_string += " (you)"
 
-        user_list_string += f"\n * {who_user}\nEnd list"
+        user_list_string += who_string + '\n'
 
+    # Send user list back to the issuing user
     send_system_room_message(user_list_string, room)
 
 def private(args, user, room):
@@ -71,6 +71,7 @@ def private(args, user, room):
         None
     """
 
+    # Check for initial errors
     if not args:
         error_message = "Usage: /private /<user> <message>"
     elif args[0][0] != '/':
@@ -78,12 +79,14 @@ def private(args, user, room):
     else:
         recipient_object = try_get(OBUser, username=args[0][1:])
 
+    # Check for per-argument errors
     if not recipient_object:
         error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
             into space instead."
     elif len(args) == 1:
-        error_message = "No message specified. Did you give up halfway through?"
+        error_message = "No message specified. Did you give up at just the username?"
 
+    # Send error message back to issuing user
     if error_message:
         send_system_room_message(error_message, room)
         return
@@ -108,17 +111,25 @@ def create_room(args, user, room):
         None
     """
 
+    # Check for errors
     if not args:
-        return_message = "Usage: /room <name>"
+        error_message = "Usage: /room <name>"
     elif not user.is_authenticated:
-        return_message = "Identify yourself! Must log in to create a room."
+        error_message = "Identify yourself! Must log in to create a room."
     elif len(args) > 1:
-        return_message = "Room name cannot contain spaces."
+        error_message = "Room name cannot contain spaces."
     elif Room.objects.filter(name=args).exists():
-        return_message = f"Someone beat you to it. \"{args[0]}\" already exists."
-    else:
-        new_room_object = Room(name=args, owner=user)
-        new_room_object.save()
-        return_message = f"Sold! Check out your new room: \"{args[0]}\""
+        error_message = f"Someone beat you to it. \"{args[0]}\" already exists."
 
-    send_system_room_message(return_message, room)
+    # Send error message back to issuing user
+    if error_message:
+        send_system_room_message(error_message, room)
+        return
+
+    # Save the new room
+    new_room_object = Room(name=args, owner=user)
+    new_room_object.save()
+
+    # Send success message back to issueing user
+    success_message = f"Sold! Check out your new room: \"{args[0]}\""
+    send_system_room_message(success_message, room)

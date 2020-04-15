@@ -189,10 +189,10 @@ def get_privilege(user, room):
     if user == room.owner:
         return Privilege.Owner
 
-    admin_query = try_get(Admin, user=user)
+    admin_object = try_get(Admin, user=user)
 
-    if admin_query:
-        if admin_query.is_unlimited:
+    if admin_object:
+        if admin_object.is_limited:
             return Privilege.UnlimitedAdmin
 
         return Privilege.Admin
