@@ -2,6 +2,20 @@ from OB.models import Admin, OBUser
 from OB.utilities import send_system_room_message
 
 def hire(args, user, room):
+    """
+    Description:
+        Saves one or more new Admin database objects. The user may issue admin-level commands
+            in the target room.
+
+    Arguments:
+        args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
+
+    Return values:
+        None
+    """
+
     valid_hires = []
     error_messages = []
 
@@ -43,10 +57,11 @@ def hire(args, user, room):
         new_admin_object = Admin(user=hired_user, room=room)
         new_admin_object.save()
 
-        send_system_room_message(f"With great power comes great responsibility. You were promoted to admin in \"\
-            {room.name}\"!", room)
+        send_system_room_message(f"With great power comes great responsibility. You were promoted \
+            to admin in \"{room.name}\"!", room)
 
-        send_to_sender += f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye on them."
+        send_to_sender += f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye \
+            on them."
         send_to_others += f"{hired_user.username} was promoted to admin. Drinks on them!"
 
     if send_to_sender:
@@ -55,6 +70,20 @@ def hire(args, user, room):
         send_system_room_message("\n".join(send_to_others), room)
 
 def fire(args, user, room):
+    """
+    Description:
+        Removes one or more existing Admin database objects. The user may not issue admin-level
+            commands in the target room, only user-level.
+
+    Arguments:
+        args (list[string]): The usernames of OBUsers to fire. Should have length 1 or more.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
+
+    Return values:
+        None
+    """
+
     valid_fires = []
     error_messages = []
 
@@ -96,8 +125,8 @@ def fire(args, user, room):
     for fired_user in valid_fires:
         fired_user[1].delete()
 
-        send_system_room_message(f"Clean out your desk. You lost your adminship at \"{room.name}\".",
-            room)
+        send_system_room_message(f"Clean out your desk. You lost your adminship at \
+            \"{room.name}\".", room)
 
         send_to_sender += f"It had to be done. You fired \"{fired_user[0].username}\""
         send_to_others += f"{fired_user[0].username} was fired! Those budget cuts are killer."

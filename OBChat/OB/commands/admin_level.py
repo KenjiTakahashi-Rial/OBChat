@@ -1,8 +1,21 @@
-from OB.constants import GroupTypes
 from OB.models import Admin, OBUser
-from OB.utilities import get_group_name, send_system_room_message, send_room_event
+from OB.utilities import send_system_room_message, send_room_event
 
 def kick(args, user, room):
+    """
+    Description:
+        Remove one or more OBConsumers from the group a Room is associated with. They will not
+        receive messages from the group until they rejoin the Room.
+
+    Arguments:
+        args (list[string]): The usernames of OBUsers to kick. Should have length 1 or more.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
+
+    Return values:
+        None
+    """
+
     valid_kicks = []
     error_messages = []
 
@@ -60,166 +73,34 @@ def kick(args, user, room):
 def ban(args, user, room):
     """
     Description:
-        Ban one or more users from a room
-        Must have adminship or ownership
+        Remove one or more OBConsumers from the group a Room is associated with and do not allow
+        them to rejoin the group. Bans may be lifted (see lift_ban()).
+
     Arguments:
-        A Server object
-        A list of arguments
-        The client object that issued the command
-    Return Value:
-        True if the command was carried out
-        False if an error occurred
+        args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
+
+    Return values:
+        None
     """
 
-    if len(args) == 0:
-        send_system_room_message("Usage: /ban <user1> <user2> ...", client)
-
-        return False
-
-    if client.room is None:
-        send_system_room_message("Not in a room", client)
-
-        return False
-
-    # Check privileges
-    if client.username != client.room.owner:
-        if client.username not in client.room.admins:
-            send_system_room_message("Insufficient privileges to ban from: " +
-                      client.room.name, client)
-
-            return False
-
-    no_errors = True
-
-    for username in args:
-
-        if username not in self.usernames and username not in self.passwords:
-            send_system_room_message(f"User does not exist: {username}", client)
-
-            no_errors = False
-            continue
-
-        if username in client.room.banned:
-            send_system_room_message(f"User already banned: {username}", client)
-
-            no_errors = False
-            continue
-
-        # Must be owner to ban admin
-        if username in client.room.admins:
-            if client.username != client.room.owner:
-                send_system_room_message("Insufficient privileges to ban admin: " +
-                          f"{username}", client)
-
-                no_errors = False
-                continue
-
-        # Do not allow users to ban themselves
-        if username == client.username:
-            send_system_room_message("Cannot ban self", client)
-
-            no_errors = False
-            continue
-
-        # Owner cannot be banned
-        if username == client.room.owner:
-            send_system_room_message(f"Cannot ban owner: {client.room.owner}",
-                      client)
-
-            no_errors = False
-            continue
-
-        # Get user object
-        user = self.usernames[username]
-
-        # Remove the user first
-        if user in client.room.users:
-            user.room = None
-            user.typing = ""
-            client.room.users.remove(user)
-
-        client.room.banned.append(user.username)
-
-        # Notify all parties that a user was banned
-        if username in self.usernames:
-            send_system_room_message(f"You were banned from: {client.room.name}",
-                      user)
-
-        send_system_room_message(f"Banned user: {username}", client)
-
-        self.distribute(f"{username} was banned",
-                        [client.room.name], None, [client])
-
-    return no_errors
+    # TODO: Implement this
 
 
 def lift_ban(args, user, room):
     """
     Description:
-        Lift ban on a user from a room
-        Must have adminship or ownership
+        Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after
+        being banned. Viewing the user from inside the Room will show they have been banned before.
+
     Arguments:
-        A Server object
-        A list of arguments
-        The client object that issued the command
-    Return Value:
-        True if the command was carried out
-        False if an error occurred
+        args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
+
+    Return values:
+        None
     """
 
-    if len(args) == 0:
-        send_system_room_message("Usage: /lift <user1> <user2> ...", client)
-
-        return False
-
-    if client.room is None:
-        send_system_room_message("Not in a room", client)
-
-        return False
-
-    # Check privileges
-    if client.username != client.room.owner:
-        if client.username not in client.room.admins:
-            send_system_room_message("Insufficient privileges to unban in: " +
-                      client.room.name, client)
-
-            return False
-
-    no_errors = True
-
-    for username in args:
-
-        if username not in self.usernames and username not in self.passwords:
-            send_system_room_message(f"User does not exist: {username}", client)
-
-            no_errors = False
-            continue
-
-        if username not in client.room.banned:
-            send_system_room_message(f"User not banned: {username}", client)
-
-            no_errors = False
-            continue
-
-        # Must be owner to lift ban on admin
-        if username in client.room.admins:
-            if client.username != client.room.owner:
-                send_system_room_message("Insufficient privileges to unban admin: " +
-                          f"{username}", client)
-
-                no_errors = False
-                continue
-
-        client.room.banned.remove(username)
-
-        # Notify all parties that a user was banned
-        if username in self.usernames:
-            send_system_room_message(f"Your were unbanned from: {client.room.name}",
-                      self.usernames[username])
-
-        send_system_room_message(f"Unbanned user: {username}", client)
-
-        self.distribute(f"{username} was unbanned",
-                        [client.room.name], None, [client])
-
-    return no_errors
+    # TODO: Implement this

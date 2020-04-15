@@ -47,7 +47,7 @@ def handle_command(data, user, room):
     Return values:
         None
     """
-    
+
     # Separate by whitespace to get arguments
     separated = data.split()
     command_name = separated[0]

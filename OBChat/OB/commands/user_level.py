@@ -4,12 +4,14 @@ from OB.utilities import send_private_message, send_system_room_message, try_get
 def who(args, user, room):
     """
     Description:
-        Lists all the users currently in a room or sends an error message.
+        Lists all the occupants in a room. Can be called without arguments to list the users of the
+        issuing user's current room.
 
     Arguments:
-        args (list[string])
-        user (OBUser)
-        room (Room)
+        args (list[string]): The name of the Room to list to occupants of. Should have length 0 or
+            1, where 0 implies the room parameter as the argument.
+        user (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was issued in.
 
     Return values:
         None
@@ -55,13 +57,15 @@ def who(args, user, room):
 def private(args, user, room):
     """
     Description:
-        Sends a private message to another user or sends an error message.
+        Sends a private message from the user parameter to another OBUser. The private message will
+        have its own OBConsumer group where only the two users will receive messages.
 
     Arguments:
-        args (list[string])
+        args (list[string]): The first item should be a username prepended with '/' and the
+            following strings should be words in the private message.
         user (OBUser): Not used, but included as a parameter so the function can be called from the
             COMMANDS dict.
-        room (Room)
+        room (Room): The room the command was issued in.
 
     Return values:
         None
@@ -93,12 +97,12 @@ def private(args, user, room):
 def create_room(args, user, room):
     """
     Description:
-        Create a new chat room with the user parameter's argument as the owner.
+        Create a new chat room from a commandline instead of through the website GUI.
 
     Arguments:
-        args (list[string])
-        user (OBUser)
-        room (Room)
+        args (list[string]): The desired name of the new room. Should have length 1.
+        user (OBUser): The OBUser who issued the command call and the owner of the new room.
+        room (Room): The room the command was issued in.
 
     Return values:
         None
