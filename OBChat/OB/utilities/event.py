@@ -9,34 +9,7 @@ from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
 from OB.models import Message, OBUser
-
-def get_group_name(group_type, name, second_name=""):
-    """
-    Description:
-        Get the correctly formatted name of a group as a string.
-
-    Arguments:
-        group_type (GroupType): The type of the desired group name.
-        name (string): The name of the target room or user of this group
-        second_name (string): The name of the second target user. For private messages.
-
-    Return values:
-        A formatted group name string, if the GroupType was valid.
-        Otherwise the name parameter's argument.
-    """
-
-    switch = {
-        GroupTypes.Invalid:
-            name,
-        GroupTypes.Line:
-            f"{name}_OB-Sys",
-        GroupTypes.Room:
-            f"room_{name}",
-        GroupTypes.Private:
-            f"{min(name, second_name)}_{max(name, second_name)}"
-    }
-
-    return switch[group_type]
+from OB.utilities.format import get_group_name
 
 def send_event(event, group_name):
     """
@@ -45,8 +18,8 @@ def send_event(event, group_name):
 
     Arguments:
         event (dict): Contains the event type and variant event data. Each event type must have a
-            corresponding handling method of the same name defined in the consumer class (see 
-            OBConsumer).
+            corresponding handling method of the same name defined in the consumer class (see
+            OB.consumers.OBConsumer).
         group (string): The name of the group to send the event to, as a string (see
             get_group_name()).
 

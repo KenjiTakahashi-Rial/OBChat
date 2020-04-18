@@ -13,7 +13,8 @@ from OB.commands.command_handler import handle_command
 from OB.constants import GroupTypes
 from OB.models import Message, Room
 from OB.utilities.command import is_command
-from OB.utilities.event import get_group_name, send_room_message
+from OB.utilities.event import send_room_message
+from OB.utilities.format import get_datetime_string, get_group_name
 
 class OBConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -150,8 +151,7 @@ class OBConsumer(WebsocketConsumer):
         message_json = json.dumps({
             "text": message_text,
             "sender": self.user.display_name or self.user.username,
-            # TODO: Decide on a format for the timestamp
-            "timestamp": str(new_message_object.timestamp)
+            "timestamp": get_datetime_string(new_message_object.timestamp)
         })
 
         # Send message to room group

@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 
 from OB.models import OBUser, Room, Message
 from OB.utilities.database import try_get
+from OB.utilities.format import get_datetime_string
 
 def chat(request):
     """
@@ -103,11 +104,14 @@ def room(request, room_name):
         room_object = try_get(Room, name=room_name)
 
         if room_object:
-            messages = Message.objects.filter(room=room_object)
+            room_name_json = mark_safe(json.dumps(room_name))
+            message_objects = Message.objects.filter(room=room_object)
+            messages_timestrings = [(message, get_datetime_string(message.timestamp))\
+                                    for message in message_objects]
 
             template = "OB/room.html"
-            context["room_name_json"] = mark_safe(json.dumps(room_name))
-            context["messages"] = messages
+            context["room_name_json"] = room_name_json
+            context["messages"] = messages_timestrings
         else:
             template = "OB/not_room.html"
 

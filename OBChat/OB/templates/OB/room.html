@@ -78,7 +78,7 @@
     <h1>{{ room_name }}</h1>
     <div class="panel log-panel" id="log">
         {% if messages %}
-            {% for message in messages %}
+            {% for message, timestring in messages %}
                 <div class="panel panel-default">
                     <div class=user-icon-div>
                         <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
@@ -94,7 +94,7 @@
                         <p>{{ message.message }}</p>
                     </div>
                     <p class="timestamp">
-                        {{ message.timestamp }}
+                        {{ timestring }}
                     </p>
                 </div>
             {% endfor %}
