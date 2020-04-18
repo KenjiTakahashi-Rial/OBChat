@@ -45,6 +45,8 @@ class OBConsumer(WebsocketConsumer):
         """
         Description:
             Set the data for a consumer before it accepts an incoming WebSocket.
+            Add the OBConsumer's user reference to the OBConsumer's room reference's list of
+            occupants.
 
         Arguments:
             self (OBConsumer)
@@ -72,7 +74,6 @@ class OBConsumer(WebsocketConsumer):
         # Add to the occupants list for this room
         room_object = Room.objects.get(name=self.room.name)
         room_object.occupants.add(self.user)
-        room_object.save()
 
         self.accept()
 
@@ -80,7 +81,10 @@ class OBConsumer(WebsocketConsumer):
         """
         Description:
             Leaves the Room group that this consumer was a part of. It will no longer send to or
-            receive from that group. Called when a WebSocket connection is closed.
+            receive from that group. 
+            Remove the OBConsumer's user reference to the OBConsumer's room reference's list of
+            occupants.
+            Called when a WebSocket connection is closed.
 
         Arguments:
             self (OBConsumer)
@@ -90,11 +94,17 @@ class OBConsumer(WebsocketConsumer):
             None
         """
 
+        # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
+
         print(f"WebSocket disconnected with code {code}.")
+
+        # Remove from the occupants list for this room
+        room_object = Room.objects.get(name=self.room.name)
+        room_object.occupants.remoe(self.user)
 
     ###############################################################################################
     # Messaging Methods                                                                           #
