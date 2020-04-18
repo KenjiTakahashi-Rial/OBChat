@@ -159,6 +159,8 @@
             return;
         }
 
+        input.value = "";
+
         socket.send(JSON.stringify({
             "message_text": message_text
         }));

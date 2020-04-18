@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from OB.constants import ANON_PREFIX
 from OB.models import OBUser
 
 def sign_up(request):

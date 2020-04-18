@@ -5,6 +5,7 @@ These are enums and constant variables used by more than one other file.
 from enum import Enum
 
 SYSTEM_USERNAME = "OB-Sys"
+ANON_PREFIX = "OB-Anon-"
 
 class GroupTypes(Enum):
     Invalid = 0

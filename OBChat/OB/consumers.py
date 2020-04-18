@@ -10,9 +10,10 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from OB.commands.command_handler import handle_command
-from OB.constants import GroupTypes
-from OB.models import Message, Room
+from OB.constants import ANON_PREFIX, GroupTypes
+from OB.models import Message, OBUser, Room
 from OB.utilities.command import is_command
+from OB.utilities.database import try_get
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
 
@@ -20,9 +21,9 @@ class OBConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         """
         Description:
-            Defines the instance variables for this consumer's user, room, and room_group_name.
-            A user may be referenced by only one OBConsumer.
-            A room may be referenced by many OBConsumers.
+            Defines the instance variables for this consumer's session, user, and room.
+            The session and user are unique to each OBConsumer.
+            The room is not unique.
 
         Arguments:
             self (OBConsumer)
@@ -31,9 +32,9 @@ class OBConsumer(WebsocketConsumer):
             None
         """
 
+        self.session = None
         self.user = None
         self.room = None
-        self.room_group_name = None
 
         super().__init__(*args, **kwargs)
 
@@ -55,19 +56,28 @@ class OBConsumer(WebsocketConsumer):
             None
         """
 
-        self.user = self.scope["user"]
+        # Set the session
+        # TODO: Consider pros and cons filesystem/cache/cookie sessions vs database sessions
+        self.session = self.scope["session"]
 
+        # Set the user
+        if self.scope["user"].is_authenticated:
+            self.user = self.scope["user"]
+        else:
+            # Make an OBUser object for this anonymous user's session
+            while try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
+                self.session.cycle_key()
+
+            self.user = OBUser(username=f"{ANON_PREFIX}{self.session.session_key}")
+            self.user.save()
+
+        # Set the room
         room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room = Room.objects.get(name=room_name)
 
-        if self.room.name == f"{self.user.username}-OBLine":
-            self.room_group_name = get_group_name(GroupTypes.Line, self.user.username)
-        else:
-            self.room_group_name = get_group_name(GroupTypes.Room, self.room.name)
-
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
+            get_group_name(GroupTypes.Room, room_name),
             self.channel_name
         )
 
@@ -81,7 +91,7 @@ class OBConsumer(WebsocketConsumer):
         """
         Description:
             Leaves the Room group that this consumer was a part of. It will no longer send to or
-            receive from that group. 
+            receive from that group.
             Remove the OBConsumer's user reference to the OBConsumer's room reference's list of
             occupants.
             Called when a WebSocket connection is closed.
@@ -96,15 +106,20 @@ class OBConsumer(WebsocketConsumer):
 
         # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
+            get_group_name(GroupTypes.Room, self.room.name),
             self.channel_name
         )
 
         print(f"WebSocket disconnected with code {code}.")
 
-        # Remove from the occupants list for this room
-        room_object = Room.objects.get(name=self.room.name)
-        room_object.occupants.remoe(self.user)
+        # Remove from the occupants list for this room and remove the room reference
+        self.room.occupants.remove(self.user)
+        self.room = None
+
+        # Delete anonymous users' temporary OBUser from the database and remove the user reference
+        if not self.session.is_authenticated:
+            self.user.delete()
+            self.user = None
 
     ###############################################################################################
     # Messaging Methods                                                                           #
