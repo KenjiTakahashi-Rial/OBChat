@@ -3,7 +3,8 @@ Any user may perform these commands.
 """
 
 from OB.models import Admin, Room, OBUser
-from OB.utilities import send_private_message, send_system_room_message, try_get
+from OB.utilities.database import try_get
+from OB.utilities.event import send_private_message, send_system_room_message
 
 def who(args, user, room):
     """

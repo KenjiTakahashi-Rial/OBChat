@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from OB.models import OBUser, Room, Message
-from OB.utilities.utilities import try_get
+from OB.utilities.database import try_get
 
 def chat(request):
     """

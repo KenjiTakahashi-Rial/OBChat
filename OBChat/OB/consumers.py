@@ -155,7 +155,7 @@ class OBConsumer(WebsocketConsumer):
         })
 
         # Send message to room group
-        send_room_message(message_json, self.room)
+        send_room_message(message_json, self.room.name)
 
         # Handle command
         if is_command(text_data):
