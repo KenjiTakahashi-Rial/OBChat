@@ -1,12 +1,24 @@
+"""
+Handles HTTP requests depending on the URL the request originated from (see urls.py)
+
+See the Django documentation on view functions for more information.
+https://docs.djangoproject.com/en/3.0/topics/http/views/
+"""
+# TODO: Organize this into a directory with the functions of similar purpose in different files
+
 import json
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .models import OBUser, Room, Message
 from .utilities import try_get
+
+###################################################################################################
+# Authentication                                                                                  #
+###################################################################################################
 
 def sign_up(request):
     """
@@ -77,6 +89,8 @@ def sign_up(request):
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
+    return HttpResponse()
+
 def log_in(request):
     """
     Description:
@@ -116,6 +130,12 @@ def log_in(request):
 
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
+    return HttpResponse()
+
+###################################################################################################
+# Chat Rooms                                                                                      #
+###################################################################################################
+
 def chat(request):
     """
     Description:
@@ -133,6 +153,8 @@ def chat(request):
         template = "OB/chat.html"
         context = {"rooms": Room.objects.all()}
         return render(request, template, context)
+
+    return HttpResponse()
 
 def create_room(request):
     """
@@ -179,6 +201,8 @@ def create_room(request):
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
+    return HttpResponse()
+
 def room(request, room_name):
     """
     Description:
@@ -209,6 +233,12 @@ def room(request, room_name):
             template = "OB/not_room.html"
 
         return render(request, template, context)
+
+    return HttpResponse()
+
+###################################################################################################
+# User                                                                                            #
+###################################################################################################
 
 def user(request, username):
     """
@@ -243,4 +273,4 @@ def user(request, username):
         # TODO: Save changed user data
         return None
 
-    return None
+    return HttpResponse()

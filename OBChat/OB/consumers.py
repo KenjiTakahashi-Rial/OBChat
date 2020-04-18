@@ -1,3 +1,10 @@
+"""
+Consumers manage OBChat's WebSocket communication.
+
+See the Django Channels documentation on Consumers for more information.
+https://channels.readthedocs.io/en/latest/topics/consumers.html
+"""
+
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -12,6 +19,8 @@ class OBConsumer(WebsocketConsumer):
         """
         Description:
             Defines the instance variables for this consumer's user, room, and room_group_name.
+            A user may be referenced by only one OBConsumer.
+            A room may be referenced by many OBConsumers.
 
         Arguments:
             self (OBConsumer)
@@ -26,9 +35,9 @@ class OBConsumer(WebsocketConsumer):
 
         super().__init__(*args, **kwargs)
 
-###################################################################################################
-# Connection Methods                                                                              #
-###################################################################################################
+    ###############################################################################################
+    # Connection Methods                                                                          #
+    ###############################################################################################
 
     def connect(self):
         """
@@ -85,9 +94,9 @@ class OBConsumer(WebsocketConsumer):
         )
         print(f"WebSocket disconnected with code {code}.")
 
-###################################################################################################
-# Messaging Methods                                                                               #
-###################################################################################################
+    ###############################################################################################
+    # Messaging Methods                                                                           #
+    ###############################################################################################
 
     # pylint: disable=useless-super-delegation
     # It's possible this overridden function will be required later on
@@ -151,9 +160,9 @@ class OBConsumer(WebsocketConsumer):
         if is_command(text_data):
             handle_command(text_data, self.user, self.room)
 
-###################################################################################################
-# Event Handler Methods                                                                           #
-###################################################################################################
+    ###############################################################################################
+    # Event Handler Methods                                                                       #
+    ###############################################################################################
 
     def room_message(self, event):
         """

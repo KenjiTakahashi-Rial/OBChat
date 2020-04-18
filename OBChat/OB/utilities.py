@@ -1,9 +1,15 @@
+"""
+Storage for functions that are called in multiple places and are not associated with any particular
+class.
+"""
+# TODO: Organize this into a directory separate files for similar purpose
+
 import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .constants import SYSTEM_USERNAME, GroupTypes, Privilege
-from .models import Admin, Message, OBUser
+from OB.constants import SYSTEM_USERNAME, GroupTypes, Privilege
+from OB.models import Admin, Message, OBUser
 
 def try_get(model, **kwargs):
     """

@@ -1,3 +1,10 @@
+"""
+Manages which models are visible on the site's admin web-console
+
+See the Django documentation on the admin site for more information.
+https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
+"""
+
 from django.contrib import admin
 
 from .models import Admin, Ban, Message, OBUser, Room

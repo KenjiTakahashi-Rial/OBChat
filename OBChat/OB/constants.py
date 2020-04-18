@@ -1,8 +1,8 @@
-from enum import Enum
+"""
+These are enums and constant variables used by more than one other file.
+"""
 
-DISPLAY_NAME_MAX_LENGTH = 15
-MESSAGE_MAX_LENGTH = 100
-ROOM_NAME_MAX_LENGTH = 15
+from enum import Enum
 
 SYSTEM_USERNAME = "OB-Sys"
 

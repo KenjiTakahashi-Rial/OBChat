@@ -1,3 +1,7 @@
+"""
+A user must be the owner of the room to perform these commands.
+"""
+
 from OB.utilities import send_system_room_message
 
 def delete_room(args, user, room):

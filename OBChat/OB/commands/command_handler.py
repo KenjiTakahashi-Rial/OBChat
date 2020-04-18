@@ -1,3 +1,7 @@
+"""
+Handles when a command is issued from a user and redirects to the appropriate command function.
+"""
+
 from OB.utilities import send_system_room_message
 
 from .user_level import create_room, who, private
@@ -7,6 +11,7 @@ from .owner_level import delete_room
 
 # pylint: disable=bad-whitespace
 # Separate the commands that do the same things into columns
+# The values of this dict are command functions
 COMMANDS = {
     "/room": create_room,   "/r": create_room,
     "/who": who,            "/w": who,
@@ -19,7 +24,6 @@ COMMANDS = {
     "/delete": delete_room, "/d": delete_room
 }
 
-# Descriptions of the valid commands
 VALID_COMMANDS = ("Valid commands:\n"
                   "    * /room - Create a new room\n"
                   "    * /who <room> - See who is in a room. Default: current room\n"

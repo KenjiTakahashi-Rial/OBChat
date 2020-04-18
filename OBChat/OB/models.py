@@ -1,8 +1,18 @@
+"""
+Each of these classes is a model for a database object. For each class in this file, there exists a
+table in the database.
+
+See the Django documentation on Models for more information
+https://docs.djangoproject.com/en/3.0/topics/db/models/
+"""
+
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
     ForeignKey, ManyToManyField, Model, TextField
 from django.contrib.auth.models import AbstractUser
 
-from .constants import DISPLAY_NAME_MAX_LENGTH, MESSAGE_MAX_LENGTH, ROOM_NAME_MAX_LENGTH
+DISPLAY_NAME_MAX_LENGTH = 15
+MESSAGE_MAX_LENGTH = 100
+ROOM_NAME_MAX_LENGTH = 15
 
 class OBUser(AbstractUser):
     display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)

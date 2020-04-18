@@ -1,3 +1,10 @@
+"""
+Determines the function in views.py to call when a request is received from a URL
+
+See the Django documentation on the URL dispatcher for more information.
+https://docs.djangoproject.com/en/3.0/topics/http/urls/
+"""
+
 from django.conf.urls import url
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path

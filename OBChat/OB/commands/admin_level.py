@@ -1,3 +1,7 @@
+"""
+A user must be an admin (see models.Admin) of the room to perform these commands.
+"""
+
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities import get_privilege, send_system_room_message, send_room_event, try_get
@@ -58,7 +62,7 @@ def kick(args, user, room):
     # Execute valid kicks (if any) and notify all parties that a user was kicked
     for kicked_user in valid_kicks:
         kick_event = {
-            "type": "kick"
+            "type": "kick",
             "target": kicked_user
         }
 

@@ -1,3 +1,8 @@
+"""
+A user must be an unlimited admin see (models.Admin.is_unlimited) of the room to perform these
+commands.
+"""
+
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities import get_privilege, send_system_room_message, try_get
