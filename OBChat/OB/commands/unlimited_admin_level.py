@@ -5,7 +5,9 @@ commands.
 
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
-from OB.utilities import get_privilege, send_system_room_message, try_get
+from OB.utilities.command import get_privilege
+from OB.utilities.database import try_get
+from OB.utilities.event import send_system_room_message
 
 def hire(args, user, room):
     """

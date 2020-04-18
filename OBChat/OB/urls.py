@@ -9,18 +9,21 @@ from django.conf.urls import url
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path
 from django.views.generic.base import RedirectView
-from . import views
+
+from OB.views.authentication import log_in, sign_up
+from OB.views.room import chat, create_room, room
+from OB.views.user import user
 
 app_name = "OB"
 urlpatterns = [
     url("favicon.ico", RedirectView.as_view(
         url=staticfiles_storage.url("favicon.ico"), 
         permanent=False), name="favicon"),
-    path("sign_up/", views.sign_up, name="OB-sign_up"),
-    path("log_in/", views.log_in, name="OB-log_in"),
-    path("chat/", views.chat, name="OB-chat"),
-    path("", views.chat, name="OB-/"),
-    path("create_room/", views.create_room, name="OB-create_room"),
-    url(r"^chat/(?P<room_name>[-\w]+)/$", views.room, name="OB-room"),
-    url(r"^user/(?P<username>[-\w]+)/$", views.user, name="OB-user")
+    path("sign_up/", sign_up, name="OB-sign_up"),
+    path("log_in/", log_in, name="OB-log_in"),
+    path("chat/", chat, name="OB-chat"),
+    path("", chat, name="OB-/"),
+    path("create_room/", create_room, name="OB-create_room"),
+    url(r"^chat/(?P<room_name>[-\w]+)/$", room, name="OB-room"),
+    url(r"^user/(?P<username>[-\w]+)/$", user, name="OB-user")
 ]

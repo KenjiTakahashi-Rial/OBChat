@@ -4,7 +4,9 @@ A user must be an admin (see models.Admin) of the room to perform these commands
 
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
-from OB.utilities import get_privilege, send_system_room_message, send_room_event, try_get
+from OB.utilities.command import get_privilege
+from OB.utilities.database import try_get
+from OB.utilities.event import send_room_event, send_system_room_message
 
 def kick(args, user, room):
     """

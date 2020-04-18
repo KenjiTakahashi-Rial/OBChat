@@ -2,12 +2,11 @@
 Handles when a command is issued from a user and redirects to the appropriate command function.
 """
 
-from OB.utilities import send_system_room_message
-
-from .user_level import create_room, who, private
-from .admin_level import kick, ban, lift_ban
-from .unlimited_admin_level import hire, fire
-from .owner_level import delete_room
+from OB.commands.user_level import create_room, who, private
+from OB.commands.admin_level import kick, ban, lift_ban
+from OB.commands.unlimited_admin_level import hire, fire
+from OB.commands.owner_level import delete_room
+from OB.utilities.event import send_system_room_message
 
 # pylint: disable=bad-whitespace
 # Separate the commands that do the same things into columns

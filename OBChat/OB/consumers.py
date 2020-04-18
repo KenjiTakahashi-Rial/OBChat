@@ -10,9 +10,10 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from OB.commands.command_handler import handle_command
-from .constants import GroupTypes
-from .models import Message, Room
-from .utilities import get_group_name, is_command, send_room_message
+from OB.constants import GroupTypes
+from OB.models import Message, Room
+from OB.utilities.command import is_command
+from OB.utilities.event import get_group_name, send_room_message
 
 class OBConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
