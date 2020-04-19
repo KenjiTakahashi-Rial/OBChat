@@ -18,8 +18,8 @@ def is_command(command):
         command (string): The string to determine is or is not a command.
 
     Return values:
-        Returns true if the command parameter's argument is a command.
-        Otherwise false.
+        Returns True if the command parameter's argument is a command.
+        Otherwise False.
     """
     if len(command) > 1:
         return command[0] == '/' and command[1] != '/'

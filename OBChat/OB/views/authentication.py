@@ -11,7 +11,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from OB.constants import ANON_PREFIX
 from OB.models import OBUser
 
 def sign_up(request):
@@ -70,7 +69,7 @@ def sign_up(request):
             return render(request, template, context)
 
         # Save a new OBUser to the database
-        new_user_object = OBUser.objects.create_user(
+        new_user = OBUser.objects.create_user(
             username=username,
             email=email,
             password=password,
@@ -79,7 +78,7 @@ def sign_up(request):
             display_name=display_name,
             birthday=birthday
         )
-        new_user_object.save()
+        new_user.save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
@@ -115,7 +114,7 @@ def log_in(request):
 
         if auth_user is None:
             context = {
-                "username": username, 
+                "username": username,
                 "error_message": "Invalid username or password."
             }
             return render(request, template, context)
