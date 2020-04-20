@@ -4,14 +4,13 @@ particular instance of a class.
 """
 
 import json
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
 from OB.models import Message, OBUser
 from OB.utilities.format import get_group_name
 
-def send_event(event, group_name):
+async def send_event(event, group_name):
     """
     Description:
         Distributes an event to a consumer group.
@@ -27,10 +26,9 @@ def send_event(event, group_name):
         None
     """
 
-    # TODO: Consider making this asyncronous
-    async_to_sync(get_channel_layer().group_send)(group_name, event)
+    await get_channel_layer().group_send(group_name, event)
 
-def send_room_event(room_name, event):
+async def send_room_event(room_name, event):
     """
     Description:
         Distributes an event to the consumer group associated with a room.
@@ -45,9 +43,9 @@ def send_room_event(room_name, event):
         None
     """
 
-    send_event(event, get_group_name(GroupTypes.Room, room_name))
+    await send_event(event, get_group_name(GroupTypes.Room, room_name))
 
-def send_room_message(message_json, room_name):
+async def send_room_message(message_json, room_name):
     """
     Description:
         Send an event of type "room_message", to a specified room (see OBConsumer.room_message()).
@@ -66,9 +64,9 @@ def send_room_message(message_json, room_name):
         "message_json": message_json
     }
 
-    send_room_event(room_name, event)
+    await send_room_event(room_name, event)
 
-def send_system_room_message(message_text, room):
+async def send_system_room_message(message_text, room):
     """
     Description:
         Send a message from the server to a specified room's group (see send_room_message()) with
@@ -85,7 +83,10 @@ def send_system_room_message(message_text, room):
 
     # Save message to database
     system_user_object = OBUser.objects.get(username=SYSTEM_USERNAME)
-    new_message_object = Message(message=message_text, sender=system_user_object, room=room)
+    new_message_object = Message(
+        message=message_text,
+        sender=system_user_object,
+        room=room)
     new_message_object.save()
 
     message_json = json.dumps({
@@ -95,9 +96,9 @@ def send_system_room_message(message_text, room):
     })
 
     # Send the message
-    send_room_message(message_json, room.name)
+    await send_room_message(message_json, room.name)
 
-def send_private_message():
+async def send_private_message():
     """
     Description:
         ...

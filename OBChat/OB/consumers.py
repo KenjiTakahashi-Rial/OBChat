@@ -6,18 +6,17 @@ https://channels.readthedocs.io/en/latest/topics/consumers.html
 """
 
 import json
-from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Message, OBUser, Room
 from OB.utilities.command import is_command
-from OB.utilities.database import try_get
+from OB.utilities.database import sync_add, sync_delete, sync_get, sync_remove, sync_save, try_get
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
 
-class OBConsumer(WebsocketConsumer):
+class OBConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         """
         Description:
@@ -42,7 +41,7 @@ class OBConsumer(WebsocketConsumer):
     # Connection Methods                                                                          #
     ###############################################################################################
 
-    def connect(self):
+    async def connect(self):
         """
         Description:
             Set the data for a consumer before it accepts an incoming WebSocket.
@@ -73,21 +72,21 @@ class OBConsumer(WebsocketConsumer):
 
         # Set the room
         room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room = Room.objects.get(name=room_name)
+        self.room = await sync_get(Room, name=room_name)
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             get_group_name(GroupTypes.Room, room_name),
             self.channel_name
         )
 
         # Add to the occupants list for this room
-        room_object = Room.objects.get(name=self.room.name)
-        room_object.occupants.add(self.user)
+        room_object = await sync_get(Room, name=self.room.name)
+        await sync_add(room_object.occupants, self.user)
 
         self.accept()
 
-    def disconnect(self, code):
+    async def disconnect(self, code):
         """
         Description:
             Leaves the Room group that this consumer was a part of. It will no longer send to or
@@ -105,7 +104,7 @@ class OBConsumer(WebsocketConsumer):
         """
 
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             get_group_name(GroupTypes.Room, self.room.name),
             self.channel_name
         )
@@ -113,35 +112,19 @@ class OBConsumer(WebsocketConsumer):
         print(f"WebSocket disconnected with code {code}.")
 
         # Remove from the occupants list for this room and remove the room reference
-        self.room.occupants.remove(self.user)
+        await sync_remove(self.room.occupants, self.user)
         self.room = None
 
         # Delete anonymous users' temporary OBUser from the database and remove the user reference
         if not self.session.is_authenticated:
-            self.user.delete()
+            await sync_delete(self.user)
             self.user = None
 
     ###############################################################################################
     # Messaging Methods                                                                           #
     ###############################################################################################
 
-    # pylint: disable=useless-super-delegation
-    # It's possible this overridden function will be required later on
-    def send(self, text_data=None, bytes_data=None, close=False):
-        """
-        Description:
-            ...
-
-        Arguments:
-            ...
-
-        Return values:
-            ...
-        """
-
-        super().send(text_data, bytes_data, close)
-
-    def receive(self, text_data=None, bytes_data=None):
+    async def receive(self, text_data=None, bytes_data=None):
         """
         Description:
             Received a decoded WebSocket frame from the client, NOT from another consumer in this
@@ -169,8 +152,12 @@ class OBConsumer(WebsocketConsumer):
         message_text = json.loads(text_data)["message_text"]
 
         # Save message to database
-        new_message_object = Message(message=message_text, sender=self.user, room=self.room)
-        new_message_object.save()
+        new_message_object = await sync_save(
+            Message,
+            message=message_text,
+            sender=self.user,
+            room=self.room
+        )
 
         # Encode the message data and metadata
         message_json = json.dumps({
@@ -190,7 +177,7 @@ class OBConsumer(WebsocketConsumer):
     # Event Handler Methods                                                                       #
     ###############################################################################################
 
-    def room_message(self, event):
+    async def room_message(self, event):
         """
         Description:
             An event of type "room_message" was sent to a group this consumer is a part of.
@@ -204,9 +191,9 @@ class OBConsumer(WebsocketConsumer):
             None
         """
 
-        self.send(text_data=event["message_json"])
+        await self.send(text_data=event["message_json"])
 
-    def kick(self, event):
+    async def kick(self, event):
         """
         Description:
             An event of type "kick" was sent to a group this consumer is a part of.
@@ -221,4 +208,4 @@ class OBConsumer(WebsocketConsumer):
         """
 
         if event["target"] == self.user:
-            self.close()
+            await self.close()

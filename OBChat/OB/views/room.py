@@ -77,7 +77,8 @@ def create_room(request):
             context["error_message"] = "Room name already in use."
             return render(request, template, context)
 
-        Room(name=room_name, owner=owner).save()
+        new_room_object = Room(name=room_name, owner=owner)
+        new_room_object.save()
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
