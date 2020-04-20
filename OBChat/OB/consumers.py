@@ -12,9 +12,11 @@ from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Message, OBUser, Room
 from OB.utilities.command import is_command
-from OB.utilities.database import sync_add, sync_delete, sync_get, sync_remove, sync_save, try_get
+from OB.utilities.database import sync_add, sync_delete, sync_get, sync_remove, sync_save,\
+    sync_try_get
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
+from OB.utilities.session import sync_cycle_key
 
 class OBConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -64,11 +66,10 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = self.scope["user"]
         else:
             # Make an OBUser object for this anonymous user's session
-            while try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
-                self.session.cycle_key()
+            while await sync_try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
+                await sync_cycle_key(self.session)
 
-            self.user = OBUser(username=f"{ANON_PREFIX}{self.session.session_key}")
-            self.user.save()
+            self.user = await sync_save(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}")
 
         # Set the room
         room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -84,7 +85,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         room_object = await sync_get(Room, name=self.room.name)
         await sync_add(room_object.occupants, self.user)
 
-        self.accept()
+        await self.accept()
 
     async def disconnect(self, code):
         """
@@ -116,7 +117,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         self.room = None
 
         # Delete anonymous users' temporary OBUser from the database and remove the user reference
-        if not self.session.is_authenticated:
+        if not self.user.is_authenticated:
             await sync_delete(self.user)
             self.user = None
 
@@ -167,7 +168,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         })
 
         # Send message to room group
-        send_room_message(message_json, self.room.name)
+        await send_room_message(message_json, self.room.name)
 
         # Handle command
         if is_command(text_data):

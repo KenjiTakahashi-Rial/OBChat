@@ -8,7 +8,7 @@ from OB.utilities.command import get_privilege
 from OB.utilities.database import try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
-def kick(args, user, room):
+async def kick(args, user, room):
     """
     Description:
         Remove one or more OBConsumers from the group a Room is associated with. They will not
@@ -32,7 +32,7 @@ def kick(args, user, room):
     
     # Send error message back to the issuing user
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     valid_kicks = []
@@ -70,7 +70,7 @@ def kick(args, user, room):
 
         send_room_event(room.name, kick_event)
 
-        send_system_room_message(f"You were kicked from {room.name}. Check yourself before you \
+        await send_system_room_message(f"You were kicked from {room.name}. Check yourself before you \
             wreck yourself.", room)
 
         send_to_sender += f"Kicked {kicked_user.username} from {room.name}. That'll show them."
@@ -78,11 +78,11 @@ def kick(args, user, room):
             to you all."
 
     if send_to_sender:
-        send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room)
     if send_to_others:
-        send_system_room_message("\n".join(send_to_others), room)
+        await send_system_room_message("\n".join(send_to_others), room)
 
-def ban(args, user, room):
+async def ban(args, user, room):
     """
     Description:
         Remove one or more OBConsumers from the group a Room is associated with and do not allow
@@ -100,7 +100,7 @@ def ban(args, user, room):
     # TODO: Implement this
 
 
-def lift_ban(args, user, room):
+async def lift_ban(args, user, room):
     """
     Description:
         Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after

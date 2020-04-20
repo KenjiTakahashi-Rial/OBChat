@@ -5,6 +5,8 @@ particular instance of a class.
 
 from channels.db import database_sync_to_async
 
+from OB.models import OBUser
+
 def try_get(model, **kwargs):
     """
     Description:
@@ -29,6 +31,23 @@ def try_get(model, **kwargs):
         return None
 
 @database_sync_to_async
+def sync_try_get(model, **kwargs):
+    """
+    Description:
+        Allows an asynchronous function to safely retreive a single database object.
+
+    Arguments:
+        model (Class): A database model class (see OB.models.py).
+        kwargs: Class variable values to use for the database query.
+
+    Return values:
+        A single database object whose class variable values match the kwargs, if it exists.
+        Otherwise None.
+    """
+
+    return try_get(model, **kwargs)
+
+@database_sync_to_async
 def sync_get(model, **kwargs):
     """
     Description:
@@ -39,8 +58,7 @@ def sync_get(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A single database object whose class variable values match the kwargs, if it exists.
-        Otherwise None.
+        A single database object whose class variable values match the kwargs
     """
 
     return model.objects.get(**kwargs)
@@ -59,7 +77,11 @@ def sync_save(model, **kwargs):
         The newly created database object.
     """
 
-    new_database_object = model(**kwargs)
+    if model is OBUser:
+        new_database_object = OBUser.objects.create_user(**kwargs)
+    else:
+        new_database_object = model(**kwargs)
+
     new_database_object.save()
     return new_database_object
 

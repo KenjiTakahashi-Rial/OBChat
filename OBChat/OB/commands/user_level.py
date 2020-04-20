@@ -6,7 +6,7 @@ from OB.models import Admin, Room, OBUser
 from OB.utilities.database import try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
-def who(args, user, room):
+async def who(args, user, room):
     """
     Description:
         Lists all the occupants in a room. Can be called without arguments to list the users of the
@@ -37,7 +37,7 @@ def who(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     # Iterate through users in room
@@ -57,9 +57,9 @@ def who(args, user, room):
         user_list_string += who_string + '\n'
 
     # Send user list back to the issuing user
-    send_system_room_message(user_list_string, room)
+    await send_system_room_message(user_list_string, room)
 
-def private(args, user, room):
+async def private(args, user, room):
     """
     Description:
         Sends a private message from the user parameter to another OBUser. The private message will
@@ -93,16 +93,16 @@ def private(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     # Reconstruct message from args
     message_text = " ".join(args[1:])
 
     # TODO: Once the function is filled in, put the appropriate arguments
-    send_private_message()
+    await send_private_message()
 
-def create_room(args, user, room):
+async def create_room(args, user, room):
     """
     Description:
         Create a new chat room from a commandline instead of through the website GUI.
@@ -128,7 +128,7 @@ def create_room(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     # Save the new room
@@ -137,4 +137,4 @@ def create_room(args, user, room):
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: \"{args[0]}\""
-    send_system_room_message(success_message, room)
+    await send_system_room_message(success_message, room)

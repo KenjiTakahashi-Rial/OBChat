@@ -36,7 +36,7 @@ VALID_COMMANDS = ("Valid commands:\n"
                   "Type backslash with only the first letter of a command if you're in a hurry.\n"
                   "To use backslash without a command: //")
 
-def handle_command(data, user, room):
+async def handle_command(data, user, room):
     """
     Description:
         Tries to execute a command function from the COMMANDS dict with arguments.
@@ -57,7 +57,7 @@ def handle_command(data, user, room):
     arguments = separated[1:]
 
     try:
-        COMMANDS[command_name](arguments, user, room)
+        await COMMANDS[command_name](arguments, user, room)
     except KeyError:
         # Invalid command, send the list of valid commands
-        send_system_room_message(VALID_COMMANDS, room)
+        await send_system_room_message(VALID_COMMANDS, room)

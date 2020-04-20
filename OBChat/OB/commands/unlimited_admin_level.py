@@ -9,7 +9,7 @@ from OB.utilities.command import get_privilege
 from OB.utilities.database import try_get
 from OB.utilities.event import send_system_room_message
 
-def hire(args, user, room):
+async def hire(args, user, room):
     """
     Description:
         Saves one or more new Admin database objects. The user may issue admin-level commands
@@ -32,7 +32,7 @@ def hire(args, user, room):
         error_message = "Usage: /admin <user1> <user2> ..."
 
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     valid_hires = []
@@ -51,7 +51,7 @@ def hire(args, user, room):
                 letter of recommendation is."
         elif arg_user_object == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
-        elif False: # TODO: check for anonymous user
+        elif not user.is_authenticated:
             error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
                 with the immense responsibility that is adminship."
         elif arg_admin_object:
@@ -68,19 +68,19 @@ def hire(args, user, room):
         new_admin_object = Admin(user=hired_user, room=room)
         new_admin_object.save()
 
-        send_system_room_message(f"With great power comes great responsibility. You were promoted \
-            to admin in \"{room.name}\"!", room)
+        await send_system_room_message(f"With great power comes great responsibility. You were \
+            promoted to admin in \"{room.name}\"!", room)
 
         send_to_sender += f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye \
             on them."
         send_to_others += f"{hired_user.username} was promoted to admin. Drinks on them!"
 
     if send_to_sender:
-        send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room)
     if send_to_others:
-        send_system_room_message("\n".join(send_to_others), room)
+        await send_system_room_message("\n".join(send_to_others), room)
 
-def fire(args, user, room):
+async def fire(args, user, room):
     """
     Description:
         Removes one or more existing Admin database objects. The user may not issue admin-level
@@ -101,10 +101,10 @@ def fire(args, user, room):
             fire admins. Try to /apply to be unlimited."
     elif len(args) == 0:
         error_message = "Usage: /fire <user1> <user2> ..."
-    
+
     # Send error message back to the issuing user
     if error_message:
-        send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room)
         return
 
     valid_fires = []
@@ -141,13 +141,13 @@ def fire(args, user, room):
     for fired_user in valid_fires:
         fired_user[1].delete()
 
-        send_system_room_message(f"Clean out your desk. You lost your adminship at \
+        await send_system_room_message(f"Clean out your desk. You lost your adminship at \
             \"{room.name}\".", room)
 
         send_to_sender += f"It had to be done. You fired \"{fired_user[0].username}\""
         send_to_others += f"{fired_user[0].username} was fired! Those budget cuts are killer."
 
     if send_to_sender:
-        send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room)
     if send_to_others:
-        send_system_room_message("\n".join(send_to_others), room)
+        await send_system_room_message("\n".join(send_to_others), room)
