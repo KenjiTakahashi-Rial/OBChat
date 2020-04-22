@@ -34,7 +34,7 @@ def user(request, username):
 
         if user_object:
             template = "OB/user.html"
-            context = {"ob_user": user_object}
+            context = {"user": user_object}
         else:
             template = "OB/not_user.html"
             context = {}
