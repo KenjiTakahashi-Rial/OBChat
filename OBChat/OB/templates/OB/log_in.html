@@ -1,36 +1,39 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>
-      Secret Handshake
-    </title>
-  </head>
-  <body>
-    <h1>
-      {% if not error_message %}
-        What's the password?
-      {% else %}
-        You dun goof'd
-      {% endif %}
-    </h1>
+<!-------------------------------------------------------------------------------------------------
+Log-in page
+-------------------------------------------------------------------------------------------------->
 
-    {% if error_message %}
-      <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+{% extends "OB/base.html" %}
+
+{% block head %}
+  <title>
+    Secret Handshake
+  </title>
+{% endblock %}
+
+{% block body %}
+  <h1>
+    {% if not error_message %}
+      What's the password?
+    {% else %}
+      You dun goof'd
     {% endif %}
+  </h1>
 
-    <form action="{% url 'OB:OB-log_in' %}" method="post">
-      {% csrf_token %}
-      <label>Username</label><br>
-      <input type="text" name="username" placeholder="OB"
-           value="{% if username %}{{ username }}{% endif %}"><br>
+  {% if error_message %}
+    <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+  {% endif %}
 
-      <label>Password</label><br>
-      <input type="password" name="password"><br><br>
+  <form action="{% url 'OB:OB-log_in' %}" method="post">
+    {% csrf_token %}
+    <label>Username</label><br>
+    <input type="text" name="username" placeholder="OB"
+          value="{% if username %}{{ username }}{% endif %}"><br>
 
-      <input type="submit" value="Submit">
-    </form><br>
+    <label>Password</label><br>
+    <input type="password" name="password"><br><br>
 
-    <p>You still don't have an account? <a href="{% url 'OB:OB-sign_up' %}">Click here to join the coolest site on the web!</a></p>
-  </body>
-</html>
+    <input type="submit" value="Submit">
+  </form><br>
+
+  <p>You still don't have an account? <a href="{% url 'OB:OB-sign_up' %}">Click here to join the coolest site on the web!</a></p>
+{% endblock %}

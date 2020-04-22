@@ -1,30 +1,33 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>
-      OB a room
-    </title>
-  </head>
-  <body>
-    <h1>
-      {% if not error_message %}
-        It's aliiive!
-      {% else %}
-        Yikes
-      {% endif %}
-    </h1>
+<!-------------------------------------------------------------------------------------------------
+Allows an authenticated user to create a new room
+-------------------------------------------------------------------------------------------------->
 
-    {% if error_message %}
-      <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+{% extends "OB/base.html" %}
+
+{% block head %}
+  <title>
+    OB a room
+  </title>
+{% endblock %}
+
+{% block body %}
+  <h1>
+    {% if not error_message %}
+      It's aliiive!
+    {% else %}
+      Yikes
     {% endif %}
+  </h1>
 
-    <form action="{% url 'OB:OB-create_room' %}" method="post">
-      {% csrf_token %}
-      <label>Room Name</label><br>
-      <input type="text" name="room_name" placeholder="OBChat"
-           value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
-      <input type="submit" value="Submit">
-    </form>
-  </body>
-</html>
+  {% if error_message %}
+    <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+  {% endif %}
+
+  <form action="{% url 'OB:OB-create_room' %}" method="post">
+    {% csrf_token %}
+    <label>Room Name</label><br>
+    <input type="text" name="room_name" placeholder="OBChat"
+          value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}

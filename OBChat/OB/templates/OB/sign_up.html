@@ -1,50 +1,53 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>
-      Good choice
-    </title>
-  </head>
-  <body>
-    <h1>Welcome to the club!</h1>
+<!-------------------------------------------------------------------------------------------------
+Sign-up page
+-------------------------------------------------------------------------------------------------->
 
-    {% if error_message %}
-      <p><font color="red"><strong>{{ error_message }}</strong></font></p>
-    {% endif %}
+{% extends "OB/base.html" %}
 
-    <form action="{% url 'OB:OB-sign_up' %}" method="post">
-      {% csrf_token %}
-      <label>Username</label><br>
-      <input type="text" name="username" placeholder="OB"
-           value="{% if username %} {{ username }} {% endif %}"><br>
+{% block head %}
+  <title>
+    Good choice
+  </title>
+{% endblock %}
 
-      <label>Email</label><br>
-      <input type="email" name="email" placeholder="kenji.ob.taka@gmail.com"
-           value="{% if email %} {{ email }} {% endif %}"><br>
+{% block body %}
+<h1>Welcome to the club!</h1>
 
-      <label>Password</label><br>
-      <input type="password" name="password"><br>
+  {% if error_message %}
+    <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+  {% endif %}
 
-      <br>
+  <form action="{% url 'OB:OB-sign_up' %}" method="post">
+    {% csrf_token %}
+    <label>Username</label><br>
+    <input type="text" name="username" placeholder="OB"
+          value="{% if username %} {{ username }} {% endif %}"><br>
 
-      <label>Display Name</label><br>
-      <input type="text" name="display_name" placeholder="OB"
-           value="{% if display_name %} {{ display_name }} {% endif %}"><br>
+    <label>Email</label><br>
+    <input type="email" name="email" placeholder="kenji.ob.taka@gmail.com"
+          value="{% if email %} {{ email }} {% endif %}"><br>
 
-      <label>First Name</label><br>
-      <input type="text" name="first_name" placeholder="Kenji"
-           value="{% if first_name %} {{ first_name }} {% endif %}"><br>
+    <label>Password</label><br>
+    <input type="password" name="password"><br>
 
-      <label>Last Name</label><br>
-      <input type="text" name="last_name" placeholder="Takahashi-Rial"
-           value="{% if last_name %} {{ last_name }} {% endif %}"><br>
+    <br>
 
-      <label>Birthday</label><br>
-      <input type="date" name="birthday" 
-           value="{% if birthday %} {{ birthday }} {% endif %}"><br><br>
+    <label>Display Name</label><br>
+    <input type="text" name="display_name" placeholder="OB"
+          value="{% if display_name %} {{ display_name }} {% endif %}"><br>
 
-      <input type="submit" value="Submit">
-    </form>
-  </body>
-</html>
+    <label>First Name</label><br>
+    <input type="text" name="first_name" placeholder="Kenji"
+          value="{% if first_name %} {{ first_name }} {% endif %}"><br>
+
+    <label>Last Name</label><br>
+    <input type="text" name="last_name" placeholder="Takahashi-Rial"
+          value="{% if last_name %} {{ last_name }} {% endif %}"><br>
+
+    <label>Birthday</label><br>
+    <input type="date" name="birthday" 
+          value="{% if birthday %} {{ birthday }} {% endif %}"><br><br>
+
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}

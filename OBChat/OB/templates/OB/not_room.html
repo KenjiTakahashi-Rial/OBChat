@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>
-      A room for ghosts?
-    </title>
-  </head>
-  <body>
+<!-------------------------------------------------------------------------------------------------
+When a room with the name in the URL cannot be found
+-------------------------------------------------------------------------------------------------->
+
+{% extends "OB/base.html" %}
+
+{% block head %}
+  <title>
+    A room for ghosts?
+  </title>
+{% endblock %}
+
+{% block body %}
     <h1>Nope!</h1>
     <p>We couldn't find that room for you. Maybe it's a ghost room...</p>
     <p>3spooky5me! <a href="{% url 'OB:OB-chat' %}">Run away!</a>
-  </body>
-</html>
+{% endblock %}

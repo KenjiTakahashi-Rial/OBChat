@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>
-      Missing Person
-    </title>
-  </head>
-  <body>
-    <h1>Mysterious...</h1>
-    <p>Nobody by that username is in our database. They say a database never forgets.</p>
-    <a href="{% url 'OB:OB-chat' %}">Time to chat with people who DO exist!</a>
-  </body>
-</html>
+<!-------------------------------------------------------------------------------------------------
+When a user with the username in the URL cannot be found
+-------------------------------------------------------------------------------------------------->
+
+{% extends "OB/base.html" %}
+
+{% block head %}
+  <title>
+    Missing Person
+  </title>
+{% endblock %}
+
+{% block body %}
+  <h1>Mysterious...</h1>
+  <p>Nobody by that username is in our database. They say a database never forgets.</p>
+  <a href="{% url 'OB:OB-chat' %}">Time to chat with people who DO exist!</a>
+{% endblock %}
