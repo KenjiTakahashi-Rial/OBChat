@@ -1,192 +1,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
-    
-    {% load static %}
-    <script src="{% static "cookie.js" %}"></script>
-     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
-    
-    <style>
-        /* TODO: Change measurements to percent later on */
-        .log-panel {
-            min-height: 350px;
-            max-height: 350px;
-            max-width: 1000px;
-            min-width: 1000px;
-            overflow: auto;
-        }
-        .user-icon {
-            min-height: 50px;
-            max-height: 50px;
-            min-width: 50px;
-            max-width: 50px;
-        }
-        .user-icon-div {
-            min-width: 75px;
-            max-width: 75px;
-            display: table-cell;
-        }
-        .display-name {
-            min-height: 30px;
-            max-height: 30px;
-        }
-        .timestamp {
-            display: table-cell;
-            float: right;
-        }
-        .message-input {
-            min-width: 900px;
-            max-width: 900px;
-            overflow: auto;
-            float: left;
-        }
-        .send-button {
-            max-width: 100px;
-            min-width: 100px;
-        }
-    </style>
+  <meta charset="utf-8"/>
+  
+  {% load static %}
+  <script src="{% static "cookie.js" %}"></script>
+   <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+  
+  <style>
+    /* TODO: Change measurements to percent and move this to a .css later on */
+    .log-panel {
+      min-height: 350px;
+      max-height: 350px;
+      max-width: 1000px;
+      min-width: 1000px;
+      overflow: auto;
+    }
+    .user-icon {
+      min-height: 50px;
+      max-height: 50px;
+      min-width: 50px;
+      max-width: 50px;
+    }
+    .user-icon-div {
+      min-width: 75px;
+      max-width: 75px;
+      display: table-cell;
+    }
+    .display-name {
+      min-height: 30px;
+      max-height: 30px;
+    }
+    .timestamp {
+      display: table-cell;
+      float: right;
+    }
+    .message-input {
+      min-width: 900px;
+      max-width: 900px;
+      overflow: auto;
+      float: left;
+    }
+    .send-button {
+      max-width: 100px;
+      min-width: 100px;
+    }
+  </style>
 
-    <title>Let's chat!</title>
+  <title>Let's chat!</title>
 </head>
 <body>
-    <!--------------------------------------------------------------------------------------------
-    This is a template for the message div when creating a new message and appending to the log.
-    It is not displayed on the webpage.
-    --------------------------------------------------------------------------------------------->
-    
-    <div class="panel panel-default" id="message-outer-div-template" style="display: none;">
-        <div class=user-icon-div>
-            <img class="user-icon" id="user-icon" alt="user">
-        </div>
-        <div style="display: table-cell;" id="message-inner-div">
-            <p class="display-name"><strong id="display-name"></strong></p>
-            <p id="message-text"></p>
-        </div>
-        <p class="timestamp" id="timestamp"></p>
+  <!--------------------------------------------------------------------------------------------
+  This is a template for the message div when creating a new message and appending to the log.
+  It is not displayed on the webpage.
+  --------------------------------------------------------------------------------------------->
+  
+  <div class="panel panel-default" id="message-outer-div-template" style="display: none;">
+    <div class=user-icon-div>
+      <img class="user-icon" id="user-icon" alt="user">
     </div>
-    
-    <!--------------------------------------------------------------------------------------------
-    End template
-    --------------------------------------------------------------------------------------------->
+    <div style="display: table-cell;" id="message-inner-div">
+      <p class="display-name"><strong id="display-name"></strong></p>
+      <p id="message-text"></p>
+    </div>
+    <p class="timestamp" id="timestamp"></p>
+  </div>
+  
+  <!--------------------------------------------------------------------------------------------
+  End template
+  --------------------------------------------------------------------------------------------->
 
-    <h1>{{ room_name }}</h1>
-    <div class="panel log-panel" id="log">
-        {% if messages %}
-            {% for message, timestring in messages %}
-                <div class="panel panel-default">
-                    <div class=user-icon-div>
-                        <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
-                    </div>
-                    <div style="display: table-cell;">
-                        <p class="display-name"><strong>
-                            {% if message.sender.OBUser.display_name %} 
-                                {{ message.sender.OBUser.display_name }} 
-                            {% else %} 
-                                {{ message.sender.username }} 
-                            {% endif %}
-                        </strong></p>
-                        <p>{{ message.message }}</p>
-                    </div>
-                    <p class="timestamp">
-                        {{ timestring }}
-                    </p>
-                </div>
-            {% endfor %}
-        {% else %}
-            No messages yet. First one gets a prize!
-        {% endif%}
-    </div>
-    <input class="form-control message-input" id="input" type="text" size="100"/><br/>
-    <input class="btn send-button" id="submit" type="button" value="Send"/>
+  <h1>{{ room_name }}</h1>
+  <div class="panel log-panel" id="log">
+    {% if messages %}
+      {% for message, timestring in messages %}
+        <div class="panel panel-default">
+          <div class=user-icon-div>
+            <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+          </div>
+          <div style="display: table-cell;">
+            <p class="display-name"><strong>
+              {% if message.sender.OBUser.display_name %} 
+                {{ message.sender.OBUser.display_name }} 
+              {% else %} 
+                {{ message.sender.username }} 
+              {% endif %}
+            </strong></p>
+            <p>{{ message.message }}</p>
+          </div>
+          <p class="timestamp">
+            {{ timestring }}
+          </p>
+        </div>
+      {% endfor %}
+    {% else %}
+      No messages yet. First one gets a prize!
+    {% endif%}
+  </div>
+  <input class="form-control message-input" id="input" type="text" size="100"/><br/>
+  <input class="btn send-button" id="submit" type="button" value="Send"/>
 </body>
 <script>
-    var roomName = {{ room_name_json }};
-    var token = getCookie("csrftoken");
-    var log = document.querySelector("#log")
-    var input = document.querySelector("#input");
-    var submit = document.querySelector("#submit");
+  var roomName = {{ room_name_json }};
+  var token = getCookie("csrftoken");
+  var log = document.querySelector("#log")
+  var input = document.querySelector("#input");
+  var submit = document.querySelector("#submit");
 
+  log.scrollTop = log.scrollHeight;
+
+  var socket = new WebSocket("ws://" + window.location.host + "/OB/chat/" + roomName + "/");
+
+  socket.onmessage = function(e) {
+    var message = JSON.parse(e.data);
+
+    // Copy the message template
+    var messageTemplate = document.getElementById("message-outer-div-template");
+    var newMessage = messageTemplate.cloneNode(true);
+    
+    // Insert the message data
+    newMessage.querySelector("#display-name").innerHTML = message.sender;
+    // TODO: Change this to the user's actual icon
+    newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
+    newMessage.querySelector("#user-icon").alt = "user";
+    newMessage.querySelector("#message-text").innerHTML = message.text;
+    newMessage.querySelector("#timestamp").innerHTML = message.timestamp;
+
+    // Display the message
+    var defaultDisplay = document.getElementById("log").style.display;
+    newMessage.style.display = defaultDisplay;
+
+    // Append the message
+    log.appendChild(newMessage);
     log.scrollTop = log.scrollHeight;
+  };
 
-    var socket = new WebSocket("ws://" + window.location.host + "/OB/chat/" + roomName + "/");
+  socket.onclose = function(e) {
+    console.log("Chat socket closed.");
+  };
 
-    socket.onmessage = function(e) {
-        var message = JSON.parse(e.data);
+  input.focus();
+  input.onkeyup = function(e) {
+    if (e.keyCode === 13) {  // enter, return
+      submit.click();
+    }
+  };
 
-        // Copy the message template
-        var messageTemplate = document.getElementById("message-outer-div-template");
-        var newMessage = messageTemplate.cloneNode(true);
-        
-        // Insert the message data
-        newMessage.querySelector("#display-name").innerHTML = message.sender;
-        // TODO: Change this to the user's actual icon
-        newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
-        newMessage.querySelector("#user-icon").alt = "user";
-        newMessage.querySelector("#message-text").innerHTML = message.text;
-        newMessage.querySelector("#timestamp").innerHTML = message.timestamp;
+  // Send the message by WebSocket
+  document.querySelector("#submit").onclick = function(e) {
+    var message_text = input.value.trim();
 
-        // Display the message
-        var defaultDisplay = document.getElementById("log").style.display;
-        newMessage.style.display = defaultDisplay;
+    if (message_text === "") {
+      return;
+    }
 
-        // Append the message
-        log.appendChild(newMessage);
-        log.scrollTop = log.scrollHeight;
-    };
+    input.value = "";
 
-    socket.onclose = function(e) {
-        console.log("Chat socket closed.");
-    };
-
-    input.focus();
-    input.onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            submit.click();
-        }
-    };
-
-    // Send the message by WebSocket
-    document.querySelector("#submit").onclick = function(e) {
-        var message_text = input.value.trim();
-
-        if (message_text === "") {
-            return;
-        }
-
-        input.value = "";
-
-        socket.send(JSON.stringify({
-            "message_text": message_text
-        }));
-    };
+    socket.send(JSON.stringify({
+      "message_text": message_text
+    }));
+  };
 
 /* 
-    Messages are now saved to the database when a Consumer receives a WebSocket frame rather than 
-    making a POST request every time a message is sent. See OBConsumer.receive() in consumers.py
+  Messages are now saved to the database when a Consumer receives a WebSocket frame rather than 
+  making a POST request every time a message is sent. See OBConsumer.receive() in consumers.py
 
-    Saving this function so it may be used as a template for a possible future AJAX call
-    
-    // AJAX POST the message to be saved or commands to be interpreted
-    $(document).ready(function() {
-        $("#submit").click(function(e) {
-            var url = "/OB/chat/" + roomName + "/";
-            $.ajax({
-                headers: { "X-CSRFToken": token},
-                type: "POST",
-                url: url,
-                data: {
-                    "message": input.value.trim()
-                },
-            });
-            input.value = "";
-        });
+  Saving this function so it may be used as a template for a possible future AJAX call
+  
+  // AJAX POST the message to be saved or commands to be interpreted
+  $(document).ready(function() {
+    $("#submit").click(function(e) {
+      var url = "/OB/chat/" + roomName + "/";
+      $.ajax({
+        headers: { "X-CSRFToken": token},
+        type: "POST",
+        url: url,
+        data: {
+          "message": input.value.trim()
+        },
+      });
+      input.value = "";
     });
+  });
 */
 </script>
 </html>
