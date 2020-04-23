@@ -11,23 +11,31 @@ Allows an authenticated user to create a new room
 {% endblock %}
 
 {% block body %}
-  <h1>
-    {% if not error_message %}
-      It's aliiive!
-    {% else %}
-      Yikes
-    {% endif %}
-  </h1>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>
+        {% if not error_message %}
+          It's aliiive!
+        {% else %}
+          Yikes
+        {% endif %}
+      </h1>
 
-  {% if error_message %}
-    <p><font color="red"><strong>{{ error_message }}</strong></font></p>
-  {% endif %}
+      {% if error_message %}
+        <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+      {% endif %}
 
-  <form action="{% url 'OB:OB-create_room' %}" method="post">
-    {% csrf_token %}
-    <label>Room Name</label><br>
-    <input type="text" name="room_name" placeholder="OBChat"
-          value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
-    <input type="submit" value="Submit">
-  </form>
+      <form action="{% url 'OB:OB-create_room' %}" method="post">
+        {% csrf_token %}
+        <label>Room Name</label><br>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" name="room_name" placeholder="OBChat" style="max-width: 200px"
+                value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}
