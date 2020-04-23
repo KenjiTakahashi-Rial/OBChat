@@ -8,10 +8,11 @@ A chatroom for users to talk
   <title>Let's chat!</title>
 
   {% load static %}
+  <script src="{% static "cookie.js" %}"></script>
   
   <style>
     /* TODO: Change measurements to percent and move this to a .css later on */
-    .log-panel {
+    .log-card {
       min-height: 350px;
       max-height: 350px;
       max-width: 1000px;
@@ -56,12 +57,12 @@ A chatroom for users to talk
   It is not displayed on the webpage.
   --------------------------------------------------------------------------------------------->
   
-  <div class="panel panel-default" id="message-outer-div-template" style="display: none;">
+  <div class="card" id="message-outer-div-template" style="display: none;">
     <div class=user-icon-div>
       <img class="user-icon" id="user-icon" alt="user">
+      <p class="display-name"><strong id="display-name"></strong></p>
     </div>
     <div style="display: table-cell;" id="message-inner-div">
-      <p class="display-name"><strong id="display-name"></strong></p>
       <p id="message-text"></p>
     </div>
     <p class="timestamp" id="timestamp"></p>
@@ -72,34 +73,45 @@ A chatroom for users to talk
   --------------------------------------------------------------------------------------------->
 
   <h1>{{ room_name }}</h1>
-  <div class="panel log-panel" id="log">
+  <div class="card log-card" id="log">
     {% if messages %}
       {% for message, timestring in messages %}
-        <div class="panel panel-default">
-          <div class=user-icon-div>
-            <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+        <div class="card">
+          <div class="container">
+            <div class="row">
+              <div class="col-1">
+                <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+              </div>
+              <div class="col">
+                <p class="display-name"><strong>
+                  {% if message.sender.OBUser.display_name %} 
+                    {{ message.sender.OBUser.display_name }} 
+                  {% else %} 
+                    {{ message.sender.username }} 
+                  {% endif %}
+                </strong></p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-1"></div>
+              <div class="col">
+                <div style="display: table-cell;">
+                  <p>{{ message.message }}</p>
+                </div>
+              </div>
+            </div>
+            <p class="timestamp">
+              {{ timestring }}
+            </p>
           </div>
-          <div style="display: table-cell;">
-            <p class="display-name"><strong>
-              {% if message.sender.OBUser.display_name %} 
-                {{ message.sender.OBUser.display_name }} 
-              {% else %} 
-                {{ message.sender.username }} 
-              {% endif %}
-            </strong></p>
-            <p>{{ message.message }}</p>
-          </div>
-          <p class="timestamp">
-            {{ timestring }}
-          </p>
         </div>
       {% endfor %}
     {% else %}
       No messages yet. First one gets a prize!
     {% endif%}
   </div>
-  <input class="form-control message-input" id="input" type="text" size="100"/><br/>
-  <input class="btn send-button" id="submit" type="button" value="Send"/>
+  <input class="form-control message-input" id="input" type="text" size="100"/>
+  <input class="btn btn-light send-button" id="submit" type="button" value="Send"/>
 {% endblock %}
 
 {% block javascript %}
@@ -111,11 +123,15 @@ A chatroom for users to talk
     var submit = document.querySelector("#submit");
 
     log.scrollTop = log.scrollHeight;
-
+    
     var socket = new WebSocket("ws://" + window.location.host + "/OB/chat/" + roomName + "/");
 
-    socket.onmessage = function(e) {
-      var message = JSON.parse(e.data);
+    socket.onopen = function(event) {
+      console.log("WebSocket connection established.")
+    }
+    
+    socket.onmessage = function(event) {
+      var message = JSON.parse(event.data);
 
       // Copy the message template
       var messageTemplate = document.getElementById("message-outer-div-template");
@@ -138,19 +154,24 @@ A chatroom for users to talk
       log.scrollTop = log.scrollHeight;
     };
 
-    socket.onclose = function(e) {
-      console.log("Chat socket closed.");
+    socket.onclose = function(event) {
+      if (event.wasClean) {
+        console.log("WebSocket connection closed normally (code: " + event.code + ", reason: " + event.reason + ").");
+      } else {
+        console.log("WebSocket connection aborted abnormally (code: " + event.code + ", reason: " + event.reason + ").");
+      }
+      
     };
 
     input.focus();
-    input.onkeyup = function(e) {
-      if (e.keyCode === 13) {  // enter, return
+    input.onkeyup = function(event) {
+      if (event.keyCode === 13) {  // enter, return
         submit.click();
       }
     };
 
     // Send the message by WebSocket
-    document.querySelector("#submit").onclick = function(e) {
+    document.querySelector("#submit").onclick = function(event) {
       var message_text = input.value.trim();
 
       if (message_text === "") {
@@ -172,7 +193,7 @@ A chatroom for users to talk
       
       // AJAX POST the message to be saved or commands to be interpreted
       $(document).ready(function() {
-        $("#submit").click(function(e) {
+        $("#submit").click(function(event) {
           var url = "/OB/chat/" + roomName + "/";
           $.ajax({
             headers: { "X-CSRFToken": token},

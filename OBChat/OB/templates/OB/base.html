@@ -74,9 +74,11 @@ It contains the top navigation bar and bottom informational area of the website.
       </div>
     </nav>
 
-    {% block body %}
-      <!-- Any content the extending template should contain -->
-    {% endblock %}
+    <div class="mx-3">
+      {% block body %}
+          <!-- Any content the extending template should contain -->
+      {% endblock %}
+    </div>
   </body>
 
   {% block javascript %}
