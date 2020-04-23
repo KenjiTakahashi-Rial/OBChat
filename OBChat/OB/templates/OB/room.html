@@ -58,14 +58,25 @@ A chatroom for users to talk
   --------------------------------------------------------------------------------------------->
   
   <div class="card" id="message-outer-div-template" style="display: none;">
-    <div class=user-icon-div>
-      <img class="user-icon" id="user-icon" alt="user">
-      <p class="display-name"><strong id="display-name"></strong></p>
+    <div class="container">
+      <div class="row">
+        <div class="col-1">
+          <img class="user-icon" id="user-icon" alt="user">
+        </div>
+        <div class="col">
+          <strong id="display-name"></strong>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-1"></div>
+        <div class="col">
+          <div style="display: table-cell;" id="message-inner-div">
+            <p id="message-text"></p>
+          </div>
+        </div>
+      </div>
+      <p class="timestamp" id="timestamp"></p>
     </div>
-    <div style="display: table-cell;" id="message-inner-div">
-      <p id="message-text"></p>
-    </div>
-    <p class="timestamp" id="timestamp"></p>
   </div>
   
   <!--------------------------------------------------------------------------------------------
@@ -83,13 +94,13 @@ A chatroom for users to talk
                 <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
               </div>
               <div class="col">
-                <p class="display-name"><strong>
+                <strong>
                   {% if message.sender.OBUser.display_name %} 
                     {{ message.sender.OBUser.display_name }} 
                   {% else %} 
                     {{ message.sender.username }} 
                   {% endif %}
-                </strong></p>
+                </strong>
               </div>
             </div>
             <div class="row">
