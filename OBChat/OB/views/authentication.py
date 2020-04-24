@@ -70,12 +70,12 @@ def sign_up(request):
 
         # Save a new OBUser to the database
         new_user = OBUser.objects.create_user(
-            username=username,
+            username=username.lower(),
             email=email,
             password=password,
             first_name=first_name,
             last_name=last_name,
-            display_name=display_name,
+            display_name=display_name or username,
             birthday=birthday
         )
         new_user.save()

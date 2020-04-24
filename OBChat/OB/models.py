@@ -28,10 +28,9 @@ class OBUser(AbstractUser):
 
         return f"<OBUser: {name_string}>"
 
-# TODO: Add a display name and if the user tries to make the room with caps in the name, make that
-# the display name and the lowercase the name
 class Room(Model):
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
+    display_name = CharField(max_length=ROOM_NAME_MAX_LENGTH, null=True)
     owner = ForeignKey(OBUser, on_delete=CASCADE, default=0, related_name="owned_room")
     timestamp = DateTimeField(auto_now_add=True)
     is_suspended = BooleanField(default=False)

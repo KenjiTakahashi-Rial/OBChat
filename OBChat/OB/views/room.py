@@ -73,11 +73,11 @@ def create_room(request):
             context["error_message"] = "Room must have a name."
             return render(request, template, context)
 
-        if Room.objects.filter(name=room_name).exists():
+        if Room.objects.filter(name=room_name.lower()).exists():
             context["error_message"] = "Room name already in use."
             return render(request, template, context)
 
-        new_room_object = Room(name=room_name, owner=owner)
+        new_room_object = Room(name=room_name.lower(), display_name=room_name, owner=owner)
         new_room_object.save()
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
@@ -100,9 +100,9 @@ def room(request, room_name):
     """
 
     if request.method == "GET":
-        context = {"room_name": room_name}
-
         room_object = try_get(Room, name=room_name)
+
+        context = {"room_name": room_object.display_name}
 
         if room_object:
             room_name_json = mark_safe(json.dumps(room_name))

@@ -83,46 +83,50 @@ A chatroom for users to talk
   End template div
   --------------------------------------------------------------------------------------------->
 
-  <h1>{{ room_name }}</h1>
-  <div class="card log-card" id="log">
-    {% if messages %}
-      {% for message, timestring in messages %}
-        <div class="card">
-          <div class="container">
-            <div class="row">
-              <div class="col-1">
-                <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
-              </div>
-              <div class="col">
-                <strong>
-                  {% if message.sender.OBUser.display_name %} 
-                    {{ message.sender.OBUser.display_name }} 
-                  {% else %} 
-                    {{ message.sender.username }} 
-                  {% endif %}
-                </strong>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-1"></div>
-              <div class="col">
-                <div style="display: table-cell;">
-                  <p>{{ message.message }}</p>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>{{ room_name }}</h1>
+      <div class="card log-card" id="log">
+        {% if messages %}
+          {% for message, timestring in messages %}
+            <div class="card">
+              <div class="container">
+                <div class="row">
+                  <div class="col-1">
+                    <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+                  </div>
+                  <div class="col">
+                    <strong>
+                      {% if message.sender.OBUser.display_name %} 
+                        {{ message.sender.OBUser.display_name }} 
+                      {% else %} 
+                        {{ message.sender.username }} 
+                      {% endif %}
+                    </strong>
+                  </div>
                 </div>
+                <div class="row">
+                  <div class="col-1"></div>
+                  <div class="col">
+                    <div style="display: table-cell;">
+                      <p>{{ message.message }}</p>
+                    </div>
+                  </div>
+                </div>
+                <p class="timestamp">
+                  {{ timestring }}
+                </p>
               </div>
             </div>
-            <p class="timestamp">
-              {{ timestring }}
-            </p>
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      No messages yet. First one gets a prize!
-    {% endif%}
+          {% endfor %}
+        {% else %}
+          No messages yet. First one gets a prize!
+        {% endif%}
+      </div>
+      <input class="form-control message-input" id="input" type="text" size="100"/>
+      <input class="btn btn-light send-button" id="submit" type="button" value="Send"/>
+    </div>
   </div>
-  <input class="form-control message-input" id="input" type="text" size="100"/>
-  <input class="btn btn-light send-button" id="submit" type="button" value="Send"/>
 {% endblock %}
 
 {% block javascript %}
