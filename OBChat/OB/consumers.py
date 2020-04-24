@@ -69,7 +69,11 @@ class OBConsumer(AsyncWebsocketConsumer):
             while await sync_try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
                 await sync_cycle_key(self.session)
 
-            self.user = await sync_save(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}")
+            self.user = await sync_save(
+                OBUser,
+                username=f"{ANON_PREFIX}{self.session.session_key}",
+                is_anon=True
+            )
 
         # Set the room
         room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -113,10 +117,13 @@ class OBConsumer(AsyncWebsocketConsumer):
         print(f"WebSocket disconnected with code {code}.")
 
         # Remove from the occupants list for this room and remove the room reference
+        # TODO: Check that users are actually removed. They weren't removed before
         await sync_remove(self.room.occupants, self.user)
         self.room = None
 
         # Delete anonymous users' temporary OBUser from the database and remove the user reference
+        # TODO: Check that users are actually deleted. They weren't deleted before because of
+        # dependencies in the Message model
         if not self.user.is_authenticated:
             await sync_delete(self.user)
             self.user = None
@@ -156,8 +163,9 @@ class OBConsumer(AsyncWebsocketConsumer):
         new_message_object = await sync_save(
             Message,
             message=message_text,
-            sender=self.user,
-            room=self.room
+            sender=self.user if not self.user.is_anon else None,
+            room=self.room,
+            anon_username=self.user.username if self.user.is_anon else None
         )
 
         # Encode the message data and metadata

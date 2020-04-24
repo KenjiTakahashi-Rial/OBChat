@@ -10,13 +10,17 @@ from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTi
     ForeignKey, ManyToManyField, Model, TextField
 from django.contrib.auth.models import AbstractUser
 
+from OB.constants import ANON_PREFIX
+
 DISPLAY_NAME_MAX_LENGTH = 15
 MESSAGE_MAX_LENGTH = 100
 ROOM_NAME_MAX_LENGTH = 15
+ANON_USERNAME_MAX_LENGTH = 40 + len(ANON_PREFIX)
 
 class OBUser(AbstractUser):
     display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
     birthday = DateField(null=True)
+    is_anon = BooleanField(default=False)
     is_expelled = BooleanField(default=False)
     is_ob = BooleanField(default=False)
 
@@ -61,11 +65,19 @@ class Ban(Model):
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = ForeignKey(OBUser, on_delete=CASCADE, default=0)
+    sender = ForeignKey(OBUser, on_delete=CASCADE, default=0, null=True)
+    anon_username = CharField(
+        max_length=ANON_USERNAME_MAX_LENGTH,
+        default=None,
+        null=True
+    )
     room = ForeignKey(Room, on_delete=CASCADE, default=0)
     timestamp = DateTimeField(auto_now_add=True)
     is_edited = BooleanField(default=False)
     is_deleted = BooleanField(default=False)
 
     def __str__(self):
-        return f"<Message: {self.message} from {self.sender}>"
+        if self.sender:
+            return f"<Message: {self.message} from {self.sender}>"
+
+        return f"<Message: {self.message} from {self.anon_username}>"
