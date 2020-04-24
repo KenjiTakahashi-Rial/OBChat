@@ -11,7 +11,11 @@ When a user with the username in the URL cannot be found
 {% endblock %}
 
 {% block body %}
-  <h1>Mysterious...</h1>
-  <p>Nobody by that username is in our database. They say a database never forgets.</p>
-  <a href="{% url 'OB:OB-chat' %}">Time to chat with people who DO exist!</a>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>Mysterious...</h1>
+      <p>Nobody by that username exists in our database. They say a database never forgets.</p>
+      <a href="{% url 'OB:OB-chat' %}">Time to chat with people who DO exist!</a>
+    </div>
+  </div>
 {% endblock %}

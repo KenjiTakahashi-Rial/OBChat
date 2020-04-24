@@ -11,10 +11,14 @@ Lists all the public chat rooms on the website
 {% endblock %}
 
 {% block body %}
-  <h1>Choose your chat</h1>
-  {% for room in rooms %}
-    <a href="{% url 'OB:OB-room' room.name %}">{{ room.display_name }}</a><br>
-  {% endfor %}
-  <br>
-  <a href="{% url 'OB:OB-create_room' %}"><strong>Create your own soverign room</strong></a>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>Choose your chat</h1>
+      {% for room in rooms %}
+        <a href="{% url 'OB:OB-room' room.name %}">{{ room.display_name }}</a><br>
+      {% endfor %}
+      <br>
+      <a href="{% url 'OB:OB-create_room' %}"><strong>Create your own soverign room</strong></a>
+    </div>
+  </div>
 {% endblock %}

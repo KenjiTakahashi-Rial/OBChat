@@ -11,29 +11,33 @@ Log-in page
 {% endblock %}
 
 {% block body %}
-  <h1>
-    {% if not error_message %}
-      What's the password?
-    {% else %}
-      You dun goof'd
-    {% endif %}
-  </h1>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>
+        {% if not error_message %}
+          What's the password?
+        {% else %}
+          You dun goof'd
+        {% endif %}
+      </h1>
 
-  {% if error_message %}
-    <p><font color="red"><strong>{{ error_message }}</strong></font></p>
-  {% endif %}
+      {% if error_message %}
+        <p><font color="red"><strong>{{ error_message }}</strong></font></p>
+      {% endif %}
 
-  <form action="{% url 'OB:OB-log_in' %}" method="post">
-    {% csrf_token %}
-    <label>Username</label><br>
-    <input type="text" name="username" placeholder="OB"
-          value="{% if username %}{{ username }}{% endif %}"><br>
+      <form action="{% url 'OB:OB-log_in' %}" method="post">
+        {% csrf_token %}
+        <label>Username</label><br>
+        <input type="text" name="username" placeholder="OB"
+              value="{% if username %}{{ username }}{% endif %}"><br>
 
-    <label>Password</label><br>
-    <input type="password" name="password"><br><br>
+        <label>Password</label><br>
+        <input type="password" name="password"><br><br>
 
-    <input type="submit" value="Submit">
-  </form><br>
+        <input type="submit" value="Submit">
+      </form><br>
 
-  <p>You still don't have an account? <a href="{% url 'OB:OB-sign_up' %}">Click here to join the coolest site on the web!</a></p>
+      <p>You still don't have an account? <a href="{% url 'OB:OB-sign_up' %}">Click here to join the coolest site on the web!</a></p>
+    </div>
+  </div>
 {% endblock %}

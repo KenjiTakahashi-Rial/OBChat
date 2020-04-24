@@ -102,8 +102,6 @@ def room(request, room_name):
     if request.method == "GET":
         room_object = try_get(Room, name=room_name)
 
-        context = {"room_name": room_object.display_name}
-
         if room_object:
             room_name_json = mark_safe(json.dumps(room_name))
             message_objects = Message.objects.filter(room=room_object)
@@ -111,10 +109,14 @@ def room(request, room_name):
                                     for message in message_objects]
 
             template = "OB/room.html"
-            context["room_name_json"] = room_name_json
-            context["messages"] = messages_timestrings
+            context = {
+                "room_name": room_object.display_name,
+                "room_name_json": room_name_json,
+                "messages": messages_timestrings
+            }
         else:
             template = "OB/not_room.html"
+            context = {"room_name": room_name}
 
         return render(request, template, context)
 

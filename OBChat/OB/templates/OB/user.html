@@ -11,44 +11,48 @@ Shows user information and allows a user to edit their own information
 {% endblock %}
 
 {% block body %}
-  <h1>User Info</h1>
-  {% if user.is_expelled %}
-      <p><font color="red"><strong>EXPELLED</strong></font></p>
-  {% endif %}
-  
-  {% if request.user.username == user.username %}
-    <div id="edit-info">
-      <h3>Username</h3>
-      <p>{{ user.username }}</p>
-      <h3>Display Name</h3>
-      <p>{% if not user.display_name %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
-      <h3>Real Name</h3>
-      <p>{{ user.first_name }} {{ user.last_name }}</p>
-      <h3>Birthday</h3>
-      <p>{{ user.birthday }}</p>
-      <h3>Email</h3>
-      <p>{{ user.email }}</p>
-      <h3>Joined</h3>
-      <p>{{ user.date_joined }}</p>
-      <h3>Last Login</h3>
-      <p>{{ user.last_login }}</p>
+  <div class="row">
+    <div class="mx-auto text-center">
+      <h1>User Info</h1>
+      {% if user.is_expelled %}
+          <p><font color="red"><strong>EXPELLED</strong></font></p>
+      {% endif %}
+      
+      {% if request.user.username == user.username %}
+        <div id="edit-info">
+          <h3>Username</h3>
+          <p>{{ user.username }}</p>
+          <h3>Display Name</h3>
+          <p>{% if not user.display_name %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
+          <h3>Real Name</h3>
+          <p>{{ user.first_name }} {{ user.last_name }}</p>
+          <h3>Birthday</h3>
+          <p>{{ user.birthday }}</p>
+          <h3>Email</h3>
+          <p>{{ user.email }}</p>
+          <h3>Joined</h3>
+          <p>{{ user.date_joined }}</p>
+          <h3>Last Login</h3>
+          <p>{{ user.last_login }}</p>
+        </div>
+      {% else %}
+        <div id="display-info">
+          <h3>Username</h3>
+          <p>{{ user.username }}</p>
+          <h3>Display Name</h3>
+          <p>{% if user.display_name is None %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
+          <h3>Real Name</h3>
+          <p>{{ user.first_name }} {{ user.last_name }}</p>
+          <h3>Birthday</h3>
+          <p>{{ user.birthday }}</p>
+          <h3>Email</h3>
+          <p>{{ user.email }}</p>
+          <h3>Joined</h3>
+          <p>{{ user.date_joined }}</p>
+          <h3>Last Login</h3>
+          <p>{{ user.last_login }}</p>
+        </div>
+      {% endif %}
     </div>
-  {% else %}
-    <div id="display-info">
-      <h3>Username</h3>
-      <p>{{ user.username }}</p>
-      <h3>Display Name</h3>
-      <p>{% if user.display_name is None %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
-      <h3>Real Name</h3>
-      <p>{{ user.first_name }} {{ user.last_name }}</p>
-      <h3>Birthday</h3>
-      <p>{{ user.birthday }}</p>
-      <h3>Email</h3>
-      <p>{{ user.email }}</p>
-      <h3>Joined</h3>
-      <p>{{ user.date_joined }}</p>
-      <h3>Last Login</h3>
-      <p>{{ user.last_login }}</p>
-    </div>
-  {% endif %}
+  </div>
 {% endblock %}
