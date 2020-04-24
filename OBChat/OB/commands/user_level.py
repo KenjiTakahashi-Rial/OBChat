@@ -99,7 +99,6 @@ async def private(args, user, room):
     # Reconstruct message from args
     message_text = " ".join(args[1:])
 
-    # TODO: Once the function is filled in, put the appropriate arguments
     await send_private_message()
 
 async def create_room(args, user, room):

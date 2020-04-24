@@ -10,17 +10,18 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from OB.views.authentication import log_in, sign_up
+from OB.views.authentication import log_in, log_out, sign_up
 from OB.views.room import chat, create_room, room
 from OB.views.user import user
 
 app_name = "OB"
 urlpatterns = [
     url("favicon.ico", RedirectView.as_view(
-        url=staticfiles_storage.url("favicon.ico"), 
+        url=staticfiles_storage.url("favicon.ico"),
         permanent=False), name="favicon"),
     path("sign_up/", sign_up, name="OB-sign_up"),
     path("log_in/", log_in, name="OB-log_in"),
+    path("log_out/", log_out, name="OB-log_out"),
     path("chat/", chat, name="OB-chat"),
     path("", chat, name="OB-/"),
     path("create_room/", create_room, name="OB-create_room"),

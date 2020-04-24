@@ -33,15 +33,7 @@ It contains the top navigation bar and bottom informational area of the website.
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
-          </li>
+          <!-- Left-aligned items here -->
         </ul>
         {% if user.is_authenticated %}
           <div class="dropdown">
@@ -55,7 +47,7 @@ It contains the top navigation bar and bottom informational area of the website.
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="authUserDropdown">
               <a class="dropdown-item" href="{% url 'OB:OB-user' username=user.username %}">User Info</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="{% url 'OB:OB-/' %}">Log out</a> <!-- TODO: Log out the user -->
+              <a class="dropdown-item" href="{% url 'OB:OB-log_out' %}">Log out</a>
             </div>
           </div>
         {% else %}
@@ -66,7 +58,7 @@ It contains the top navigation bar and bottom informational area of the website.
               </svg>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-              <a class="dropdown-item" href="{% url 'OB:OB-log_in'%}">Log in</a>
+              <a class="dropdown-item" href="{% url 'OB:OB-log_in' %}">Log in</a>
               <a class="dropdown-item" href="{% url 'OB:OB-sign_up' %}">Sign up</a>
             </div>
           </div>

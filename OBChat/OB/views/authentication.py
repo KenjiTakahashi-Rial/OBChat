@@ -6,7 +6,7 @@ See the Django documentation on view functions for more information.
 https://docs.djangoproject.com/en/3.0/topics/http/views/
 """
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -109,8 +109,12 @@ def log_in(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
+        # Log out the user if they are already authenticated
+        if request.user.is_authenticated:
+            logout(request)
+
         # Try to authenticate with the data given
-        auth_user = authenticate(username=username, password=password)
+        auth_user = authenticate(username=username.lower(), password=password)
 
         if auth_user is None:
             context = {
@@ -124,3 +128,20 @@ def log_in(request):
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
     return HttpResponse()
+
+def log_out(request):
+    """
+    Description:
+        Handles HTTP requests for the logout page.
+        Logs the user out.
+
+    Arguments:
+        request (AsgiRequest)
+
+    Return values:
+        An HTTP response redirecting to the login page.
+    """
+
+    if request.user.is_authenticated:
+        logout(request)
+    return HttpResponseRedirect(reverse("OB:OB-log_in"))
