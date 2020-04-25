@@ -63,7 +63,7 @@ A chatroom for users to talk
         <div class="col-1">
           <img class="user-icon" id="user-icon" alt="user">
         </div>
-        <div class="col">
+        <div class="col text-left">
           <strong id="display-name"></strong>
         </div>
       </div>
@@ -95,7 +95,7 @@ A chatroom for users to talk
                   <div class="col-1">
                     <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
                   </div>
-                  <div class="col">
+                  <div class="col text-left">
                     <strong>
                       {% if message.sender.OBUser.display_name %} 
                         {{ message.sender.OBUser.display_name }} 
