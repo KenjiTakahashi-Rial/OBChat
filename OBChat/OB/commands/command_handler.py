@@ -36,10 +36,11 @@ VALID_COMMANDS = ("Valid commands:\n"
                   "Type backslash with only the first letter of a command if you're in a hurry.\n"
                   "To use backslash without a command: //")
 
-async def handle_command(data, user, room):
+async def handle_command(command, user, room):
     """
     Description:
         Tries to execute a command function from the COMMANDS dict with arguments.
+        Assumes that the text given is in command format (see OB.utilities.command.is_command()).
 
     Arguments:
         data (string): A space-separated string of a command with arguments.
@@ -52,7 +53,7 @@ async def handle_command(data, user, room):
     """
 
     # Separate by whitespace to get arguments
-    separated = data.split()
+    separated = command.split()
     command_name = separated[0]
     arguments = separated[1:]
 

@@ -179,8 +179,8 @@ class OBConsumer(AsyncWebsocketConsumer):
         await send_room_message(message_json, self.room.name)
 
         # Handle command
-        if is_command(text_data):
-            handle_command(text_data, self.user, self.room)
+        if is_command(message_text):
+            await handle_command(message_text, self.user, self.room)
 
     ###############################################################################################
     # Event Handler Methods                                                                       #

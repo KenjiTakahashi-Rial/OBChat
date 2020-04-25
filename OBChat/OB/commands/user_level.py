@@ -3,7 +3,7 @@ Any user may perform these commands.
 """
 
 from OB.models import Admin, Room, OBUser
-from OB.utilities.database import try_get
+from OB.utilities.database import sync_get_who_string, sync_len_all, sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
 async def who(args, user, room):
@@ -23,41 +23,35 @@ async def who(args, user, room):
     """
 
     # Check for inital errors
+    error_message = ""
+
     if len(args) > 1:
         error_message = "Room name cannot contain spaces."
     else:
         args.append(room.name)
 
-    # Check for per-argument errors
-    if not try_get(Room, name=args[0]):
-        error_message = f"\"{args[0]}\" doesn't exist, so that probably means nobody is in there."
-    else:
-        if len(room.occupants.all()) == 0:
-            error_message = f"\"{args[0]}\" is all empty!"
+    who_strings = []
 
-    # Send error message back to issuing user
-    if error_message:
-        await send_system_room_message(error_message, room)
-        return
+    for room_name in args:
+        arg_room = await sync_try_get(Room, name=room_name)
 
-    # Iterate through users in room
-    user_list_string = f"Chatters in: \"{args[0]}\" ({room.name})\n"
+        # Check for per-argument errors
+        if not arg_room:
+            error_message = f"{args[0]} doesn't exist, so that probably means nobody is in \
+                there."
+        else:
+            if await sync_len_all(room.occupants) == 0:
+                error_message = f"{args[0]} is all empty!"
 
-    for occupant in room.occupants.all():
-        who_string = occupant.name
+        # Send error message back to issuing user
+        if error_message:
+            await send_system_room_message(error_message, room)
+            return
 
-        # Tag user appropriately
-        if occupant == room.owner:
-            who_string += " (owner)"
-        if try_get(Admin, user=user, room=room):
-            who_string += " (admin)"
-        if occupant == user:
-            who_string += " (you)"
-
-        user_list_string += who_string + '\n'
+        who_strings.append(await sync_get_who_string(user, arg_room))
 
     # Send user list back to the issuing user
-    await send_system_room_message(user_list_string, room)
+    await send_system_room_message("\n\n".join(who_strings), room)
 
 async def private(args, user, room):
     """
@@ -82,7 +76,7 @@ async def private(args, user, room):
     elif args[0][0] != '/':
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
-        recipient_object = try_get(OBUser, username=args[0][1:])
+        recipient_object = await sync_try_get(OBUser, username=args[0][1:])
 
     # Check for per-argument errors
     if not recipient_object:

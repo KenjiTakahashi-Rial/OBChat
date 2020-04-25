@@ -5,7 +5,7 @@ particular instance of a class.
 
 from channels.db import database_sync_to_async
 
-from OB.models import OBUser
+from OB.models import Admin, OBUser
 
 def try_get(model, **kwargs):
     """
@@ -136,3 +136,84 @@ def sync_remove(field, remove_object):
     """
 
     field.remove(remove_object)
+
+@database_sync_to_async
+def sync_len_all(table):
+    """
+    Description:
+        Allows an asynchronous function to get the length of a database table.
+
+    Arguments:
+        table: A database table to find the length of.
+               May be in the form QuerySet, OneToManyField, ManyToManyField, etc., as long as there
+               exists a corresponding table in the database.
+
+    Return values:
+        The integer value of the length of the table.
+    """
+
+    return len(table.all())
+
+@database_sync_to_async
+def sync_get_occupants(room):
+    """
+    Description:
+        Allows an asynchronous function to get the occupants of a room as a list of OBUser objects.
+
+    Arguments:
+        room (Room): The room to get the occupant name list of.
+
+    Return values:
+        A list of OBUser objects who are occupying the room.
+    """
+
+    # pylint: disable=unnecessary-comprehension
+    # This comprehension is necessary because [room.occupants.all()] returns a list of 1 QuerySet
+    return [user for user in room.occupants.all()]
+
+@database_sync_to_async
+def sync_equals(object_a, object_b):
+    """
+    Description:
+        Allows an asynchronous function to compare database objects.
+
+    Arguments:
+        object_a (database object): The first object to compare.
+        object_b (database object): The second object to compare.
+
+    Return values:
+        A boolean indicating if the two objects are equal.
+    """
+
+    return object_a == object_b
+
+@database_sync_to_async
+def sync_get_who_string(user, room):
+    """
+    Description:
+        Allows an asynchronous function to compare database objects.
+
+    Arguments:
+        object_a (database object): The first object to compare.
+        object_b (database object): The second object to compare.
+
+    Return values:
+        A boolean indicating if the two objects are equal.
+    """
+
+    who_string = f"Chatters in: {room.display_name} ({room.name})\n"
+
+    for occupant in room.occupants.all():
+        occupant_string = f"{occupant.display_name} ({occupant.username})"
+
+        # Tag occupant appropriately
+        if occupant == room.owner:
+            occupant_string += " [owner]"
+        if try_get(Admin, user=occupant, room=room):
+            occupant_string += " [admin]"
+        if occupant == user:
+            occupant_string += " [you]"
+
+        who_string += occupant_string + "\n"
+
+    return who_string

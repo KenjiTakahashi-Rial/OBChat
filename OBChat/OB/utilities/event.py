@@ -8,7 +8,8 @@ from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
 from OB.models import Message, OBUser
-from OB.utilities.format import get_group_name
+from OB.utilities.database import sync_get, sync_save
+from OB.utilities.format import get_datetime_string, get_group_name
 
 async def send_event(event, group_name):
     """
@@ -82,17 +83,18 @@ async def send_system_room_message(message_text, room):
     """
 
     # Save message to database
-    system_user_object = OBUser.objects.get(username=SYSTEM_USERNAME)
-    new_message_object = Message(
+    system_user_object = await sync_get(OBUser, username=SYSTEM_USERNAME)
+    new_message_object = await sync_save(
+        Message,
         message=message_text,
         sender=system_user_object,
-        room=room)
-    new_message_object.save()
+        room=room
+    )
 
     message_json = json.dumps({
         "text": message_text,
-        "sender": SYSTEM_USERNAME,
-        "timestamp": new_message_object.timestamp
+        "sender_name": SYSTEM_USERNAME,
+        "timestamp": get_datetime_string(new_message_object.timestamp)
     })
 
     # Send the message
