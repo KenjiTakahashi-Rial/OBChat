@@ -29,7 +29,7 @@ class TestAuthenticationViews(TestCase):
         self.client = Client()
 
         OBUser.objects.create_user(
-            username="OB",
+            username="ob",
             email="ob@ob.ob",
             password="ob",
             first_name="Kenji",
@@ -108,6 +108,9 @@ class TestAuthenticationViews(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse("error_message" in response.context)
+
+        # Test display_name saving correctly
+        self.assertEqual(OBUser.objects.get(username="obtmf").display_name, "OBTMF")
 
     def test_log_in(self):
         """

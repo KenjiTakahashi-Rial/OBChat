@@ -50,7 +50,7 @@ def sign_up(request):
             context["error_message"] = "Please fill out all required fields."
         elif " " in username:
             context["error_message"] = "Username may not contain spaces"
-        elif OBUser.objects.filter(username=username).exists():
+        elif OBUser.objects.filter(username=username.lower()).exists():
             context["error_message"] = "Username already in use."
         elif OBUser.objects.filter(email=email).exists():
             context["error_message"] = "Email already in use."
