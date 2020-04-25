@@ -1,5 +1,5 @@
 """
-Tests the authentication view functions.
+Tests the authentication view functions (see OB.views.authentication).
 
 See the Django documentation on Testing for more information.
 https://docs.djangoproject.com/en/3.0/topics/testing/
@@ -17,6 +17,7 @@ class TestAuthenticationViews(TestCase):
         Description:
             Setup phase before every test method. Unfortunately this is overriden from a Django
             TestCase method, so it must be camelCase instead of snake_case like everything else.
+            Sets up an OBUser database object to test the views.
 
         Arguments:
             self (TestCase): A Django TestCase class.
@@ -27,14 +28,13 @@ class TestAuthenticationViews(TestCase):
 
         self.client = Client()
 
-        test_user = OBUser.objects.create_user(
+        OBUser.objects.create_user(
             username="OB",
             email="ob@ob.ob",
             password="ob",
             first_name="Kenji",
             last_name="Takahashi-Rial"
-        )
-        test_user.save()
+        ).save()
 
     def test_sign_up(self):
         """

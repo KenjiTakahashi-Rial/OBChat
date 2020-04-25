@@ -125,8 +125,10 @@ async def create_room(args, user, room):
         return
 
     # Save the new room
-    new_room_object = Room(name=args, owner=user)
-    new_room_object.save()
+    Room(
+        name=args,
+        owner=user
+    ).save()
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: \"{args[0]}\""

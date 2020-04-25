@@ -65,8 +65,10 @@ async def hire(args, user, room):
 
     # Make new Admin objects for valid hires (if any) and notify all parties that a user was hired
     for hired_user in valid_hires:
-        new_admin_object = Admin(user=hired_user, room=room)
-        new_admin_object.save()
+        Admin(
+            user=hired_user,
+            room=room
+        ).save()
 
         await send_system_room_message(f"With great power comes great responsibility. You were \
             promoted to admin in \"{room.name}\"!", room)

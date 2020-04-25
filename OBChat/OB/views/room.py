@@ -69,6 +69,7 @@ def create_room(request):
         template = "OB/create_room.html"
         context = {"room_name": room_name}
 
+        # Check for errors
         if not room_name:
             context["error_message"] = "Room must have a name."
             return render(request, template, context)
@@ -77,8 +78,12 @@ def create_room(request):
             context["error_message"] = "Room name already in use."
             return render(request, template, context)
 
-        new_room_object = Room(name=room_name.lower(), display_name=room_name, owner=owner)
-        new_room_object.save()
+        # Save the room
+        Room(
+            name=room_name.lower(),
+            display_name=room_name,
+            owner=owner
+        ).save()
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
@@ -103,6 +108,7 @@ def room(request, room_name):
         room_object = try_get(Room, name=room_name)
 
         if room_object:
+            # Get the messages
             room_name_json = mark_safe(json.dumps(room_name))
             message_objects = Message.objects.filter(room=room_object)
             messages_timestrings = [(message, get_datetime_string(message.timestamp))\
@@ -115,6 +121,7 @@ def room(request, room_name):
                 "messages": messages_timestrings
             }
         else:
+            # Return the room does not exist page
             template = "OB/not_room.html"
             context = {"room_name": room_name}
 

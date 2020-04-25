@@ -69,7 +69,7 @@ def sign_up(request):
             return render(request, template, context)
 
         # Save a new OBUser to the database
-        new_user = OBUser.objects.create_user(
+        OBUser.objects.create_user(
             username=username.lower(),
             email=email,
             password=password,
@@ -77,8 +77,7 @@ def sign_up(request):
             last_name=last_name,
             display_name=display_name or username,
             birthday=birthday
-        )
-        new_user.save()
+        ).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
