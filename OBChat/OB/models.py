@@ -25,13 +25,17 @@ class OBUser(AbstractUser):
     is_expelled = BooleanField(default=False)
     is_ob = BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        return self
+
     def __str__(self):
         if self.display_name:
-            name_string = f"{self.display_name} ({self.username})"
+            name_string = f"{self.display_name} ({self.username}) [{self.id}]"
         else:
             name_string = f"{self.username}"
 
-        return f"<OBUser: {name_string}>"
+        return f"<OBUser: {name_string} [{self.id}]>"
 
 class Room(Model):
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
@@ -41,8 +45,12 @@ class Room(Model):
     is_suspended = BooleanField(default=False)
     occupants = ManyToManyField(OBUser, related_name="occupied_room")
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        return self
+
     def __str__(self):
-        return f"<Room: {self.name} owned by {self.owner}>"
+        return f"<Room: {self.name} owned by {self.owner} [{self.id}]>"
 
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -51,8 +59,12 @@ class Admin(Model):
     is_limited = BooleanField(default=True)
     is_revoked = BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        return self
+
     def __str__(self):
-        return f"<Admin: {self.user} admin of {self.room.name}>"
+        return f"<Admin: {self.user} admin of {self.room.name} [{self.id}]>"
 
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -60,9 +72,13 @@ class Ban(Model):
     timestamp = DateTimeField(auto_now_add=True)
     is_lifted = BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        return self
+
     def __str__(self):
         lifted_string = " (lifted)" if self.is_lifted else ""
-        return f"<Ban: {self.user} banned in {self.room}{lifted_string}>"
+        return f"<Ban: {self.user} banned in {self.room}{lifted_string} [{self.id}]>"
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
@@ -77,8 +93,12 @@ class Message(Model):
     is_edited = BooleanField(default=False)
     is_deleted = BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        return self
+
     def __str__(self):
         if self.sender:
-            return f"<Message: {self.message} from {self.sender}>"
+            return f"<Message: {self.message} from {self.sender} [{self.id}]>"
 
-        return f"<Message: {self.message} from {self.anon_username}>"
+        return f"<Message: {self.message} from {self.anon_username} [{self.id}]>"
