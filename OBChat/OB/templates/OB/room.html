@@ -97,11 +97,7 @@ A chatroom for users to talk
                   </div>
                   <div class="col text-left">
                     <strong>
-                      {% if message.sender.OBUser.display_name %} 
-                        {{ message.sender.OBUser.display_name }} 
-                      {% else %} 
-                        {{ message.sender.username }} 
-                      {% endif %}
+                      {{ message.sender.OBUser.display_name }}
                     </strong>
                   </div>
                 </div>

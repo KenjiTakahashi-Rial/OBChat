@@ -18,7 +18,7 @@ ROOM_NAME_MAX_LENGTH = 15
 ANON_USERNAME_MAX_LENGTH = 40 + len(ANON_PREFIX)
 
 class OBUser(AbstractUser):
-    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
+    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH)
     birthday = DateField(null=True)
     is_anon = BooleanField(default=False)
     is_expelled = BooleanField(default=False)
