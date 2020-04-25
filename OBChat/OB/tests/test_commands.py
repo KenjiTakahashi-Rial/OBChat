@@ -5,9 +5,8 @@ See the Django documentation on Testing for more information.
 https://docs.djangoproject.com/en/3.0/topics/testing/
 """
 
-from django.test import Client
+from asgiref.sync import async_to_sync
 from django.test import TestCase
-from django.urls import reverse
 
 from OB.commands.user_level import who
 from OB.models import OBUser, Room
@@ -27,10 +26,8 @@ class TestCommands(TestCase):
             None
         """
 
-        self.client = Client()
-
         self.ob_user = OBUser.objects.create_user(
-            username="OB",
+            username="ob",
             email="ob@ob.ob",
             password="ob",
             first_name="Kenji",
@@ -38,7 +35,7 @@ class TestCommands(TestCase):
         ).save()
 
         self.obtmf_user = OBUser.objects.create_user(
-            username="OBTMF",
+            username="obtmf",
             email="obtmf@ob.ob",
             password="ob",
             first_name="Frank",
@@ -49,6 +46,12 @@ class TestCommands(TestCase):
             name="obchat",
             display_name="OBChat",
             owner=self.ob_user
+        ).save()
+
+        self.obtmfchat_room = Room(
+            name="obtmfchat",
+            display_name="OBTMFChat",
+            owner=self.obtmf_user
         ).save()
 
         self.obchat_room.occupants.add(self.ob_user)
@@ -67,5 +70,8 @@ class TestCommands(TestCase):
         """
 
         # Test who() errors
-        who("obchat knobchat", self.ob_user, self.obchat_room)
-        who("", self.ob_user, self.obchat_room)
+        async_to_sync(who)("knobchat", self.ob_user, self.obchat_room)
+        # await who("obtmfchat", self.ob_user, self.obchat_room)
+
+        # # Test who() correct input
+        # await who("obchat", self.ob_user, self.obchat_room)

@@ -23,7 +23,7 @@ async def who(args, user, room):
     """
 
     if not args:
-        args = room.name
+        args = [room.name]
 
     error_message = ""
     who_strings = []
