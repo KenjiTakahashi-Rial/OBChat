@@ -18,6 +18,7 @@ ROOM_NAME_MAX_LENGTH = 15
 ANON_USERNAME_MAX_LENGTH = 40 + len(ANON_PREFIX)
 
 class OBUser(AbstractUser):
+    #TODO: Change display_name to be null if it is the same as the username
     display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH)
     birthday = DateField(null=True)
     is_anon = BooleanField(default=False)
