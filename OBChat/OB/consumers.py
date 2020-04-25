@@ -60,6 +60,8 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Set the session
         # TODO: Consider pros and cons filesystem/cache/cookie sessions vs database sessions
         self.session = self.scope["session"]
+        if not self.session.session_key:
+            await sync_cycle_key(self.session)
 
         # Set the user
         if self.scope["user"].is_authenticated:
@@ -72,6 +74,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = await sync_save(
                 OBUser,
                 username=f"{ANON_PREFIX}{self.session.session_key}",
+                display_name=f"{ANON_PREFIX}{self.session.session_key}",
                 is_anon=True
             )
 
@@ -117,14 +120,11 @@ class OBConsumer(AsyncWebsocketConsumer):
         print(f"WebSocket disconnected with code {code}.")
 
         # Remove from the occupants list for this room and remove the room reference
-        # TODO: Check that users are actually removed. They weren't removed before
         await sync_remove(self.room.occupants, self.user)
         self.room = None
 
         # Delete anonymous users' temporary OBUser from the database and remove the user reference
-        # TODO: Check that users are actually deleted. They weren't deleted before because of
-        # dependencies in the Message model
-        if not self.user.is_authenticated:
+        if self.user.is_anon:
             await sync_delete(self.user)
             self.user = None
 
@@ -171,7 +171,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Encode the message data and metadata
         message_json = json.dumps({
             "text": message_text,
-            "sender": self.user.display_name or self.user.username,
+            "sender_name": self.user.display_name or self.user.username,
             "timestamp": get_datetime_string(new_message_object.timestamp)
         })
 

@@ -97,7 +97,11 @@ A chatroom for users to talk
                   </div>
                   <div class="col text-left">
                     <strong>
-                      {{ message.sender.display_name }}
+                      {% if message.sender %}
+                        {{ message.sender.display_name }}
+                      {% else %}
+                        {{ message.anon_username }}
+                      {% endif %}
                     </strong>
                   </div>
                 </div>
@@ -149,7 +153,7 @@ A chatroom for users to talk
       var newMessage = messageTemplate.cloneNode(true);
       
       // Insert the message data
-      newMessage.querySelector("#display-name").innerHTML = message.sender;
+      newMessage.querySelector("#display-name").innerHTML = message.sender_name;
       // TODO: Change this to the user's actual icon
       newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
       newMessage.querySelector("#user-icon").alt = "user";
