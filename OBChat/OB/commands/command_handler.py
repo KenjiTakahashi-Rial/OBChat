@@ -25,14 +25,14 @@ COMMANDS = {
 
 VALID_COMMANDS = ("Valid commands:\n"
                   "    * /room - Create a new room\n"
-                  "    * /who <room> - See who is in a room. Default: current room\n"
-                  "    * /private <user> <message> - Send a private message\n"
+                  "    * /who <room1> <room2> ... - See who is in a room. Default: current room\n"
+                  "    * /private /<user> <message> - Send a private message\n"
                   "    * /hire <user1> <user2> ... - Make user(s) admins of your current room\n"
                   "    * /fire <user1> <user2> ... - Revoke admin privileges for user(s)\n"
                   "    * /kick <user1> <user2> ... - Kick user(s) from your current room\n"
                   "    * /ban <user1> <user2> ... - Ban user(s) from your current room\n"
                   "    * /lift <user1> <user2> ... - Lift ban on user(s) from your current room\n"
-                  "    * /delete <name> - Delete a room. Default: current room\n"
+                  "    * /delete <room1> <room2> ... - Delete a room. Default: current room\n"
                   "Type backslash with only the first letter of a command if you're in a hurry.\n"
                   "To use backslash without a command: //")
 

@@ -39,7 +39,7 @@ class TestAuthenticationViews(TestCase):
     def test_sign_up(self):
         """
         Description:
-            Test signing up with and without form errors(see OB.views.authentication.sign_up()).
+            Test signing up with and without form errors (see OB.views.authentication.sign_up()).
 
         Arguments:
             self (TestCase): A Django TestCase class.

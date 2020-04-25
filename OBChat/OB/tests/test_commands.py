@@ -9,7 +9,8 @@ from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 
-from OB.models import OBUser
+from OB.commands.user_level import who
+from OB.models import OBUser, Room
 
 class TestCommands(TestCase):
     def setUp(self):
@@ -28,7 +29,7 @@ class TestCommands(TestCase):
 
         self.client = Client()
 
-        OBUser.objects.create_user(
+        self.ob_user = OBUser.objects.create_user(
             username="OB",
             email="ob@ob.ob",
             password="ob",
@@ -36,7 +37,7 @@ class TestCommands(TestCase):
             last_name="Takahashi-Rial"
         ).save()
 
-        OBUser.objects.create_user(
+        self.obtmf_user = OBUser.objects.create_user(
             username="OBTMF",
             email="obtmf@ob.ob",
             password="ob",
@@ -44,14 +45,19 @@ class TestCommands(TestCase):
             last_name="Jameson"
         ).save()
 
-        Room(
-            
-        )
+        self.obchat_room = Room(
+            name="obchat",
+            display_name="OBChat",
+            owner=self.ob_user
+        ).save()
 
-    def test_sign_up(self):
+        self.obchat_room.occupants.add(self.ob_user)
+        self.obchat_room.occupants.add(self.obtmf_user)
+
+    def test_user_level(self):
         """
         Description:
-            Test signing up with and without form errors(see OB.views.authentication.sign_up()).
+            Tests user-level commands (see OB.commands.user_level).
 
         Arguments:
             self (TestCase): A Django TestCase class.
@@ -60,109 +66,6 @@ class TestCommands(TestCase):
             None
         """
 
-        # Test GET
-        response = self.client.get(reverse("OB:OB-sign_up"))
-
-        self.assertEqual(response.status_code, 200)
-
-        # Test POST with empty form data
-        sign_up_data = {
-            "username": "",
-            "email": "",
-            "password": "",
-            "display_name": "",
-            "first_name": "",
-            "last_name": "",
-            "birthday": ""
-        }
-
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Please fill out all required fields.")
-
-        # Test POST with invalid username
-        sign_up_data["username"] = "O B"
-        sign_up_data["email"] = "ob@ob.ob"
-        sign_up_data["password"] = "ob"
-        sign_up_data["first_name"] = "Kenji"
-        sign_up_data["last_name"] = "Takahashi-Rial"
-
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Username may not contain spaces")
-
-        # Test POST with in-use username
-        sign_up_data["username"] = "OB"
-        sign_up_data["password"] = "ob"
-
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Username already in use.")
-
-        # Test POST with in-use email
-        sign_up_data["username"] = "OBTMF"
-        sign_up_data["password"] = "ob"
-
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Email already in use.")
-
-        # Test POST with valid form data
-        sign_up_data["username"] = "OBTMF"
-        sign_up_data["email"] = "obtmf@ob.ob"
-        sign_up_data["password"] = "ob"
-
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse("error_message" in response.context)
-
-    def test_log_in(self):
-        """
-        Description:
-            Test logging in with and without form errors(see OB.views.authentication.sign_up()).
-
-        Arguments:
-            self (TestCase): A Django TestCase class.
-
-        Return values:
-            None
-        """
-
-        # Test GET
-        response = self.client.get(reverse("OB:OB-log_in"))
-
-        self.assertEqual(response.status_code, 200)
-
-        # Test POST with empty form data
-        log_in_data = {
-            "username": "",
-            "password": ""
-        }
-
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Invalid username or password.")
-
-        # Test POST with invalid password
-        log_in_data["username"] = "OB"
-        log_in_data["password"] = "o"
-
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Invalid username or password.")
-
-        # Test POST with valid form data
-        log_in_data["username"] = "OB"
-        log_in_data["password"] = "ob"
-
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse("error_message" in response.context)
+        # Test who() errors
+        who("obchat knobchat", self.ob_user, self.obchat_room)
+        who("", self.ob_user, self.obchat_room)

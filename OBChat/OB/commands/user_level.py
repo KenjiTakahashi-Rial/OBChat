@@ -2,7 +2,7 @@
 Any user may perform these commands.
 """
 
-from OB.models import Admin, Room, OBUser
+from OB.models import Room, OBUser
 from OB.utilities.database import sync_get_who_string, sync_len_all, sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
@@ -22,20 +22,16 @@ async def who(args, user, room):
         None
     """
 
-    # Check for inital errors
+    if not args:
+        args = room.name
+
     error_message = ""
-
-    if len(args) > 1:
-        error_message = "Room name cannot contain spaces."
-    else:
-        args.append(room.name)
-
     who_strings = []
 
     for room_name in args:
         arg_room = await sync_try_get(Room, name=room_name)
 
-        # Check for per-argument errors
+        # Check for errors
         if not arg_room:
             error_message = f"{args[0]} doesn't exist, so that probably means nobody is in \
                 there."
