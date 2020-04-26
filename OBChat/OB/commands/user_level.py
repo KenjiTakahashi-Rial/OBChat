@@ -2,8 +2,8 @@
 Any user may perform these commands.
 """
 
-from OB.models import Room, OBUser
-from OB.utilities.database import sync_get_who_string, sync_len_all, sync_try_get
+from OB.models import Admin, OBUser, Room
+from OB.utilities.database import sync_get_owner, sync_len_all, sync_query_set_list, sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
 async def who(args, user, room):
@@ -44,7 +44,22 @@ async def who(args, user, room):
             await send_system_room_message(error_message, room)
             return
 
-        who_strings.append(await sync_get_who_string(user, arg_room))
+        who_string = ""
+
+        for occupant in await sync_query_set_list(arg_room.occupants):
+            occupant_string = f"{occupant.display_name} ({occupant.username})"
+
+            # Tag occupant appropriately
+            if occupant == await sync_get_owner(arg_room):
+                occupant_string += " [owner]"
+            if await sync_try_get(Admin, user=occupant, room=room):
+                occupant_string += " [admin]"
+            if occupant == user:
+                occupant_string += " [you]"
+
+            who_string += occupant_string + "\n"
+
+        who_strings.append(who_string)
 
     # Send user list back to the issuing user
     await send_system_room_message("\n\n".join(who_strings), room)

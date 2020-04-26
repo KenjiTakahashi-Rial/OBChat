@@ -138,7 +138,7 @@ def sync_remove(field, remove_object):
     field.remove(remove_object)
 
 @database_sync_to_async
-def sync_len_all(table):
+def sync_len_all(query_set):
     """
     Description:
         Allows an asynchronous function to get the length of a database table.
@@ -152,68 +152,42 @@ def sync_len_all(table):
         The integer value of the length of the table.
     """
 
-    return len(table.all())
+    return len(query_set.all())
 
 @database_sync_to_async
-def sync_get_occupants(room):
+def sync_query_set_list(query_set):
     """
     Description:
-        Allows an asynchronous function to get the occupants of a room as a list of OBUser objects.
+        Allows an asynchronous function to get a query_set of database objects as a list so that
+        it may be iterated on asynchronously.
 
     Arguments:
-        room (Room): The room to get the occupant name list of.
+        query_set (QuerySet): The QuerySet to get a list of.
+            May also be a ManyRelatedManager, which is similar to QuerySet.objects.
 
     Return values:
-        A list of OBUser objects who are occupying the room.
+        A list of database objects from the QuerySet.
     """
 
     # pylint: disable=unnecessary-comprehension
-    # This comprehension is necessary because [room.occupants.all()] returns a list of 1 QuerySet
-    return [user for user in room.occupants.all()]
+    # These comprehensions are necessary to make a list of database objects, not QuerySets.
+    try:
+        return [user for user in query_set.objects.all()]
+    except AttributeError:
+        # ManyRelatedManager types do not have an objects attribute
+        return [user for user in query_set.all()]
 
 @database_sync_to_async
-def sync_equals(object_a, object_b):
+def sync_get_owner(room):
     """
     Description:
-        Allows an asynchronous function to compare database objects.
-
+        Allows an asynchronous function to get the owner attribute of a Room.
+        The owner attribute of a Room is a ForeignKey, which require a database query to access.
     Arguments:
-        object_a (database object): The first object to compare.
-        object_b (database object): The second object to compare.
+        room (Room): The Room object to get the owner attribute of.
 
     Return values:
-        A boolean indicating if the two objects are equal.
+        The OBUser owner attribute of the room argument.
     """
 
-    return object_a == object_b
-
-@database_sync_to_async
-def sync_get_who_string(user, room):
-    """
-    Description:
-        Allows an asynchronous function to compare database objects.
-
-    Arguments:
-        object_a (database object): The first object to compare.
-        object_b (database object): The second object to compare.
-
-    Return values:
-        A boolean indicating if the two objects are equal.
-    """
-
-    who_string = f"Chatters in: {room.display_name} ({room.name})\n"
-
-    for occupant in room.occupants.all():
-        occupant_string = f"{occupant.display_name} ({occupant.username})"
-
-        # Tag occupant appropriately
-        if occupant == room.owner:
-            occupant_string += " [owner]"
-        if try_get(Admin, user=occupant, room=room):
-            occupant_string += " [admin]"
-        if occupant == user:
-            occupant_string += " [you]"
-
-        who_string += occupant_string + "\n"
-
-    return who_string
+    return room.owner
