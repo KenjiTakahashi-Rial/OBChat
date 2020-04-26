@@ -45,8 +45,9 @@ class Room(Model):
     is_suspended = BooleanField(default=False)
     occupants = ManyToManyField(OBUser, related_name="occupied_room")
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using,
+                     update_fields=update_fields)
         return self
 
     def __str__(self):
@@ -59,8 +60,9 @@ class Admin(Model):
     is_limited = BooleanField(default=True)
     is_revoked = BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using,
+                     update_fields=update_fields)
         return self
 
     def __str__(self):
@@ -72,8 +74,9 @@ class Ban(Model):
     timestamp = DateTimeField(auto_now_add=True)
     is_lifted = BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using,
+                     update_fields=update_fields)
         return self
 
     def __str__(self):
@@ -93,8 +96,9 @@ class Message(Model):
     is_edited = BooleanField(default=False)
     is_deleted = BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using,
+                     update_fields=update_fields)
         return self
 
     def __str__(self):
