@@ -5,7 +5,7 @@ particular instance of a class.
 
 from channels.db import database_sync_to_async
 
-from OB.models import Admin, OBUser
+from OB.models import OBUser
 
 def try_get(model, **kwargs):
     """

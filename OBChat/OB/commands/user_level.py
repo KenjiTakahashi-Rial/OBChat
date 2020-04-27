@@ -3,7 +3,8 @@ Any user may perform these commands.
 """
 
 from OB.models import Admin, OBUser, Room
-from OB.utilities.database import sync_get_owner, sync_len_all, sync_query_set_list, sync_try_get
+from OB.utilities.database import sync_get_owner, sync_len_all, sync_query_set_list, sync_save,\
+    sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
 async def who(args, user, room):
@@ -22,6 +23,7 @@ async def who(args, user, room):
         None
     """
 
+    # Default to current room when no arguments
     if not args:
         args = [room.name]
 
@@ -115,7 +117,7 @@ async def create_room(args, user, room):
         Create a new chat room from a commandline instead of through the website GUI.
 
     Arguments:
-        args (list[string]): The desired name of the new room. Should have length 1.
+        args (string): The desired name of the new room.
         user (OBUser): The OBUser who issued the command call and the owner of the new room.
         room (Room): The room the command was issued in.
 
@@ -123,15 +125,21 @@ async def create_room(args, user, room):
         None
     """
 
+    error_message = ""
+
     # Check for errors
     if not args:
         error_message = "Usage: /room <name>"
-    elif not user.is_authenticated:
+        print("not args")
+    elif not user.is_authenticated or user.is_anon:
         error_message = "Identify yourself! Must log in to create a room."
-    elif len(args) > 1:
+        print("not auth")
+    elif " " in args:
         error_message = "Room name cannot contain spaces."
-    elif Room.objects.filter(name=args).exists():
+        print("no spaces")
+    elif await sync_try_get(Room, name=args[0]):
         error_message = f"Someone beat you to it. \"{args[0]}\" already exists."
+        print("exists")
 
     # Send error message back to issuing user
     if error_message:
@@ -139,10 +147,11 @@ async def create_room(args, user, room):
         return
 
     # Save the new room
-    Room(
+    await sync_save(
+        Room,
         name=args,
         owner=user
-    ).save()
+    )
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: \"{args[0]}\""
