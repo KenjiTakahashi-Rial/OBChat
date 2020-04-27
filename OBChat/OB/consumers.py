@@ -74,7 +74,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = await sync_save(
                 OBUser,
                 username=f"{ANON_PREFIX}{self.session.session_key}",
-                display_name=f"{ANON_PREFIX}{self.session.session_key}",
                 is_anon=True
             )
 

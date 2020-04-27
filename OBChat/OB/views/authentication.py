@@ -68,6 +68,11 @@ def sign_up(request):
             })
             return render(request, template, context)
 
+        # If no display_name is entered and the username was not all lowercase, make the
+        # case-sensitive version of the username the display_name
+        if not display_name and not username.islower():
+            display_name = username
+
         # Save a new OBUser to the database
         OBUser.objects.create_user(
             username=username.lower(),
@@ -75,7 +80,7 @@ def sign_up(request):
             password=password,
             first_name=first_name,
             last_name=last_name,
-            display_name=display_name or username,
+            display_name=display_name,
             birthday=birthday
         ).save()
 

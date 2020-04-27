@@ -47,7 +47,10 @@ async def who(args, user, room):
         who_string = ""
 
         for occupant in await sync_query_set_list(arg_room.occupants):
-            occupant_string = f"{occupant.display_name} ({occupant.username})"
+            if occupant.display_name:
+                occupant_string = f"{occupant.display_name} ({occupant.username})"
+            else:
+                occupant_string = occupant.username
 
             # Tag occupant appropriately
             if occupant == await sync_get_owner(arg_room):

@@ -15,11 +15,11 @@ from OB.constants import ANON_PREFIX
 DISPLAY_NAME_MAX_LENGTH = 15
 MESSAGE_MAX_LENGTH = 100
 ROOM_NAME_MAX_LENGTH = 15
-ANON_USERNAME_MAX_LENGTH = 40 + len(ANON_PREFIX)
+# 40 is the max length of the session_key, which is the suffix of anonymous usernames
+ANON_USERNAME_MAX_LENGTH = len(ANON_PREFIX) + 40
 
 class OBUser(AbstractUser):
-    #TODO: Change display_name to be null if it is the same as the username
-    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH)
+    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
     birthday = DateField(null=True)
     is_anon = BooleanField(default=False)
     is_expelled = BooleanField(default=False)
