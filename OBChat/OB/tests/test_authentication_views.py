@@ -20,7 +20,7 @@ class TestAuthenticationViews(TestCase):
             Sets up an OBUser database object to test the views.
 
         Arguments:
-            self (TestCase): A Django TestCase class.
+            self (TestAuthenticationViews): A TestAuthenticationViews class.
 
         Return values:
             None
@@ -42,7 +42,7 @@ class TestAuthenticationViews(TestCase):
             Test signing up with and without form errors (see OB.views.authentication.sign_up()).
 
         Arguments:
-            self (TestCase): A Django TestCase class.
+            self (TestAuthenticationViews): A TestAuthenticationViews class.
 
         Return values:
             None
@@ -118,7 +118,7 @@ class TestAuthenticationViews(TestCase):
             Test logging in with and without form errors(see OB.views.authentication.sign_up()).
 
         Arguments:
-            self (TestCase): A Django TestCase class.
+            self (TestAuthenticationViews): A TestAuthenticationViews class.
 
         Return values:
             None
