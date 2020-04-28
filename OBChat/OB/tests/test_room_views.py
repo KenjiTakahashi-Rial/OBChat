@@ -1,159 +1,154 @@
 """
-Tests the authentication view functions (see OB.views.authentication).
+Tests the room view functions (see OB.views.room).
 
 See the Django documentation on Testing for more information.
 https://docs.djangoproject.com/en/3.0/topics/testing/
+
+Also see the pytest documentation for more information.
+https://docs.pytest.org/en/latest/contents.html
 """
 
+from pytest import mark
+
 from django.test import Client
-from django.test import TestCase
 from django.urls import reverse
 
-from OB.models import OBUser
+from OB.models import OBUser, Room
 
-class TestRoomViews(TestCase):
-    def setUp(self):
-        """
-        Description:
-            Setup phase before every test method. Unfortunately this is overriden from a Django
-            TestCase method, so it must be camelCase instead of snake_case like everything else.
-            Sets up an OBUser database object to test the views.
+def database_setup():
+    """
+    Description:
+        Sets up the database objects required to test the views.
 
-        Arguments:
-            self (TestAuthenticationViews): A TestAuthenticationViews class.
+    Arguments:
+        None.
 
-        Return values:
-            None
-        """
+    Return values:
+        None.
+    """
 
-        self.client = Client()
+    ob_user = OBUser.objects.create_user(
+        username="ob",
+        email="ob@ob.ob",
+        password="ob",
+        first_name="Kenji",
+        last_name="Takahashi-Rial"
+    ).save()
 
-        OBUser.objects.create_user(
-            username="ob",
-            email="ob@ob.ob",
-            password="ob",
-            first_name="Kenji",
-            last_name="Takahashi-Rial"
-        ).save()
+    Room(
+        name="obchat",
+        owner=ob_user
+    ).save()
 
-    def test_sign_up(self):
-        """
-        Description:
-            Test signing up with and without form errors (see OB.views.authentication.sign_up()).
+@mark.django_db()
+def test_chat():
+    """
+    Description:
+        Tests the chat list page (see OB.views.room.chat()).
 
-        Arguments:
-            self (TestAuthenticationViews): A TestAuthenticationViews class.
+    Arguments:
+        None.
 
-        Return values:
-            None
-        """
+    Return values:
+        None.
+    """
 
-        # Test GET
-        response = self.client.get(reverse("OB:OB-sign_up"))
+    client = Client()
+    database_setup()
 
-        self.assertEqual(response.status_code, 200)
+    # Test GET
+    response = client.get(reverse("OB:OB-chat"))
 
-        # Test POST with empty form data
-        sign_up_data = {
-            "username": "",
-            "email": "",
-            "password": "",
-            "display_name": "",
-            "first_name": "",
-            "last_name": "",
-            "birthday": ""
-        }
+    assert response.status_code == 200
+    assert "error_message" not in response.context
 
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+@mark.django_db()
+def test_create_room():
+    """
+    Description:
+        Tests the room creation page (see OB.views.room.create_room()).
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Please fill out all required fields.")
+    Arguments:
+        None.
 
-        # Test POST with invalid username
-        sign_up_data["username"] = "O B"
-        sign_up_data["email"] = "ob@ob.ob"
-        sign_up_data["password"] = "ob"
-        sign_up_data["first_name"] = "Kenji"
-        sign_up_data["last_name"] = "Takahashi-Rial"
+    Return values:
+        None.
+    """
 
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    client = Client()
+    database_setup()
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Username may not contain spaces")
+    # Test GET with unauthenticated user
+    response = client.get(reverse("OB:OB-create_room"))
 
-        # Test POST with in-use username
-        sign_up_data["username"] = "OB"
-        sign_up_data["password"] = "ob"
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Must be logged in to create a room."
 
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    # Authenticate user and test GET
+    client.login(username="ob", password="ob")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Username already in use.")
+    response = client.get(reverse("OB:OB-create_room"))
 
-        # Test POST with in-use email
-        sign_up_data["username"] = "OBTMF"
-        sign_up_data["password"] = "ob"
+    assert response.status_code == 200
+    assert "error_message" not in response.context
 
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    # Test POST with empty form data
+    create_room_data = {"room_name": ""}
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Email already in use.")
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
-        # Test POST with valid form data
-        sign_up_data["username"] = "OBTMF"
-        sign_up_data["email"] = "obtmf@ob.ob"
-        sign_up_data["password"] = "ob"
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Room must have a name."
 
-        response = self.client.post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    # Test POST with invalid room name
+    create_room_data["room_name"] = "ob chat"
 
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse("error_message" in response.context)
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
-        # Test display_name saving correctly
-        self.assertEqual(OBUser.objects.get(username="obtmf").display_name, "OBTMF")
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Room name cannot contain spaces."
 
-    def test_log_in(self):
-        """
-        Description:
-            Test logging in with and without form errors(see OB.views.authentication.sign_up()).
+    # Test POST with in-use room name
+    create_room_data["room_name"] = "obchat"
 
-        Arguments:
-            self (TestAuthenticationViews): A TestAuthenticationViews class.
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
-        Return values:
-            None
-        """
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Room name already in use."
 
-        # Test GET
-        response = self.client.get(reverse("OB:OB-log_in"))
+    # Test POST with valid form data
+    create_room_data["room_name"] = "knobchat"
 
-        self.assertEqual(response.status_code, 200)
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
-        # Test POST with empty form data
-        log_in_data = {
-            "username": "",
-            "password": ""
-        }
+    assert response.status_code == 302
 
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
+    # Test room saving correctly
+    Room.objects.get(name="knobchat")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Invalid username or password.")
+@mark.django_db()
+def test_room():
+    """
+    Description:
+        Tests the room page (see OB.views.room.room()).
 
-        # Test POST with invalid password
-        log_in_data["username"] = "OB"
-        log_in_data["password"] = "o"
+    Arguments:
+        None.
 
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
+    Return values:
+        None.
+    """
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["error_message"], "Invalid username or password.")
+    client = Client()
+    database_setup()
 
-        # Test POST with valid form data
-        log_in_data["username"] = "OB"
-        log_in_data["password"] = "ob"
+    # Test GET with invalid room name
+    response = client.get(reverse("OB:OB-room", kwargs={"room_name": "knobchat"}))
 
-        response = self.client.post(reverse("OB:OB-log_in"), log_in_data, follow=True)
+    assert response.status_code == 200
 
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse("error_message" in response.context)
+    # Test GET with valid room name
+    response = client.get(reverse("OB:OB-room", kwargs={"room_name": "obchat"}))
+
+    assert response.status_code == 200
+    assert "messages" in response.context

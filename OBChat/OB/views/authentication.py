@@ -55,9 +55,9 @@ def sign_up(request):
         elif OBUser.objects.filter(email=email).exists():
             context["error_message"] = "Email already in use."
 
+        # Return whichever info was valid to be put back in the form
         if "error_message" in context:
             template = "OB/sign_up.html"
-            # Return whichever info was valid to be put back in the form
             context.update({
                 "username": username,
                 "email": email,

@@ -66,19 +66,22 @@ def create_room(request):
         room_name = request.POST["room_name"].strip()
         owner = OBUser.objects.get(username=request.user.username)
 
-        template = "OB/create_room.html"
         context = {"room_name": room_name}
 
         # Check for errors
         if not room_name:
             context["error_message"] = "Room must have a name."
-            return render(request, template, context)
-
-        if Room.objects.filter(name=room_name.lower()).exists():
+        elif " " in room_name:
+            context["error_message"] = "Room name cannot contain spaces."
+        elif Room.objects.filter(name=room_name.lower()).exists():
             context["error_message"] = "Room name already in use."
+
+        # Return whichever info was valid to be put back in the form
+        if "error_message" in context:
+            template = "OB/create_room.html"
             return render(request, template, context)
 
-        # Save the room
+        # Save the room to the database
         Room(
             name=room_name.lower(),
             display_name=room_name,

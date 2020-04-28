@@ -39,6 +39,7 @@ class OBUser(AbstractUser):
 
 class Room(Model):
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
+    # TODO: Add the option for a display name in the create_room view and command
     display_name = CharField(max_length=ROOM_NAME_MAX_LENGTH, null=True)
     owner = ForeignKey(OBUser, on_delete=CASCADE, default=0, related_name="owned_room")
     timestamp = DateTimeField(auto_now_add=True)
