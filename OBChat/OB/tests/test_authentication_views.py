@@ -18,7 +18,7 @@ from OB.models import OBUser
 def database_setup():
     """
     Description:
-        Sets up the database objects required to test the commands.
+        Sets up the database objects required to test the views.
 
     Arguments:
         None.
@@ -48,12 +48,14 @@ def test_sign_up():
         None.
     """
 
+    client = Client()
     database_setup()
 
     # Test GET
-    response = Client().get(reverse("OB:OB-sign_up"))
+    response = client.get(reverse("OB:OB-sign_up"))
 
     assert response.status_code == 200
+    assert "error_message" not in response.context
 
     # Test POST with empty form data
     sign_up_data = {
@@ -66,7 +68,7 @@ def test_sign_up():
         "birthday": ""
     }
 
-    response = Client().post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Please fill out all required fields."
@@ -78,7 +80,7 @@ def test_sign_up():
     sign_up_data["first_name"] = "Kenji"
     sign_up_data["last_name"] = "Takahashi-Rial"
 
-    response = Client().post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Username may not contain spaces"
@@ -87,7 +89,7 @@ def test_sign_up():
     sign_up_data["username"] = "OB"
     sign_up_data["password"] = "ob"
 
-    response = Client().post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Username already in use."
@@ -96,7 +98,7 @@ def test_sign_up():
     sign_up_data["username"] = "OBTMF"
     sign_up_data["password"] = "ob"
 
-    response = Client().post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Email already in use."
@@ -106,13 +108,12 @@ def test_sign_up():
     sign_up_data["email"] = "obtmf@ob.ob"
     sign_up_data["password"] = "ob"
 
-    response = Client().post(reverse("OB:OB-sign_up"), sign_up_data, follow=True)
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
-    assert response.status_code == 200
-    assert "error_message" not in response.context
+    assert response.status_code == 302
 
     # Test display_name saving correctly
-    assert OBUser.objects.get(username="obtmf").display_name == "OBTMF"
+    OBUser.objects.get(username="obtmf").display_name == "OBTMF"
 
 @mark.django_db()
 def test_log_in():
@@ -127,10 +128,11 @@ def test_log_in():
         None.
     """
 
+    client = Client()
     database_setup()
-    
+
     # Test GET
-    response = Client().get(reverse("OB:OB-log_in"))
+    response = client.get(reverse("OB:OB-log_in"))
 
     assert response.status_code == 200
 
@@ -140,7 +142,7 @@ def test_log_in():
         "password": ""
     }
 
-    response = Client().post(reverse("OB:OB-log_in"), log_in_data, follow=True)
+    response = client.post(reverse("OB:OB-log_in"), log_in_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Invalid username or password."
@@ -149,7 +151,7 @@ def test_log_in():
     log_in_data["username"] = "OB"
     log_in_data["password"] = "o"
 
-    response = Client().post(reverse("OB:OB-log_in"), log_in_data, follow=True)
+    response = client.post(reverse("OB:OB-log_in"), log_in_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Invalid username or password."
@@ -158,7 +160,5 @@ def test_log_in():
     log_in_data["username"] = "OB"
     log_in_data["password"] = "ob"
 
-    response = Client().post(reverse("OB:OB-log_in"), log_in_data, follow=True)
-
-    assert response.status_code == 200
-    assert "error_message" not in response.context
+    response = client.post(reverse("OB:OB-log_in"), log_in_data)
+    assert response.status_code == 302
