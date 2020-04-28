@@ -15,8 +15,6 @@ from OB.constants import ANON_PREFIX, SYSTEM_USERNAME
 from OB.models import OBUser, Room
 from OB.utilities.database import sync_add, sync_get, sync_save
 
-@mark.asyncio
-@mark.django_db()
 async def database_setup():
     """
     Description:
