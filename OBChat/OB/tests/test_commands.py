@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 from OB.commands.user_level import create_room, who
 from OB.constants import ANON_PREFIX, SYSTEM_USERNAME
 from OB.models import OBUser, Room
-from OB.utilities.database import sync_add, sync_get, sync_save
+from OB.utilities.database import sync_add, sync_delete, sync_get, sync_model_list, sync_save
 
 async def database_setup():
     """
@@ -71,6 +71,24 @@ async def database_setup():
     await sync_add(obchat_room.occupants, ob_user)
     await sync_add(obchat_room.occupants, obtmf_user)
 
+async def database_cleanup():
+    """
+    Description:
+        Cleans up the database objects used to test the views.
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    for user in await sync_model_list(OBUser):
+        await sync_delete(user)
+
+    for room in await sync_model_list(Room):
+        await sync_delete(room)
+
 @mark.asyncio
 @mark.django_db()
 async def test_user_level():
@@ -112,3 +130,5 @@ async def test_user_level():
 
     # Test create_room() success
     await sync_get(Room, name="knobchat")
+
+    await database_cleanup()

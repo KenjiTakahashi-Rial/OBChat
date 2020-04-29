@@ -40,6 +40,24 @@ def database_setup():
         owner=ob_user
     ).save()
 
+def database_cleanup():
+    """
+    Description:
+        Cleans up the database objects used to test the views.
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    for user in OBUser.objects.all():
+        user.delete()
+
+    for room in Room.objects.all():
+        room.delete()
+
 @mark.django_db()
 def test_chat():
     """
@@ -61,6 +79,8 @@ def test_chat():
 
     assert response.status_code == 200
     assert "error_message" not in response.context
+
+    database_cleanup()
 
 @mark.django_db()
 def test_create_room():
@@ -126,6 +146,8 @@ def test_create_room():
     # Test room saving correctly
     Room.objects.get(name="knobchat")
 
+    database_cleanup()
+
 @mark.django_db()
 def test_room():
     """
@@ -152,3 +174,5 @@ def test_room():
 
     assert response.status_code == 200
     assert "messages" in response.context
+
+    database_cleanup()

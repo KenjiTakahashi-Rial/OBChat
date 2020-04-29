@@ -35,6 +35,21 @@ def database_setup():
         last_name="Takahashi-Rial"
     ).save()
 
+def database_cleanup():
+    """
+    Description:
+        Cleans up the database objects used to test the views.
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    for user in OBUser.objects.all():
+        user.delete()
+
 @mark.django_db()
 def test_sign_up():
     """
@@ -115,6 +130,8 @@ def test_sign_up():
     # Test display_name saving correctly
     OBUser.objects.get(username="obtmf").display_name == "OBTMF"
 
+    database_cleanup()
+
 @mark.django_db()
 def test_log_in():
     """
@@ -162,3 +179,5 @@ def test_log_in():
 
     response = client.post(reverse("OB:OB-log_in"), log_in_data)
     assert response.status_code == 302
+
+    database_cleanup()

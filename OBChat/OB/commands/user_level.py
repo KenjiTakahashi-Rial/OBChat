@@ -3,7 +3,7 @@ Any user may perform these commands.
 """
 
 from OB.models import Admin, OBUser, Room
-from OB.utilities.database import sync_get_owner, sync_len_all, sync_query_set_list, sync_save,\
+from OB.utilities.database import sync_get_owner, sync_len_all, sync_model_list, sync_save,\
     sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
@@ -48,7 +48,7 @@ async def who(args, user, room):
 
         who_string = ""
 
-        for occupant in await sync_query_set_list(arg_room.occupants):
+        for occupant in await sync_model_list(arg_room.occupants):
             if occupant.display_name:
                 occupant_string = f"{occupant.display_name} ({occupant.username})"
             else:

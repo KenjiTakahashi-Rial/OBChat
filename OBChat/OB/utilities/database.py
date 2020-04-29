@@ -155,27 +155,27 @@ def sync_len_all(query_set):
     return len(query_set.all())
 
 @database_sync_to_async
-def sync_query_set_list(query_set):
+def sync_model_list(model):
     """
     Description:
-        Allows an asynchronous function to get a query_set of database objects as a list so that
-        it may be iterated on asynchronously.
+        Allows an asynchronous function to get a list of database objects of a model so that it
+        may be iterated on asynchronously.
 
     Arguments:
-        query_set (QuerySet): The QuerySet to get a list of.
-            May also be a ManyRelatedManager, which is similar to QuerySet.objects.
+        model: The model to get a list of.
+            May also be a ManyRelatedManager, which has its own table in the database.
 
     Return values:
-        A list of database objects from the QuerySet.
+        A list of database objects from the model's QuerySet.
     """
 
     # pylint: disable=unnecessary-comprehension
     # These comprehensions are necessary to make a list of database objects, not QuerySets.
     try:
-        return [user for user in query_set.objects.all()]
+        return [user for user in model.objects.all()]
     except AttributeError:
         # ManyRelatedManager types do not have an objects attribute
-        return [user for user in query_set.all()]
+        return [user for user in model.all()]
 
 @database_sync_to_async
 def sync_get_owner(room):
