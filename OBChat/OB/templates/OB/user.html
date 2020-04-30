@@ -18,41 +18,67 @@ Shows user information and allows a user to edit their own information
           <p><font color="red"><strong>EXPELLED</strong></font></p>
       {% endif %}
       
-      {% if request.user.username == user.username %}
-        <div id="edit-info">
-          <h3>Username</h3>
-          <p>{{ user.username }}</p>
-          <h3>Display Name</h3>
-          <p>{% if not user.display_name %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
-          <h3>Real Name</h3>
-          <p>{{ user.first_name }} {{ user.last_name }}</p>
-          <h3>Birthday</h3>
-          <p>{{ user.birthday }}</p>
-          <h3>Email</h3>
-          <p>{{ user.email }}</p>
-          <h3>Joined</h3>
-          <p>{{ user.date_joined }}</p>
-          <h3>Last Login</h3>
-          <p>{{ user.last_login }}</p>
-        </div>
-      {% else %}
-        <div id="display-info">
-          <h3>Username</h3>
-          <p>{{ user.username }}</p>
-          <h3>Display Name</h3>
-          <p>{% if user.display_name is None %} {{ user.username }} {% else %} {{ user.display_name }} {% endif %}</p>
-          <h3>Real Name</h3>
-          <p>{{ user.first_name }} {{ user.last_name }}</p>
-          <h3>Birthday</h3>
-          <p>{{ user.birthday }}</p>
-          <h3>Email</h3>
-          <p>{{ user.email }}</p>
-          <h3>Joined</h3>
-          <p>{{ user.date_joined }}</p>
-          <h3>Last Login</h3>
-          <p>{{ user.last_login }}</p>
-        </div>
-      {% endif %}
+      <div id="display-info">
+        <h3>Username</h3>
+        <p>{{ user.username }}</p>
+        <h3>Display Name</h3>
+        <p name="can-edit" id="display-name">{% if user.display_name %}{{ user.display_name }}{% else %}{{ user.username }}{% endif %}</p>
+        <input name="edit-input" id="display-name-input" style="display: none"/>
+        <h3>Real Name</h3>
+        <p name="can-edit" id="real-name">{{ user.first_name }} {{ user.last_name }}</p>
+        <input name="edit-input" id="real-name-input" style="display: none"/>
+        <h3>Birthday</h3>
+        <p name="can-edit" id="birthday">{{ user.birthday }}</p>
+        <input type="date" id="birthday-input" name="edit-input" style="display: none"/>
+        <h3>Email</h3>
+        <p>{{ user.email }}</p>
+        <h3>Joined</h3>
+        <p>{{ user.date_joined }}</p>
+        <h3>Last Login</h3>
+        <p>{{ user.last_login }}</p>
+      </div>
     </div>
   </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    // A user may only edit if this is their page and they are not expelled
+    if ("{{ user.is_expelled }}" === "False" && {{ user.id }} === {{ request.user.id }}) {
+      // Click to edit
+      $("p[name=\"can-edit\"]").on("click", function(event) {
+        var editInput = $("input[id^=" + event.target.id + "]");
+        
+        editInput.css({"display": $(this).css("display")});
+        editInput.val($(this).html());
+        editInput.focus();
+
+        $(this).css({"display": "none"});
+      });
+
+      // Click away to stop editing
+      $("input[name=\"edit-input\"]").focusout(stopEditing);
+
+      // Press enter to stop editing
+      $("input[name=\"edit-input\"]").keypress(function(event) {
+        if (event.which == 13) {
+          stopEditing(event)
+        }
+      });
+
+      // Stops editing
+      function stopEditing(event) {
+        var displayValueId = event.target.id.substring(0, event.target.id.length - "-input".length);
+        var displayValue = $(("#" + displayValueId));
+        
+        displayValue.css({"display": $(this).css("display")});
+        
+        if ($(this).val()) {
+          displayValue.html($(this).val());
+        }
+
+        $(this).css({"display": "none"});
+      }
+    }
+  </script>
 {% endblock %}
