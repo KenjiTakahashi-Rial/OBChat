@@ -29,7 +29,7 @@ Shows user information and allows a user to edit their own information
         <input name="edit-input" id="real-name-input" style="display: none"/>
         <h3>Birthday</h3>
         <p name="can-edit" id="birthday">{{ user.birthday }}</p>
-        <input type="date" id="birthday-input" name="edit-input" style="display: none"/>
+        <input type="date" name="edit-input" id="birthday-input" style="display: none"/>
         <h3>Email</h3>
         <p>{{ user.email }}</p>
         <h3>Joined</h3>
@@ -37,12 +37,18 @@ Shows user information and allows a user to edit their own information
         <h3>Last Login</h3>
         <p>{{ user.last_login }}</p>
       </div>
+
+      <button class="btn btn-primary" name="buttons" id="save-button" style="display: none">Save</button>
+      <button class="btn btn-secondary" name="buttons" id="cancel-button" style="display: none">Cancel</button>
     </div>
   </div>
 {% endblock %}
 
 {% block javascript %}
   <script>
+    var originalChangedInfo = {};
+    var unsavedChanges = {};
+
     // A user may only edit if this is their page and they are not expelled
     if ("{{ user.is_expelled }}" === "False" && {{ user.id }} === {{ request.user.id }}) {
       // Click to edit
@@ -50,35 +56,68 @@ Shows user information and allows a user to edit their own information
         var editInput = $("input[id^=" + event.target.id + "]");
         
         editInput.css({"display": $(this).css("display")});
-        editInput.val($(this).html());
+        editInput.val($(this).text());
         editInput.focus();
 
         $(this).css({"display": "none"});
       });
 
       // Click away to stop editing
-      $("input[name=\"edit-input\"]").focusout(stopEditing);
-
-      // Press enter to stop editing
-      $("input[name=\"edit-input\"]").keypress(function(event) {
-        if (event.which == 13) {
-          stopEditing(event)
+      $("input[name=\"edit-input\"]").focusout(function(event) {
+        if ($(this).css("display") == "none") {
+          return;
         }
-      });
 
-      // Stops editing
-      function stopEditing(event) {
         var displayValueId = event.target.id.substring(0, event.target.id.length - "-input".length);
         var displayValue = $(("#" + displayValueId));
         
         displayValue.css({"display": $(this).css("display")});
         
-        if ($(this).val()) {
-          displayValue.html($(this).val());
+        var trimmedInput = $(this).val().trim();
+        
+        // Show buttons and stores previous value in case changes are cancelled
+        if (trimmedInput && trimmedInput != displayValue.text()) {
+          originalChangedInfo[displayValueId] = displayValue.text();
+          unsavedChanges[displayValueId] = trimmedInput;
+          
+          $("button[name=\"buttons\"]").css({"display": $(this).css("display")});
+
+          displayValue.text(trimmedInput);
         }
 
         $(this).css({"display": "none"});
-      }
+      });
+
+      // Press enter to stop editing
+      $("input[name=\"edit-input\"]").keypress(function(event) {
+        if (event.which == 13) {
+          event.preventDefault();
+          $(this).trigger("focusout");
+        }
+      });
+
+      // AJAX POST the changes to be saved
+      $(document).ready(function() {
+        $("#save-button").click(function(event) {
+          $.ajax({
+            headers: {"X-CSRFToken": getCookie("csrftoken")},
+            type: "POST",
+            url: "/OB/user/{{ user.username }}/",
+            data: unsavedChanges,
+          });
+          originalChangedInfo = {};
+        });
+      });
+
+      // Discard the changes made
+      $("#cancel-button").on("click", function(event) {
+        for (var id of Object.keys(originalChangedInfo)) {
+          $(("#" + id)).text(originalChangedInfo[id]);
+        }
+
+        originalChangedInfo = {};
+        unsavedChanges = {};
+      })
     }
   </script>
 {% endblock %}

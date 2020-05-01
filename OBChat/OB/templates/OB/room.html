@@ -132,7 +132,6 @@ A chatroom for users to talk
 {% block javascript %}
   <script>
     var roomName = {{ room_name_json }};
-    var token = getCookie("csrftoken");
     var log = document.querySelector("#log")
     var input = document.querySelector("#input");
     var submit = document.querySelector("#submit");
@@ -199,28 +198,5 @@ A chatroom for users to talk
         "message_text": message_text
       }));
     };
-
-    /* 
-      Messages are now saved to the database when a Consumer receives a WebSocket frame rather than 
-      making a POST request every time a message is sent. See OBConsumer.receive() in consumers.py
-
-      Saving this function so it may be used as a template for a possible future AJAX call
-      
-      // AJAX POST the message to be saved or commands to be interpreted
-      $(document).ready(function() {
-        $("#submit").click(function(event) {
-          var url = "/OB/chat/" + roomName + "/";
-          $.ajax({
-            headers: { "X-CSRFToken": token},
-            type: "POST",
-            url: url,
-            data: {
-              "message": input.value.trim()
-            },
-          });
-          input.value = "";
-        });
-      });
-    */
   </script>
 {% endblock %}
