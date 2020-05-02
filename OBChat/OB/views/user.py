@@ -29,27 +29,34 @@ def user(request, username):
         An empty HTTP response if POST and no errors.
     """
 
-    if request.method == "GET":
-        user_object = try_get(OBUser, username=username)
+    context = {"user": try_get(OBUser, username=username)}
 
-        if user_object:
+    if request.method == "GET":
+        if context["user"]:
             template = "OB/user.html"
-            context = {"user": user_object}
         else:
             template = "OB/not_user.html"
-            context = {}
 
         return render(request, template, context)
 
     if request.method == "POST":
         # Ensure that only the user whose page this is can edit their information
         if request.user.username != username:
-            return
+            return HttpResponse()
 
         # Organize all the data
         display_name = request.POST.get("display-name")
         real_name = request.POST.get("real-name")
         birthday = request.POST.get("birthday")
+
+        template = "OB/user.html"
+
+        # Check for errors
+        if " " in display_name:
+            context["error_message"] = "Display name may not contain spaces."
+
+        if "error_message" in context:
+            return render(request, template, context)
 
         # Display name
         if not display_name or display_name == request.user.display_name:
@@ -64,19 +71,18 @@ def user(request, username):
             request.user.first_name = split_name[0]
 
             if len(split_name) > 1:
+                print(split_name)
                 request.user.last_name = " ".join(split_name[1:])
             else:
                 request.user.last_name = ""
 
         # Birthday
-        if birthday != request.user.birthday:
+        if birthday and birthday != request.user.birthday:
             request.user.birthday = birthday
 
         request.user.save()
 
-        template = "OB/user.html"
-        context = {"saved": True}
-        return render(request, template, context)
+        return render(request, template)
 
     # Not GET or POST
     return HttpResponse()

@@ -34,6 +34,7 @@ def chat(request):
         context = {"rooms": Room.objects.all()}
         return render(request, template, context)
 
+    # Not GET
     return HttpResponse()
 
 def create_room(request):
@@ -90,6 +91,7 @@ def create_room(request):
 
         return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
+    # Not GET or POST
     return HttpResponse()
 
 def room(request, room_name):

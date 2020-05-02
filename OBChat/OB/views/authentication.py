@@ -90,6 +90,7 @@ def sign_up(request):
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
+    # Not GET or POST
     return HttpResponse()
 
 def log_in(request):
@@ -135,6 +136,7 @@ def log_in(request):
 
         return HttpResponseRedirect(reverse("OB:OB-chat"))
 
+    # Not GET or POST
     return HttpResponse()
 
 def log_out(request):

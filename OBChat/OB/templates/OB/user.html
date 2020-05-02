@@ -24,19 +24,27 @@ Shows user information and allows a user to edit their own information
       <div id="display-info">
         <h3>Username</h3>
         <p>{{ user.username }}</p>
+
         <h3>Display Name</h3>
         <p name="can-edit" id="display-name">{% if user.display_name %}{{ user.display_name }}{% else %}{{ user.username }}{% endif %}</p>
         <input name="edit-input" id="display-name-input" style="display: none"/>
+
         <h3>Real Name</h3>
-        <p name="can-edit" id="real-name">{{ user.first_name }} {{ user.last_name }}</p>
+        <p name="can-edit" id="real-name">{{ user.first_name }}{{ user.last_name }}
+                                          {% if not user.first_name and not user.last_name %} Oswald Bobberson {% endif %}
+        </p>
         <input name="edit-input" id="real-name-input" style="display: none"/>
+
         <h3>Birthday</h3>
-        <p name="can-edit" id="birthday">{{ user.birthday }}</p>
+        <p name="can-edit" id="birthday">{% if user.birthday %}{{ user.birthday }}{% else %}February 30th, Never{% endif %}</p>
         <input type="date" name="edit-input" id="birthday-input" style="display: none"/>
+
         <h3>Email</h3>
         <p>{{ user.email }}</p>
+
         <h3>Joined</h3>
         <p>{{ user.date_joined }}</p>
+
         <h3>Last Login</h3>
         <p>{{ user.last_login }}</p>
       </div>
@@ -54,7 +62,7 @@ Shows user information and allows a user to edit their own information
 
     // A user may only edit if this is their page and they are not expelled
     if ("{{ user.is_expelled }}" === "False" && {{ user.id }} ===
-      {% if request.user.id %} {{ request.user.id }} {% else %} -1 {% endif %}) {
+      {% if request.user.id >= 0 %}{{ request.user.id }}{% else %}-1{% endif %}) {
       // Click to edit
       $("p[name=\"can-edit\"]").on("click", function(event) {
         var editInput = $("input[id^=" + event.target.id + "]");
