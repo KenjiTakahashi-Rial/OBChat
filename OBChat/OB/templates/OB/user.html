@@ -8,6 +8,9 @@ Shows user information and allows a user to edit their own information
   <title>
     Knock Knock, Who's There?
   </title>
+
+  {% load static %}
+  <script src="{% static 'OB/cookie.js' %}"></script>
 {% endblock %}
 
 {% block body %}
@@ -17,7 +20,7 @@ Shows user information and allows a user to edit their own information
       {% if user.is_expelled %}
           <p><font color="red"><strong>EXPELLED</strong></font></p>
       {% endif %}
-      
+
       <div id="display-info">
         <h3>Username</h3>
         <p>{{ user.username }}</p>
@@ -50,11 +53,12 @@ Shows user information and allows a user to edit their own information
     var unsavedChanges = {};
 
     // A user may only edit if this is their page and they are not expelled
-    if ("{{ user.is_expelled }}" === "False" && {{ user.id }} === {{ request.user.id }}) {
+    if ("{{ user.is_expelled }}" === "False" && {{ user.id }} ===
+      {% if request.user.id %} {{ request.user.id }} {% else %} -1 {% endif %}) {
       // Click to edit
       $("p[name=\"can-edit\"]").on("click", function(event) {
         var editInput = $("input[id^=" + event.target.id + "]");
-        
+
         editInput.css({"display": $(this).css("display")});
         editInput.val($(this).text());
         editInput.focus();
@@ -70,16 +74,16 @@ Shows user information and allows a user to edit their own information
 
         var displayValueId = event.target.id.substring(0, event.target.id.length - "-input".length);
         var displayValue = $(("#" + displayValueId));
-        
+
         displayValue.css({"display": $(this).css("display")});
-        
+
         var trimmedInput = $(this).val().trim();
-        
+
         // Show buttons and stores previous value in case changes are cancelled
         if (trimmedInput && trimmedInput != displayValue.text()) {
           originalChangedInfo[displayValueId] = displayValue.text();
           unsavedChanges[displayValueId] = trimmedInput;
-          
+
           $("button[name=\"buttons\"]").css({"display": $(this).css("display")});
 
           displayValue.text(trimmedInput);
@@ -99,24 +103,40 @@ Shows user information and allows a user to edit their own information
       // AJAX POST the changes to be saved
       $(document).ready(function() {
         $("#save-button").click(function(event) {
+          if ($(this).css("display") == "none") {
+            return;
+          }
+
           $.ajax({
             headers: {"X-CSRFToken": getCookie("csrftoken")},
             type: "POST",
             url: "/OB/user/{{ user.username }}/",
             data: unsavedChanges,
           });
+
           originalChangedInfo = {};
+          unsavedChanges = {};
+
+          $(this).css({"display": "none"});
+          $("#cancel-button").css({"display": "none"});
         });
       });
 
       // Discard the changes made
       $("#cancel-button").on("click", function(event) {
+        if ($(this).css("display") == "none") {
+          return;
+        }
+
         for (var id of Object.keys(originalChangedInfo)) {
           $(("#" + id)).text(originalChangedInfo[id]);
         }
 
         originalChangedInfo = {};
         unsavedChanges = {};
+
+        $("#save-button").css({"display": "none"});
+        $(this).css({"display": "none"});
       })
     }
   </script>

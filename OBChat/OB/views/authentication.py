@@ -41,7 +41,7 @@ def sign_up(request):
         display_name = request.POST["display_name"].strip()
         first_name = request.POST["first_name"].strip()
         last_name = request.POST["last_name"].strip()
-        birthday = request.POST["birthday"] if request.POST["birthday"] else None
+        birthday = request.POST["birthday"] or None
 
         context = {}
 

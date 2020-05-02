@@ -42,7 +42,41 @@ def user(request, username):
         return render(request, template, context)
 
     if request.method == "POST":
-        # TODO: Save changed user data
-        return None
+        # Ensure that only the user whose page this is can edit their information
+        if request.user.username != username:
+            return
 
+        # Organize all the data
+        display_name = request.POST.get("display-name")
+        real_name = request.POST.get("real-name")
+        birthday = request.POST.get("birthday")
+
+        # Display name
+        if not display_name or display_name == request.user.display_name:
+            request.user.display_name = None
+        else:
+            request.user.display_name = display_name.strip()
+
+        # First and last names
+        if real_name:
+            split_name = real_name.strip().split()
+
+            request.user.first_name = split_name[0]
+
+            if len(split_name) > 1:
+                request.user.last_name = " ".join(split_name[1:])
+            else:
+                request.user.last_name = ""
+
+        # Birthday
+        if birthday != request.user.birthday:
+            request.user.birthday = birthday
+
+        request.user.save()
+
+        template = "OB/user.html"
+        context = {"saved": True}
+        return render(request, template, context)
+
+    # Not GET or POST
     return HttpResponse()
