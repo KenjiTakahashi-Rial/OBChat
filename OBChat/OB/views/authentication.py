@@ -34,13 +34,12 @@ def sign_up(request):
         return render(request, template)
 
     if request.method == "POST":
-        # Strip all the form data of leading/trailing whitespace
+        # Organize form data
         username = request.POST["username"].strip()
         email = request.POST["email"].strip()
         password = request.POST["password"]
         display_name = request.POST["display_name"].strip()
-        first_name = request.POST["first_name"].strip()
-        last_name = request.POST["last_name"].strip()
+        real_name = request.POST["real_name"].strip().split()
         birthday = request.POST["birthday"] or None
 
         context = {}
@@ -49,11 +48,16 @@ def sign_up(request):
         if not all([username, email, password]):
             context["error_message"] = "Please fill out all required fields."
         elif " " in username:
-            context["error_message"] = "Username may not contain spaces"
+            context["error_message"] = "Username may not contain spaces."
+        elif " " in display_name:
+            context["error_message"] = "Display name may not contain spaces."
         elif OBUser.objects.filter(username=username.lower()).exists():
             context["error_message"] = "Username already in use."
         elif OBUser.objects.filter(email=email).exists():
             context["error_message"] = "Email already in use."
+
+        first_name = "" if not real_name else real_name[0]
+        last_name = "" if len(real_name) <= 1 else " ".join(real_name[1:])
 
         # Return whichever info was valid to be put back in the form
         if "error_message" in context:

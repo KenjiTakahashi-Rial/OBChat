@@ -23,34 +23,30 @@ Sign-up page
         {% csrf_token %}
         <label>Username</label><br>
         <input type="text" name="username" placeholder="OB"
-              value="{% if username %} {{ username }} {% endif %}"><br>
+              value="{% if username %}{{ username }}{% endif %}"/><br>
 
         <label>Email</label><br>
         <input type="email" name="email" placeholder="kenji.ob.taka@gmail.com"
-              value="{% if email %} {{ email }} {% endif %}"><br>
+              value="{% if email %}{{ email }}{% endif %}"/><br>
 
         <label>Password</label><br>
-        <input type="password" name="password"><br>
+        <input type="password" name="password"/><br>
 
         <br><hr>
 
         <label>Display Name</label><br>
         <input type="text" name="display_name" placeholder="OB"
-              value="{% if display_name %} {{ display_name }} {% endif %}"><br>
+              value="{% if display_name %}{{ display_name }}{% endif %}"/><br>
 
-        <label>First Name</label><br>
-        <input type="text" name="first_name" placeholder="Kenji"
-              value="{% if first_name %} {{ first_name }} {% endif %}"><br>
-
-        <label>Last Name</label><br>
-        <input type="text" name="last_name" placeholder="Takahashi-Rial"
-              value="{% if last_name %} {{ last_name }} {% endif %}"><br>
+        <label>Real Name</label><br>
+        <input type="text" name="real_name" placeholder="Kenji Takahashi-Rial"
+              value="{% if first_name %}{{ first_name }}{% endif %} {% if last_name %}{{ last_name }}{% endif %}"/><br>
 
         <label>Birthday</label><br>
-        <input type="date" name="birthday" 
-              value="{% if birthday %} {{ birthday }} {% endif %}"><br><br>
+        <input type="date" name="birthday"
+              value="{% if birthday %}{{ birthday }}{% endif %}"/><br><br>
 
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit"/>
       </form>
     </div>
   </div>

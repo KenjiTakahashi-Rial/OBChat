@@ -8,6 +8,8 @@ Also see the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
+# TODO: Check after each successful POST that all OBUser attributes are correct
+
 from pytest import mark
 
 from django.test import Client
@@ -142,6 +144,7 @@ def test_create_room():
     response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
     assert response.status_code == 302
+    assert not response.context
 
     # Test room saving correctly
     Room.objects.get(name="knobchat")
@@ -168,6 +171,7 @@ def test_room():
     response = client.get(reverse("OB:OB-room", kwargs={"room_name": "knobchat"}))
 
     assert response.status_code == 200
+    assert response.context["room_name"] == "knobchat"
 
     # Test GET with valid room name
     response = client.get(reverse("OB:OB-room", kwargs={"room_name": "obchat"}))

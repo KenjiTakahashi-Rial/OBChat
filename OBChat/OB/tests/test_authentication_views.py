@@ -8,6 +8,8 @@ Also see the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
+# TODO: Check after each successful POST that all OBUser attributes are correct
+
 from pytest import mark
 
 from django.test import Client
@@ -78,8 +80,7 @@ def test_sign_up():
         "email": "",
         "password": "",
         "display_name": "",
-        "first_name": "",
-        "last_name": "",
+        "real_name": "",
         "birthday": ""
     }
 
@@ -92,17 +93,16 @@ def test_sign_up():
     sign_up_data["username"] = "O B"
     sign_up_data["email"] = "ob@ob.ob"
     sign_up_data["password"] = "ob"
-    sign_up_data["first_name"] = "Kenji"
-    sign_up_data["last_name"] = "Takahashi-Rial"
+    sign_up_data["real_name"] = "Kenji"
 
     response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
-    assert response.context["error_message"] == "Username may not contain spaces"
+    assert response.context["error_message"] == "Username may not contain spaces."
+
 
     # Test POST with in-use username
     sign_up_data["username"] = "OB"
-    sign_up_data["password"] = "ob"
 
     response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
@@ -111,25 +111,33 @@ def test_sign_up():
 
     # Test POST with in-use email
     sign_up_data["username"] = "OBTMF"
-    sign_up_data["password"] = "ob"
 
     response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Email already in use."
 
-    # Test POST with valid form data
+    # Test POST with valid form data, first name only
     sign_up_data["username"] = "OBTMF"
     sign_up_data["email"] = "obtmf@ob.ob"
-    sign_up_data["password"] = "ob"
 
     response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
 
     assert response.status_code == 302
+    assert not response.context
 
     # Test display_name saving correctly
-    OBUser.objects.get(username="obtmf").display_name == "OBTMF"
+    assert OBUser.objects.get(username="obtmf").display_name == "OBTMF"
 
+    # Test POST with valid form data, first and last name
+    sign_up_data["username"] = "MAFDTFAFOBTMF"
+    sign_up_data["email"] = "mafdtfafobtmf@ob.ob"
+    sign_up_data["real_name"] = "Kenji Takahashi-Rial"
+
+    response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
+
+    assert OBUser.objects.get(username="mafdtfafobtmf").first_name == "Kenji"
+    assert OBUser.objects.get(username="mafdtfafobtmf").last_name == "Takahashi-Rial"
     database_cleanup()
 
 @mark.django_db()
@@ -178,6 +186,8 @@ def test_log_in():
     log_in_data["password"] = "ob"
 
     response = client.post(reverse("OB:OB-log_in"), log_in_data)
+
     assert response.status_code == 302
+    assert not response.context
 
     database_cleanup()
