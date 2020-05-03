@@ -77,18 +77,29 @@ class OBConsumer(AsyncWebsocketConsumer):
                 is_anon=True
             )
 
-        # Set the room
-        room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room = await sync_get(Room, name=room_name)
+        # Chat room
+        if "room_name" in self.scope["url_route"]["kwargs"]:
+            room_name = self.scope["url_route"]["kwargs"]["room_name"]
+            group_type = GroupTypes.Room
+        # Private message
+        elif "username" in self.scope["url_route"]["kwargs"]:
+            target_username = self.scope["url_route"]["kwargs"]["username"]
+            target_user = await sync_get(OBUser, username=target_username)
+            room_name = get_group_name(GroupTypes.Private, self.user.id, target_user.id)
+            group_type = GroupTypes.Private
+        else:
+            raise SystemError("OBConsumer could not get arguments from URL route.")
+
+        self.room = await sync_get(Room, group_type=group_type, name=room_name)
 
         # Join room group
         await self.channel_layer.group_add(
-            get_group_name(GroupTypes.Room, room_name),
+            get_group_name(GroupTypes.Room, self.room.id),
             self.channel_name
         )
 
         # Add to the occupants list for this room
-        room_object = await sync_get(Room, name=self.room.name)
+        room_object = await sync_get(Room, group_type=group_type, name=room_name)
         await sync_add(room_object.occupants, self.user)
 
         await self.accept()
@@ -112,7 +123,7 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         # Leave room group
         await self.channel_layer.group_discard(
-            get_group_name(GroupTypes.Room, self.room.name),
+            get_group_name(GroupTypes.Room, self.room.id),
             self.channel_name
         )
 
@@ -175,7 +186,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         })
 
         # Send message to room group
-        await send_room_message(message_json, self.room.name)
+        await send_room_message(message_json, self.room.id)
 
         # Handle command
         if is_command(message_text):

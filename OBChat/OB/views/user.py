@@ -6,11 +6,16 @@ See the Django documentation on view functions for more information.
 https://docs.djangoproject.com/en/3.0/topics/http/views/
 """
 
+import json
+
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.safestring import mark_safe
 
-from OB.models import OBUser
+from OB.constants import GroupTypes
+from OB.models import Message, OBUser, Room
 from OB.utilities.database import try_get
+from OB.utilities.format import get_datetime_string, get_group_name
 
 def user(request, username):
     """
@@ -29,12 +34,11 @@ def user(request, username):
         An empty HTTP response if POST and no errors.
     """
 
+    template = "OB/user.html"
     context = {"user": try_get(OBUser, username=username)}
 
     if request.method == "GET":
-        if context["user"]:
-            template = "OB/user.html"
-        else:
+        if not context["user"]:
             template = "OB/not_user.html"
 
         return render(request, template, context)
@@ -48,8 +52,6 @@ def user(request, username):
         display_name = request.POST.get("display-name")
         real_name = request.POST.get("real-name")
         birthday = request.POST.get("birthday")
-
-        template = "OB/user.html"
 
         # Check for errors
         if " " in display_name:
@@ -86,3 +88,54 @@ def user(request, username):
 
     # Not GET or POST
     return HttpResponse()
+
+def private(request, username):
+    """
+    Description:
+        Handles HTTP requests for the private message page
+        GETs the HTML template for the page or an error page if it doesn't exist
+
+    Arguments:
+        request (AsgiRequest)
+        username (string): The name of the target user to private message.
+
+    Return values:
+        The HTML template for the room if GET.
+        An error page if GET and the user does not exist.
+    """
+
+    if request.method == "GET":
+        template = "OB/room.html"
+        context = {}
+
+        target_user = try_get(OBUser, username=username)
+
+        if not request.user.is_authenticated:
+            template = "OB/log_in.html"
+            context = {"error_message": "Must be logged in to send private messages."}
+        elif not target_user:
+            template = "OB/not_user.html"
+        else:
+            private_room_name = get_group_name(GroupTypes.Private, request.user.id, target_user.id)
+            room_object = try_get(Room, group_type=GroupTypes.Private, name=private_room_name)
+
+            if not room_object:
+                room_object = Room(
+                    group_type=GroupTypes.Private,
+                    name=private_room_name
+                ).save()
+
+            # Get the messages
+            websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/private/{username}/"))
+            message_objects = Message.objects.filter(room=room_object)
+            messages_timestrings = [(message, get_datetime_string(message.timestamp))\
+                                    for message in message_objects]
+
+            template = "OB/room.html"
+            context = {
+                "room_name": room_object.name,
+                "websocket_url_json": websocket_url_json,
+                "messages": messages_timestrings
+            }
+
+        return render(request, template, context)

@@ -9,5 +9,6 @@ from django.conf.urls import url
 from OB.consumers import OBConsumer
 
 websocket_urlpatterns = [
-    url(r"^OB/chat/(?P<room_name>[-\w]+)/$", OBConsumer, name="OB-consumer")
+    url(r"^OB/chat/(?P<room_name>[-\w]+)/$", OBConsumer, name="OB-room-route"),
+    url(r"^OB/private/(?P<username>[-\w]+)/$", OBConsumer, name="OB-private-route")
 ]

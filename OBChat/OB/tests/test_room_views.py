@@ -8,8 +8,6 @@ Also see the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-# TODO: Check after each successful POST that all OBUser attributes are correct
-
 from pytest import mark
 
 from django.test import Client

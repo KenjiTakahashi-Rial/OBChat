@@ -2,18 +2,22 @@
 These are enums and constant variables used by more than one other file.
 """
 
-from enum import Enum
+from enum import IntEnum
 
 SYSTEM_USERNAME = "OB-Sys"
 ANON_PREFIX = "OB-Anon-"
 
-class GroupTypes(Enum):
+class GroupTypes(IntEnum):
     Invalid = 0
     Line = 1
     Room = 2
     Private = 3
 
-class Privilege(Enum):
+    @classmethod
+    def choices(cls):
+        return tuple((i.name, i.value) for i in cls)
+
+class Privilege(IntEnum):
     Invalid = 0
     User = 0
     Admin = 1

@@ -7,10 +7,10 @@ https://docs.djangoproject.com/en/3.0/topics/db/models/
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
-    ForeignKey, ManyToManyField, Model, TextField
+    ForeignKey, ManyToManyField, Model, IntegerField, TextField
 from django.contrib.auth.models import AbstractUser
 
-from OB.constants import ANON_PREFIX
+from OB.constants import ANON_PREFIX, GroupTypes
 
 DISPLAY_NAME_MAX_LENGTH = 15
 MESSAGE_MAX_LENGTH = 100
@@ -38,6 +38,7 @@ class OBUser(AbstractUser):
         return f"<OBUser: {name_string} [{self.id}]>"
 
 class Room(Model):
+    group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
     # TODO: Add the option for a display name in the create_room view and command
     display_name = CharField(max_length=ROOM_NAME_MAX_LENGTH, null=True)

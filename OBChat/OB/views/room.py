@@ -12,6 +12,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from OB.constants import GroupTypes
 from OB.models import OBUser, Room, Message
 from OB.utilities.database import try_get
 from OB.utilities.format import get_datetime_string
@@ -31,7 +32,7 @@ def chat(request):
 
     if request.method == "GET":
         template = "OB/chat.html"
-        context = {"rooms": Room.objects.all()}
+        context = {"rooms": Room.objects.filter(group_type=GroupTypes.Room)}
         return render(request, template, context)
 
     # Not GET
@@ -74,7 +75,7 @@ def create_room(request):
             context["error_message"] = "Room must have a name."
         elif " " in room_name:
             context["error_message"] = "Room name cannot contain spaces."
-        elif Room.objects.filter(name=room_name.lower()).exists():
+        elif try_get(Room, group_type=GroupTypes.Room, name=room_name.lower()):
             context["error_message"] = "Room name already in use."
 
         # Return whichever info was valid to be put back in the form
@@ -110,19 +111,19 @@ def room(request, room_name):
     """
 
     if request.method == "GET":
-        room_object = try_get(Room, name=room_name)
+        room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         if room_object:
             # Get the messages
-            room_name_json = mark_safe(json.dumps(room_name))
+            websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
             message_objects = Message.objects.filter(room=room_object)
             messages_timestrings = [(message, get_datetime_string(message.timestamp))\
                                     for message in message_objects]
 
             template = "OB/room.html"
             context = {
-                "room_name": room_object.display_name,
-                "room_name_json": room_name_json,
+                "room_name": room_object.display_name or room_object.name,
+                "websocket_url_json": websocket_url_json,
                 "messages": messages_timestrings
             }
         else:

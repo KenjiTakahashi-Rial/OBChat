@@ -5,15 +5,15 @@ particular instance of a class.
 
 from OB.constants import GroupTypes
 
-def get_group_name(group_type, name, second_name=""):
+def get_group_name(group_type, target_id, second_id=-1):
     """
     Description:
         Gets the correctly formatted name of a group as a string.
 
     Arguments:
         group_type (GroupType): The type of the desired group name.
-        name (string): The name of the target room or user of this group
-        second_name (string): The name of the second target user. For private messages.
+        target_id (int): The id of the target room or user of this group
+        second_id (int): The id of the second target user. For private messages.
 
     Return values:
         A formatted group name string, if the GroupType was valid.
@@ -22,13 +22,13 @@ def get_group_name(group_type, name, second_name=""):
 
     switch = {
         GroupTypes.Invalid:
-            name,
+            target_id,
         GroupTypes.Line:
-            f"{name}_OB-Sys",
+            f"{target_id}_OB-Sys",
         GroupTypes.Room:
-            f"room_{name}",
+            f"room_{target_id}",
         GroupTypes.Private:
-            f"{min(name, second_name)}_{max(name, second_name)}"
+            f"{min(target_id, second_id)}_{max(target_id, second_id)}"
     }
 
     return switch[group_type]

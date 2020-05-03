@@ -2,6 +2,7 @@
 Any user may perform these commands.
 """
 
+from OB.constants import GroupTypes
 from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_get_owner, sync_len_all, sync_model_list, sync_save,\
     sync_try_get
@@ -31,7 +32,7 @@ async def who(args, user, room):
     who_strings = []
 
     for room_name in args:
-        arg_room = await sync_try_get(Room, name=room_name)
+        arg_room = await sync_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         # Check for errors
         if not arg_room:
@@ -137,7 +138,7 @@ async def create_room(args, user, room):
     elif " " in args:
         error_message = "Room name cannot contain spaces."
         print("no spaces")
-    elif await sync_try_get(Room, name=args[0]):
+    elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0]):
         error_message = f"Someone beat you to it. \"{args[0]}\" already exists."
         print("exists")
 

@@ -29,7 +29,7 @@ async def kick(args, user, room):
             users. Try to /apply to be an admin."
     elif len(args) == 0:
         error_message = "Usage: /kick <user1> <user2> ..."
-    
+
     # Send error message back to the issuing user
     if error_message:
         await send_system_room_message(error_message, room)
@@ -68,10 +68,10 @@ async def kick(args, user, room):
             "target": kicked_user
         }
 
-        send_room_event(room.name, kick_event)
+        send_room_event(room.id, kick_event)
 
-        await send_system_room_message(f"You were kicked from {room.name}. Check yourself before you \
-            wreck yourself.", room)
+        await send_system_room_message(f"You were kicked from {room.name}. Check yourself before \
+            you wreck yourself.", room)
 
         send_to_sender += f"Kicked {kicked_user.username} from {room.name}. That'll show them."
         send_to_others += f"{kicked_user.username} was kicked from the room. Let this be a lesson \

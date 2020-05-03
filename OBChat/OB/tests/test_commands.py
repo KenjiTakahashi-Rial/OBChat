@@ -11,7 +11,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import authenticate
 
 from OB.commands.user_level import create_room, who
-from OB.constants import ANON_PREFIX, SYSTEM_USERNAME
+from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import OBUser, Room
 from OB.utilities.database import sync_add, sync_delete, sync_get, sync_model_list, sync_save
 
@@ -106,7 +106,7 @@ async def test_user_level():
     await database_setup()
 
     ob_user = await sync_get(OBUser, username="ob")
-    obchat_room = await sync_get(Room, name="obchat")
+    obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
     # Test who() errors
     await who("knobchat", ob_user, obchat_room)
@@ -129,6 +129,6 @@ async def test_user_level():
     await create_room("knobchat", ob_user, obchat_room)
 
     # Test create_room() success
-    await sync_get(Room, name="knobchat")
+    await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
     await database_cleanup()

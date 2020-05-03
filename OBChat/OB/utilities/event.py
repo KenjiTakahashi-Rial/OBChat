@@ -29,7 +29,7 @@ async def send_event(event, group_name):
 
     await get_channel_layer().group_send(group_name, event)
 
-async def send_room_event(room_name, event):
+async def send_room_event(room_id, event):
     """
     Description:
         Distributes an event to the consumer group associated with a room.
@@ -38,15 +38,15 @@ async def send_room_event(room_name, event):
         event (dict): Contains the event type and variant event data. Each event type must have
             a corresponding handling method of the same name defined in the consumer class, (see
             OBConsumer).
-        room_name (string): The name of the room whose group to send the event to.
+        room_id (int): The id of the room whose group to send the event to.
 
     Return values:
         None
     """
 
-    await send_event(event, get_group_name(GroupTypes.Room, room_name))
+    await send_event(event, get_group_name(GroupTypes.Room, room_id))
 
-async def send_room_message(message_json, room_name):
+async def send_room_message(message_json, room_id):
     """
     Description:
         Send an event of type "room_message", to a specified room (see OBConsumer.room_message()).
@@ -54,7 +54,7 @@ async def send_room_message(message_json, room_name):
 
     Arguments:
         message_json (string): A JSON containing the message text and any metadata to be displayed.
-        room (Room): The database object of the room to send this message to.
+        room_id (int): The id of the room to send the message to.
 
     Return values:
         None
@@ -65,7 +65,7 @@ async def send_room_message(message_json, room_name):
         "message_json": message_json
     }
 
-    await send_room_event(room_name, event)
+    await send_room_event(room_id, event)
 
 async def send_system_room_message(message_text, room):
     """
@@ -98,7 +98,7 @@ async def send_system_room_message(message_text, room):
     })
 
     # Send the message
-    await send_room_message(message_json, room.name)
+    await send_room_message(message_json, room.id)
 
 async def send_private_message():
     """

@@ -9,7 +9,7 @@ A chatroom for users to talk
 
   {% load static %}
   <script src="{% static 'OB/cookie.js' %}"></script>
-  
+
   <style>
     /* TODO: Change measurements to percent and move this to a .css later on */
     .log-card {
@@ -56,7 +56,7 @@ A chatroom for users to talk
   This is a template div for the message div when creating a new message and appending to the log.
   It is not displayed on the webpage.
   --------------------------------------------------------------------------------------------->
-  
+
   <div class="card" id="message-outer-div-template" style="display: none;">
     <div class="container">
       <div class="row">
@@ -78,7 +78,7 @@ A chatroom for users to talk
       <p class="timestamp" id="timestamp"></p>
     </div>
   </div>
-  
+
   <!--------------------------------------------------------------------------------------------
   End template div
   --------------------------------------------------------------------------------------------->
@@ -131,26 +131,26 @@ A chatroom for users to talk
 
 {% block javascript %}
   <script>
-    var roomName = {{ room_name_json }};
+    var websocketUrl = {{ websocket_url_json }};
     var log = document.querySelector("#log")
     var input = document.querySelector("#input");
     var submit = document.querySelector("#submit");
 
     log.scrollTop = log.scrollHeight;
-    
-    var socket = new WebSocket("ws://" + window.location.host + "/OB/chat/" + roomName + "/");
+
+    var socket = new WebSocket(websocketUrl.replace("{0}", window.location.host));
 
     socket.onopen = function(event) {
       console.log("WebSocket connection established.")
     }
-    
+
     socket.onmessage = function(event) {
       var message = JSON.parse(event.data);
 
       // Copy the message template
       var messageTemplate = document.getElementById("message-outer-div-template");
       var newMessage = messageTemplate.cloneNode(true);
-      
+
       // Insert the message data
       newMessage.querySelector("#display-name").innerHTML = message.sender_name;
       // TODO: Change this to the user's actual icon
@@ -174,7 +174,7 @@ A chatroom for users to talk
       } else {
         console.log("WebSocket connection aborted abnormally (code: " + event.code + ", reason: " + event.reason + ").");
       }
-      
+
     };
 
     input.focus();
