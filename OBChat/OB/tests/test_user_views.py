@@ -8,7 +8,7 @@ Also see the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-# TODO: Check after each successful POST that all OBUser attributes are correct
+from datetime import date
 
 from pytest import mark
 
@@ -139,6 +139,7 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    assert OBUser.objects.get(username="ob").display_name == "OBT"
 
     # Test POST with different display name only
     user_edit_data["display-name"] = "OBTMF"
@@ -146,6 +147,7 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    assert OBUser.objects.get(username="ob").display_name == "OBTMF"
 
     # Test POST with first name only
     user_edit_data["real-name"] = "Kenji"
@@ -153,6 +155,9 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    ob_user = OBUser.objects.get(username="ob")
+    assert ob_user.first_name == "Kenji"
+    assert not ob_user.last_name
 
     # Test POST with first and last name
     user_edit_data["real-name"] = "Kenji TR"
@@ -160,6 +165,9 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    ob_user = OBUser.objects.get(username="ob")
+    assert ob_user.first_name == "Kenji"
+    assert ob_user.last_name == "TR"
 
     # Test POST with different first and last name
     user_edit_data["real-name"] = "Kenji Takahashi-Rial-La"
@@ -167,6 +175,9 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    ob_user = OBUser.objects.get(username="ob")
+    assert ob_user.first_name == "Kenji"
+    assert ob_user.last_name == "Takahashi-Rial-La"
 
     # Test POST with birthday only
     user_edit_data["birthday"] = "2020-05-01"
@@ -174,6 +185,7 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    assert OBUser.objects.get(username="ob").birthday == date(2020, 5, 1)
 
     # Test POST with different birthday
     user_edit_data["birthday"] = "1987-10-14"
@@ -181,6 +193,7 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    assert OBUser.objects.get(username="ob").birthday == date(1987, 10, 14)
 
     # Test POST with all data
     user_edit_data["display-name"] = "OB"
@@ -190,3 +203,8 @@ def test_user():
     response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
+    ob_user = OBUser.objects.get(username="ob")
+    assert ob_user.display_name == "OB"
+    assert ob_user.first_name == "Kenji"
+    assert ob_user.last_name == "Takahashi-Rial"
+    assert ob_user.birthday == date(1997, 10, 14)

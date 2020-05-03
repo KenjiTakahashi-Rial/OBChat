@@ -8,8 +8,6 @@ Also see the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-# TODO: Check after each successful POST that all OBUser attributes are correct
-
 from pytest import mark
 
 from django.test import Client
@@ -126,7 +124,8 @@ def test_sign_up():
     assert response.status_code == 302
     assert not response.context
 
-    # Test display_name saving correctly
+    # Test user saving correctly
+    assert OBUser.objects.get(email="obtmf@ob.ob").username == "obtmf"
     assert OBUser.objects.get(username="obtmf").display_name == "OBTMF"
 
     # Test POST with valid form data, first and last name
@@ -138,6 +137,7 @@ def test_sign_up():
 
     assert OBUser.objects.get(username="mafdtfafobtmf").first_name == "Kenji"
     assert OBUser.objects.get(username="mafdtfafobtmf").last_name == "Takahashi-Rial"
+
     database_cleanup()
 
 @mark.django_db()

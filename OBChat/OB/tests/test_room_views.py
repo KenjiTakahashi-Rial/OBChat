@@ -106,7 +106,7 @@ def test_create_room():
     assert response.status_code == 200
     assert response.context["error_message"] == "Must be logged in to create a room."
 
-    # Authenticate user and test GET
+    # Test GET with authenticated user
     client.login(username="ob", password="ob")
 
     response = client.get(reverse("OB:OB-create_room"))
@@ -147,7 +147,7 @@ def test_create_room():
     assert not response.context
 
     # Test room saving correctly
-    Room.objects.get(name="knobchat")
+    assert Room.objects.get(name="knobchat").owner == OBUser.objects.get(username="ob")
 
     database_cleanup()
 
