@@ -15,7 +15,9 @@ from pytest import mark
 from django.test import Client
 from django.urls import reverse
 
-from OB.models import OBUser
+from OB.constants import GroupTypes
+from OB.models import OBUser, Room
+from OB.utilities.format import get_group_name
 
 def database_setup():
     """
@@ -208,3 +210,44 @@ def test_user():
     assert ob_user.first_name == "Kenji"
     assert ob_user.last_name == "Takahashi-Rial"
     assert ob_user.birthday == date(1997, 10, 14)
+
+@mark.django_db()
+def test_private():
+    """
+    Description:
+        Tests the private message page (see OB.views.user.private()).
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    client = Client()
+    database_setup()
+
+    # Test anonymous GET
+    response = client.get(reverse("OB:OB-private", kwargs={"username": "ob"}))
+
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Must be logged in to send private messages."
+
+    # Test invalid user GET
+    client.login(username="ob", password="ob")
+    response = client.get(reverse("OB:OB-private", kwargs={"username": "mafdtfafobtmf"}))
+
+    assert response.status_code == 200
+    assert "error_message" not in response.context
+
+    # Test valid user GET
+    response = client.get(reverse("OB:OB-private", kwargs={"username": "obtmf"}))
+
+    assert response.status_code == 200
+    ob_id = OBUser.objects.get(username="ob").id
+    obtmf_id = OBUser.objects.get(username="obtmf").id
+    assert response.context["room_name"] == get_group_name(GroupTypes.Private, ob_id, obtmf_id)
+    assert "messages" in response.context and "websocket_url_json" in response.context
+
+    # Test private message Room created
+    Room.objects.get(group_type=GroupTypes.Private)

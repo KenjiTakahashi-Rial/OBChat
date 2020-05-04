@@ -13,6 +13,7 @@ from pytest import mark
 from django.test import Client
 from django.urls import reverse
 
+from OB.constants import GroupTypes
 from OB.models import OBUser, Room
 
 def database_setup():
@@ -145,7 +146,7 @@ def test_create_room():
     assert not response.context
 
     # Test room saving correctly
-    assert Room.objects.get(name="knobchat").owner == OBUser.objects.get(username="ob")
+    assert Room.objects.get(group_type=GroupTypes.Room, name="knobchat").owner == OBUser.objects.get(username="ob")
 
     database_cleanup()
 

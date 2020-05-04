@@ -139,3 +139,5 @@ def private(request, username):
             }
 
         return render(request, template, context)
+
+    return HttpResponse()
