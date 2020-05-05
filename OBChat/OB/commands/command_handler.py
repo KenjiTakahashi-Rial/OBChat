@@ -49,7 +49,7 @@ async def handle_command(command, user, room):
         room (Room): The Room database object from where the command originated.
 
     Return values:
-        None
+        None.
     """
 
     # Separate by whitespace to get arguments

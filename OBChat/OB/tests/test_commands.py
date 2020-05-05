@@ -10,10 +10,13 @@ from pytest import mark
 from channels.db import database_sync_to_async
 from django.contrib.auth import authenticate
 
-from OB.commands.user_level import create_room, who
+from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import OBUser, Room
 from OB.utilities.database import sync_add, sync_delete, sync_get, sync_model_list, sync_save
+from OB.utilities.format import get_group_name
+
+# TODO: Add a consumer to the test so it can test the reception of messages
 
 async def database_setup():
     """
@@ -109,24 +112,45 @@ async def test_user_level():
     obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
     # Test who() errors
-    await who("knobchat", ob_user, obchat_room)
-    await who("obtmfchat", ob_user, obchat_room)
+    await handle_command("/who knobchat", ob_user, obchat_room)
+    await handle_command("/w obtmfchat", ob_user, obchat_room)
 
     # Test who() correct input
-    await who("obchat", ob_user, obchat_room)
-    await who("obchat obtmfchat", ob_user, obchat_room)
+    await handle_command("/w", ob_user, obchat_room)
+    await handle_command("/w obchat", ob_user, obchat_room)
+    await handle_command("/w obchat obtmfchat", ob_user, obchat_room)
 
     anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
     assert await database_sync_to_async(authenticate)(username="ob", password="ob")
 
+    # Test private() errors
+    await handle_command("/private", ob_user, obchat_room)
+    await handle_command("/p", ob_user, obchat_room)
+    await handle_command("/private obtmjeff", ob_user, obchat_room)
+    await handle_command("/p /obtmjeff", ob_user, obchat_room)
+    await handle_command("/p /obtmf ", ob_user, obchat_room)
+
+    # Test private() correct input
+    await handle_command("/private /obtmf How does it feel to own OBChat?", ob_user, obchat_room)
+    await handle_command("/p /obtmf Must be nice, eh?", ob_user, obchat_room)
+
+    # Test private room creation
+    obtmf_user = await sync_get(OBUser, username="obtmf")
+    await sync_get(
+        Room,
+        group_type=GroupTypes.Private,
+        name=get_group_name(GroupTypes.Private, ob_user.id, obtmf_user.id)
+    )
+
     # Test create_room() errors
-    await create_room("", ob_user, obchat_room)
-    await create_room("anonchat", anon_user, obchat_room)
-    await create_room("ob chat", ob_user, obchat_room)
-    await create_room("obchat", ob_user, obchat_room)
+    await handle_command("/room", ob_user, obchat_room)
+    await handle_command("/r", ob_user, obchat_room)
+    await handle_command("/room anonchat", anon_user, obchat_room)
+    await handle_command("/r ob chat", ob_user, obchat_room)
+    await handle_command("/r obchat", ob_user, obchat_room)
 
     # Test create_room() correct input
-    await create_room("knobchat", ob_user, obchat_room)
+    await handle_command("/r knobchat", ob_user, obchat_room)
 
     # Test create_room() success
     await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")

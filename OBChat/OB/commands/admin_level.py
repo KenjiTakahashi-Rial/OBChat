@@ -20,7 +20,7 @@ async def kick(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # Check for initial errors
@@ -94,7 +94,7 @@ async def ban(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # TODO: Implement this
@@ -112,7 +112,7 @@ async def lift_ban(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # TODO: Implement this

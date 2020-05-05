@@ -16,6 +16,6 @@ async def delete_room(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
     # TODO: Implement this

@@ -21,7 +21,7 @@ async def hire(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # Check for initial errors
@@ -94,7 +94,7 @@ async def fire(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # Check for initial errors

@@ -7,8 +7,8 @@ import json
 from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
-from OB.models import Message, OBUser
-from OB.utilities.database import sync_get, sync_save
+from OB.models import Message, OBUser, Room
+from OB.utilities.database import sync_get, sync_save, sync_try_get
 from OB.utilities.format import get_datetime_string, get_group_name
 
 async def send_event(event, group_name):
@@ -24,7 +24,7 @@ async def send_event(event, group_name):
             get_group_name()).
 
     Return values:
-        None
+        None.
     """
 
     await get_channel_layer().group_send(group_name, event)
@@ -41,7 +41,7 @@ async def send_room_event(room_id, event):
         room_id (int): The id of the room whose group to send the event to.
 
     Return values:
-        None
+        None.
     """
 
     await send_event(event, get_group_name(GroupTypes.Room, room_id))
@@ -49,7 +49,7 @@ async def send_room_event(room_id, event):
 async def send_room_message(message_json, room_id):
     """
     Description:
-        Send an event of type "room_message", to a specified room (see OBConsumer.room_message()).
+        Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
         This is the last operation performed for only the sender.
 
     Arguments:
@@ -57,7 +57,7 @@ async def send_room_message(message_json, room_id):
         room_id (int): The id of the room to send the message to.
 
     Return values:
-        None
+        None.
     """
 
     event = {
@@ -70,7 +70,7 @@ async def send_room_message(message_json, room_id):
 async def send_system_room_message(message_text, room):
     """
     Description:
-        Send a message from the server to a specified room's group (see send_room_message()) with
+        Sends a message from the server to a specified room's group (see send_room_message()) with
         the server's OBUser database object as the sender.
         Saves the message in the database.
 
@@ -79,7 +79,7 @@ async def send_system_room_message(message_text, room):
         room (Room): The database object of the room to send this message to.
 
     Return values:
-        None
+        None.
     """
 
     # Save message to database
@@ -100,15 +100,51 @@ async def send_system_room_message(message_text, room):
     # Send the message
     await send_room_message(message_json, room.id)
 
-async def send_private_message():
+async def send_private_message(message_text, sender, recipient):
     """
     Description:
-        ...
+        Sends a private message between two users. For user through OBLine.
 
     Arguments:
-        ...
+        sender (OBUser): The user sending the private message.
+        recipient (OBUser): The user to send the private message to.
 
     Return values:
-        ...
+        None.
     """
-    # TODO: Implement this
+
+    # Get the Room object for the private messages
+    private_message_room = await sync_try_get(
+        Room,
+        name=get_group_name(GroupTypes.Private, sender.id, recipient.id)
+    )
+
+    print(private_message_room)
+
+    # Create the database_object if it doesn't exist
+    if not private_message_room:
+        print("didn't exist")
+        private_message_room = await sync_save(
+            Room,
+            group_type=GroupTypes.Private,
+            name=get_group_name(GroupTypes.Private, sender.id, recipient.id)
+        )
+
+
+    # Save message to database
+    new_message_object = await sync_save(
+        Message,
+        message=message_text,
+        sender=sender,
+        room=private_message_room
+    )
+
+    # Encode the message data and metadata
+    message_json = json.dumps({
+        "text": message_text,
+        "sender_name": sender.display_name or sender.username,
+        "timestamp": get_datetime_string(new_message_object.timestamp)
+    })
+
+    # Send message to room group
+    await send_room_message(message_json, private_message_room.id)

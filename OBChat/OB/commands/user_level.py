@@ -21,7 +21,7 @@ async def who(args, user, room):
         room (Room): The Room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     # Default to current room when no arguments
@@ -84,8 +84,10 @@ async def private(args, user, room):
         room (Room): The room the command was issued in.
 
     Return values:
-        None
+        None.
     """
+
+    error_message = ""
 
     # Check for initial errors
     if not args:
@@ -94,13 +96,12 @@ async def private(args, user, room):
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
         recipient_object = await sync_try_get(OBUser, username=args[0][1:])
-
-    # Check for per-argument errors
-    if not recipient_object:
-        error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
-            into space instead."
-    elif len(args) == 1:
-        error_message = "No message specified. Did you give up at just the username?"
+        # Check for per-argument errors
+        if not recipient_object:
+            error_message = f"\"{args[0]}\" doesn't exist. Your private message will broadcasted \
+                into space instead."
+        elif len(args) == 1:
+            error_message = "No message specified. Did you give up at just the username?"
 
     # Send error message back to issuing user
     if error_message:
@@ -109,8 +110,7 @@ async def private(args, user, room):
 
     # Reconstruct message from args
     message_text = " ".join(args[1:])
-
-    await send_private_message()
+    await send_private_message(message_text, user, recipient_object)
 
 async def create_room(args, user, room):
     """
@@ -118,12 +118,12 @@ async def create_room(args, user, room):
         Create a new chat room from a commandline instead of through the website GUI.
 
     Arguments:
-        args (string): The desired name of the new room.
+        args (list[string]): The desired name of the new room.
         user (OBUser): The OBUser who issued the command call and the owner of the new room.
         room (Room): The room the command was issued in.
 
     Return values:
-        None
+        None.
     """
 
     error_message = ""
@@ -131,16 +131,12 @@ async def create_room(args, user, room):
     # Check for errors
     if not args:
         error_message = "Usage: /room <name>"
-        print("not args")
     elif not user.is_authenticated or user.is_anon:
         error_message = "Identify yourself! Must log in to create a room."
-        print("not auth")
-    elif " " in args:
+    elif len(args) > 1:
         error_message = "Room name cannot contain spaces."
-        print("no spaces")
     elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0]):
         error_message = f"Someone beat you to it. \"{args[0]}\" already exists."
-        print("exists")
 
     # Send error message back to issuing user
     if error_message:
@@ -150,7 +146,7 @@ async def create_room(args, user, room):
     # Save the new room
     await sync_save(
         Room,
-        name=args,
+        name=args[0],
         owner=user
     )
 
