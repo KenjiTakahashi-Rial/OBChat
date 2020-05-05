@@ -27,14 +27,17 @@ Allows an authenticated user to create a new room
 
       <form action="{% url 'OB:OB-create_room' %}" method="post">
         {% csrf_token %}
-        <label>Room Name</label><br>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" name="room_name" placeholder="OBChat" style="max-width: 200px"
-                value="{% if room_name %} {{ room_name }} {% endif %}"><br><br>
-          <div class="input-group-append">
-            <button type="submit" class="btn btn-outline-secondary">Submit</button>
-          </div>
-        </div>
+        <p>Room Name</p>
+        <input type="text" class="form-control" id="room-name" placeholder="obchat" style="max-width: 200px"
+              value="{% if room_name %}{{ room_name }}{% endif %}">
+
+        <br><hr>
+
+        <p>Display Name</p>
+        <input type="text" class="form-control" id="display-name" placeholder="OBChat" style="max-width: 200px"
+              value="{% if display_name %}{{ display_name }}{% endif %}"><br><br>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
   </div>

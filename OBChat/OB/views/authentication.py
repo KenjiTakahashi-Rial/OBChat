@@ -65,7 +65,7 @@ def sign_up(request):
             context.update({
                 "username": username,
                 "email": email,
-                "display_name": display_name,
+                "display_name": display_name or None,
                 "first_name": first_name,
                 "last_name": last_name,
                 "birthday": birthday

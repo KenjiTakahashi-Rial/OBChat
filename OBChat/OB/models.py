@@ -31,16 +31,15 @@ class OBUser(AbstractUser):
 
     def __str__(self):
         if self.display_name:
-            name_string = f"{self.display_name} ({self.username}) [{self.id}]"
+            name_string = f"{self.display_name} ({self.username})"
         else:
-            name_string = f"{self.username}"
+            name_string = self.username
 
         return f"<OBUser: {name_string} [{self.id}]>"
 
 class Room(Model):
     group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
-    # TODO: Add the option for a display name in the create_room view and command
     display_name = CharField(max_length=ROOM_NAME_MAX_LENGTH, null=True)
     owner = ForeignKey(OBUser, on_delete=CASCADE, related_name="owned_room", null=True)
     timestamp = DateTimeField(auto_now_add=True)
@@ -53,7 +52,12 @@ class Room(Model):
         return self
 
     def __str__(self):
-        return f"<Room: {self.name} owned by {self.owner} [{self.id}]>"
+        if self.display_name:
+            name_string = f"{self.display_name} ({self.name})"
+        else:
+            name_string = self.name
+
+        return f"<Room: {name_string} [{self.id}, owned by {self.owner}>"
 
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -68,7 +72,7 @@ class Admin(Model):
         return self
 
     def __str__(self):
-        return f"<Admin: {self.user} admin of {self.room.name} [{self.id}]>"
+        return f"<Admin: {self.user}, admin of {self.room.name} [{self.id}]>"
 
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -83,7 +87,7 @@ class Ban(Model):
 
     def __str__(self):
         lifted_string = " (lifted)" if self.is_lifted else ""
-        return f"<Ban: {self.user} banned in {self.room}{lifted_string} [{self.id}]>"
+        return f"<Ban: {self.user}, banned in {self.room} {lifted_string} [{self.id}]>"
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)

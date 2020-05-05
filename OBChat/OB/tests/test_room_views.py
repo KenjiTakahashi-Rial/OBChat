@@ -114,7 +114,10 @@ def test_create_room():
     assert "error_message" not in response.context
 
     # Test POST with empty form data
-    create_room_data = {"room_name": ""}
+    create_room_data = {
+        "room_name": "",
+        "display_name": ""
+    }
 
     response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
@@ -137,8 +140,17 @@ def test_create_room():
     assert response.status_code == 200
     assert response.context["error_message"] == "Room name already in use."
 
-    # Test POST with valid form data
+    # Test POST with invalid display name
     create_room_data["room_name"] = "knobchat"
+    create_room_data["display_name"] = "OB Chat"
+
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
+
+    assert response.status_code == 200
+    assert response.context["error_message"] == "Display name cannot contain spaces."
+
+    # Test POST with valid form data, no display name
+    create_room_data["display_name"] = ""
 
     response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
@@ -146,7 +158,34 @@ def test_create_room():
     assert not response.context
 
     # Test room saving correctly
-    assert Room.objects.get(group_type=GroupTypes.Room, name="knobchat").owner == OBUser.objects.get(username="ob")
+    knobchat_room = Room.objects.get(group_type=GroupTypes.Room, name="knobchat")
+    assert knobchat_room.owner == OBUser.objects.get(username="ob")
+
+    # Test display name not saving
+    assert not knobchat_room.display_name
+
+    # Test POST with valid form data, automatic display name
+    create_room_data["room_name"] = "LobChat"
+
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
+
+    assert response.status_code == 302
+    assert not response.context
+
+    # Test display name saving correctly
+    assert Room.objects.get(name="lobchat").display_name == "LobChat"
+
+    # Test POST with valid form data, explicit display name
+    create_room_data["room_name"] = "JobChat"
+    create_room_data["display_name"] = "ChobChat"
+
+    response = client.post(reverse("OB:OB-create_room"), create_room_data)
+
+    assert response.status_code == 302
+    assert not response.context
+
+    # Test display name saving correctly
+    assert Room.objects.get(name="jobchat").display_name == "ChobChat"
 
     database_cleanup()
 

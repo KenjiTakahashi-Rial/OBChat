@@ -66,9 +66,13 @@ def create_room(request):
 
     if request.method == "POST":
         room_name = request.POST["room_name"].strip()
+        display_name = request.POST["display_name"].strip() or None
         owner = OBUser.objects.get(username=request.user.username)
 
-        context = {"room_name": room_name}
+        context = {
+            "room_name": room_name,
+            "display_name": display_name
+        }
 
         # Check for errors
         if not room_name:
@@ -77,16 +81,23 @@ def create_room(request):
             context["error_message"] = "Room name cannot contain spaces."
         elif try_get(Room, group_type=GroupTypes.Room, name=room_name.lower()):
             context["error_message"] = "Room name already in use."
+        elif display_name and " " in display_name:
+            context["error_message"] = "Display name cannot contain spaces."
 
         # Return whichever info was valid to be put back in the form
         if "error_message" in context:
             template = "OB/create_room.html"
             return render(request, template, context)
 
+        # If no display name is entered and the room name was not all lowercase, make the
+        # case-sensitive version of the room name the display name
+        if not display_name and not room_name.islower():
+            display_name = room_name
+
         # Save the room to the database
         Room(
             name=room_name.lower(),
-            display_name=room_name,
+            display_name=display_name,
             owner=owner
         ).save()
 
