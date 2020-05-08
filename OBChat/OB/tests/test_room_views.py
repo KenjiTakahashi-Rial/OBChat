@@ -16,10 +16,14 @@ from django.urls import reverse
 from OB.constants import GroupTypes
 from OB.models import OBUser, Room
 
-def database_setup():
+def setup_function():
     """
     Description:
         Sets up the database objects required to test the views.
+
+        This is a built-in pytest fixture that runs before every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -41,10 +45,14 @@ def database_setup():
         owner=ob_user
     ).save()
 
-def database_cleanup():
+def teardown_function():
     """
     Description:
         Cleans up the database objects used to test the views.
+
+        This is a built-in pytest fixture that runs after every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -73,15 +81,12 @@ def test_chat():
     """
 
     client = Client()
-    database_setup()
 
     # Test GET
     response = client.get(reverse("OB:OB-chat"))
 
     assert response.status_code == 200
     assert "error_message" not in response.context
-
-    database_cleanup()
 
 @mark.django_db()
 def test_create_room():
@@ -97,7 +102,6 @@ def test_create_room():
     """
 
     client = Client()
-    database_setup()
 
     # Test GET with unauthenticated user
     response = client.get(reverse("OB:OB-create_room"))
@@ -187,8 +191,6 @@ def test_create_room():
     # Test display name saving correctly
     assert Room.objects.get(name="jobchat").display_name == "ChobChat"
 
-    database_cleanup()
-
 @mark.django_db()
 def test_room():
     """
@@ -203,7 +205,6 @@ def test_room():
     """
 
     client = Client()
-    database_setup()
 
     # Test GET with invalid room name
     response = client.get(reverse("OB:OB-room", kwargs={"room_name": "knobchat"}))
@@ -216,5 +217,3 @@ def test_room():
 
     assert response.status_code == 200
     assert "messages" in response.context
-
-    database_cleanup()

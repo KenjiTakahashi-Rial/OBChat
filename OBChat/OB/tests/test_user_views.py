@@ -19,10 +19,14 @@ from OB.constants import GroupTypes
 from OB.models import OBUser, Room
 from OB.utilities.format import get_group_name
 
-def database_setup():
+def setup_function():
     """
     Description:
         Sets up the database objects required to test the views.
+
+        This is a built-in pytest fixture that runs before every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -43,10 +47,14 @@ def database_setup():
         password="ob"
     ).save()
 
-def database_cleanup():
+def teardown_function():
     """
     Description:
         Cleans up the database objects used to test the views.
+
+        This is a built-in pytest fixture that runs after every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -72,7 +80,6 @@ def test_user():
     """
 
     client = Client()
-    database_setup()
 
     # Test invalid username GET
     response = client.get(reverse("OB:OB-user", kwargs={"username": "mafdtfafobtmf"}))
@@ -225,7 +232,6 @@ def test_private():
     """
 
     client = Client()
-    database_setup()
 
     # Test anonymous GET
     response = client.get(reverse("OB:OB-private", kwargs={"username": "ob"}))

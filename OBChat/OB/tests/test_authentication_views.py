@@ -15,10 +15,14 @@ from django.urls import reverse
 
 from OB.models import OBUser
 
-def database_setup():
+def setup_function():
     """
     Description:
         Sets up the database objects required to test the views.
+
+        This is a built-in pytest fixture that runs before every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -35,10 +39,14 @@ def database_setup():
         last_name="Takahashi-Rial"
     ).save()
 
-def database_cleanup():
+def teardown_function():
     """
     Description:
         Cleans up the database objects used to test the views.
+
+        This is a built-in pytest fixture that runs after every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -64,7 +72,6 @@ def test_sign_up():
     """
 
     client = Client()
-    database_setup()
 
     # Test GET
     response = client.get(reverse("OB:OB-sign_up"))
@@ -138,8 +145,6 @@ def test_sign_up():
     assert OBUser.objects.get(username="mafdtfafobtmf").first_name == "Kenji"
     assert OBUser.objects.get(username="mafdtfafobtmf").last_name == "Takahashi-Rial"
 
-    database_cleanup()
-
 @mark.django_db()
 def test_log_in():
     """
@@ -154,7 +159,6 @@ def test_log_in():
     """
 
     client = Client()
-    database_setup()
 
     # Test GET
     response = client.get(reverse("OB:OB-log_in"))
@@ -189,5 +193,3 @@ def test_log_in():
 
     assert response.status_code == 302
     assert not response.context
-
-    database_cleanup()

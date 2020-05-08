@@ -17,10 +17,14 @@ from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_add, sync_delete, sync_get, sync_model_list, sync_save
 from OB.utilities.format import get_group_name
 
-async def database_setup():
+async def setup_function():
     """
     Description:
         Sets up database objects required to test the commands.
+
+        This is a built-in pytest fixture that runs before every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -94,10 +98,14 @@ async def database_setup():
         room=obchat_room
     )
 
-async def database_cleanup():
+async def teardown_function():
     """
     Description:
-        Cleans up the database objects used to test the views.
+        Cleans up the database objects used to test the commands.
+
+        This is a built-in pytest fixture that runs after every function.
+        See the pytest documentation on xunit-style setup for more information.
+        https://docs.pytest.org/en/latest/xunit_setup.html
 
     Arguments:
         None.
@@ -126,8 +134,6 @@ async def test_user_level():
         None.
     """
 
-    await database_setup()
-
     ob_user = await sync_get(OBUser, username="ob")
     obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
@@ -151,7 +157,7 @@ async def test_user_level():
     await handle_command("/p /obtmf ", ob_user, obchat_room)
 
     # Test private() correct input
-    await handle_command("/private /obtmf How does it feel to own OBChat?", ob_user, obchat_room)
+    await handle_command("/private /obtmf What's it like to own OBChat?", ob_user, obchat_room)
     await handle_command("/p /obtmf Must be nice, eh?", ob_user, obchat_room)
 
     # Test private room creation
@@ -175,8 +181,6 @@ async def test_user_level():
     # Test create_room() success
     await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
-    await database_cleanup()
-
 @mark.asyncio
 @mark.django_db()
 async def test_admin_level():
@@ -190,8 +194,6 @@ async def test_admin_level():
     Return values:
         None.
     """
-
-    await database_setup()
 
     ob_user = await sync_get(OBUser, username="ob")
     obtmf_user = await sync_get(OBUser, username="obtmf")
@@ -216,5 +218,3 @@ async def test_admin_level():
         assert occupant != obtmf_user
         assert occupant != mafdtfafobtmf_user
         assert occupant != anon_user
-
-    await database_cleanup()
