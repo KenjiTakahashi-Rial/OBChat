@@ -3,6 +3,8 @@ Storage for database functions that are called in multiple places and are not as
 particular instance of a class.
 """
 
+from channels.db import database_sync_to_async
+
 from OB.constants import Privilege
 from OB.models import Admin
 from OB.utilities.database import try_get
@@ -26,6 +28,7 @@ def is_command(command):
 
     return command and command[0] == '/'
 
+@database_sync_to_async
 def get_privilege(user, room):
     """
     Description:
