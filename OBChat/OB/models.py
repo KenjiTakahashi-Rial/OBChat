@@ -35,7 +35,7 @@ class OBUser(AbstractUser):
         else:
             name_string = self.username
 
-        return f"<OBUser: {name_string} [{self.id}]>"
+        return f"{name_string} [{self.id}]"
 
 class Room(Model):
     group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
@@ -57,7 +57,7 @@ class Room(Model):
         else:
             name_string = self.name
 
-        return f"<Room: {name_string} [{self.id}, owned by {self.owner}>"
+        return f"{name_string} [{self.id}], owned by {self.owner}"
 
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -72,7 +72,7 @@ class Admin(Model):
         return self
 
     def __str__(self):
-        return f"<Admin: {self.user}, admin of {self.room.name} [{self.id}]>"
+        return f"{self.user}, admin of {self.room.name} [{self.id}]"
 
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -87,7 +87,7 @@ class Ban(Model):
 
     def __str__(self):
         lifted_string = " (lifted)" if self.is_lifted else ""
-        return f"<Ban: {self.user}, banned in {self.room} {lifted_string} [{self.id}]>"
+        return f"{self.user}, banned in {self.room} {lifted_string} [{self.id}]"
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
@@ -109,6 +109,6 @@ class Message(Model):
 
     def __str__(self):
         if self.sender:
-            return f"<Message: {self.message} from {self.sender} [{self.id}]>"
+            return f"{self.message} from {self.sender} [{self.id}]"
 
-        return f"<Message: {self.message} from {self.anon_username} [{self.id}]>"
+        return f"{self.message} from {self.anon_username} [{self.id}]"
