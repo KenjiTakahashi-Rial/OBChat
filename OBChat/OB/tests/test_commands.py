@@ -12,11 +12,10 @@ from django.contrib.auth import authenticate
 
 from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
-from OB.models import OBUser, Room
+from OB.consumers import OBConsumer
+from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_add, sync_delete, sync_get, sync_model_list, sync_save
 from OB.utilities.format import get_group_name
-
-# TODO: Add a consumer to the test so it can test the reception of messages
 
 async def database_setup():
     """
@@ -51,7 +50,14 @@ async def database_setup():
         password="obtmf"
     )
 
-    await sync_save(
+    mafdtfafobtmf_user = await sync_save(
+        OBUser,
+        username="mafdtfafobtmf",
+        email="mafdtfafobtmf@ob.ob",
+        password="mafdtfafobtmf"
+    )
+
+    anon_user = await sync_save(
         OBUser,
         username=f"{ANON_PREFIX}0",
         is_anon=True
@@ -73,6 +79,20 @@ async def database_setup():
 
     await sync_add(obchat_room.occupants, ob_user)
     await sync_add(obchat_room.occupants, obtmf_user)
+    await sync_add(obchat_room.occupants, anon_user)
+
+    await sync_save(
+        Admin,
+        user=obtmf_user,
+        room=obchat_room,
+        is_limited=True
+    )
+
+    await sync_save(
+        Admin,
+        user=mafdtfafobtmf_user,
+        room=obchat_room
+    )
 
 async def database_cleanup():
     """
@@ -154,5 +174,47 @@ async def test_user_level():
 
     # Test create_room() success
     await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
+
+    await database_cleanup()
+
+@mark.asyncio
+@mark.django_db()
+async def test_admin_level():
+    """
+    Description:
+        Tests admin-level commands (see OB.commands.admin_level).
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    await database_setup()
+
+    ob_user = await sync_get(OBUser, username="ob")
+    obtmf_user = await sync_get(OBUser, username="obtmf")
+    mafdtfafobtmf_user = await sync_get(OBUser, username="mafdtfafobtmf")
+    anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+    obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
+
+    # Test kick() errors
+    await handle_command("/kick", anon_user, obchat_room)
+    await handle_command("/k", obtmf_user, obchat_room)
+    await handle_command("/k throwbtmf", obtmf_user, obchat_room)
+    await handle_command("/k obtmf", obtmf_user, obchat_room)
+    await handle_command("/k ob", obtmf_user, obchat_room)
+    await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
+
+    # Test kick() correct input
+    await handle_command("/kick mafdtfafobtmf", obtmf_user, obchat_room)
+    await handle_command(f"/k obtmf {ANON_PREFIX}0", ob_user, obchat_room)
+
+    # Text kick() success
+    for occupant in await sync_model_list(obchat_room.occupants):
+        assert occupant != obtmf_user
+        assert occupant != mafdtfafobtmf_user
+        assert occupant != anon_user
 
     await database_cleanup()
