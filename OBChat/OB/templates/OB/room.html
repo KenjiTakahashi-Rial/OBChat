@@ -98,7 +98,11 @@ A chatroom for users to talk
                   <div class="col text-left">
                     <strong>
                       {% if message.sender %}
-                        {{ message.sender.display_name }}
+                        {% if message.sender.display_name %}
+                          {{ message.sender.display_name }}
+                        {% else %}
+                          {{ message.sender.username }}
+                        {% endif %}
                       {% else %}
                         {{ message.anon_username }}
                       {% endif %}

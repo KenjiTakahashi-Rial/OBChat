@@ -34,7 +34,7 @@ async def kick(args, user, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room, user)
         return
 
     valid_kicks = []
@@ -67,20 +67,20 @@ async def kick(args, user, room):
     for kicked_user in valid_kicks:
         kick_event = {
             "type": "kick",
-            "target": kicked_user
+            "target_id": kicked_user.id
         }
 
         await send_room_event(room.id, kick_event)
 
         await send_system_room_message(f"You were kicked from {room.name}. Check yourself before \
-            you wreck yourself.", room)
+            you wreck yourself.", room, kicked_user)
 
         send_to_sender += f"Kicked {kicked_user.username} from {room.name}. That'll show them."
         send_to_others += f"{kicked_user.username} was kicked from the room. Let this be a lesson \
             to you all."
 
     if send_to_sender:
-        await send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room, user)
     if send_to_others:
         await send_system_room_message("\n".join(send_to_others), room)
 

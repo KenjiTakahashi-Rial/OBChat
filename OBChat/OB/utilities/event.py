@@ -46,7 +46,7 @@ async def send_room_event(room_id, event):
 
     await send_event(event, get_group_name(GroupTypes.Room, room_id))
 
-async def send_room_message(message_json, room_id):
+async def send_room_message(message_json, room_id, recipient=None):
     """
     Description:
         Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
@@ -55,6 +55,8 @@ async def send_room_message(message_json, room_id):
     Arguments:
         message_json (string): A JSON containing the message text and any metadata to be displayed.
         room_id (int): The id of the room to send the message to.
+        recipient (OBUser): The only user who will see the response.
+            If None, all occupants of the Room will see the response.
 
     Return values:
         None.
@@ -62,12 +64,13 @@ async def send_room_message(message_json, room_id):
 
     event = {
         "type": "room_message",
-        "message_json": message_json
+        "message_json": message_json,
+        "recipient_id": -1 if not recipient else recipient.id
     }
 
     await send_room_event(room_id, event)
 
-async def send_system_room_message(message_text, room):
+async def send_system_room_message(message_text, room, recipient=None):
     """
     Description:
         Sends a message from the server to a specified room's group (see send_room_message()) with
@@ -77,6 +80,8 @@ async def send_system_room_message(message_text, room):
     Arguments:
         message_text (string): The message to send from the server.
         room (Room): The database object of the room to send this message to.
+        recipient (OBUser): The user who initiated the command and will see the response.
+            If None, all occupants of the Room will see the response.
 
     Return values:
         None.
@@ -98,7 +103,7 @@ async def send_system_room_message(message_text, room):
     })
 
     # Send the message
-    await send_room_message(message_json, room.id)
+    await send_room_message(message_json, room.id, recipient)
 
 async def send_private_message(message_text, sender, recipient):
     """
@@ -118,8 +123,6 @@ async def send_private_message(message_text, sender, recipient):
         Room,
         name=get_group_name(GroupTypes.Private, sender.id, recipient.id)
     )
-
-    print(private_message_room)
 
     # Create the database_object if it doesn't exist
     if not private_message_room:

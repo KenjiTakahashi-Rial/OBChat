@@ -148,13 +148,13 @@ class OBConsumer(AsyncWebsocketConsumer):
             Received a decoded WebSocket frame from the client, NOT from another consumer in this
             consumers group.
             Only the consumer whose user sent the message will call this method.
-            This is called first in the process of sending a message.
-            Finally, if the message is acommand (see is_command()), then handle it.
+            This is called first in the consumer messaging process.
+            Finally, if the message is a command (see is_command()), then handle it.
 
         Arguments:
             self (OBConsumer)
             text_data (string): A JSON string containing the message text. Constructed in the
-            JavaScript of room.html.
+                JavaScript of room.html.
             bytes_data: Not used yet, but will contain images or other message contents which
                 cannot be represented by text.
 
@@ -185,12 +185,34 @@ class OBConsumer(AsyncWebsocketConsumer):
             "timestamp": get_datetime_string(new_message_object.timestamp)
         })
 
-        # Send message to room group
-        await send_room_message(message_json, self.room.id)
-
-        # Handle command
         if is_command(message_text):
+            # Handle command
             await handle_command(message_text, self.user, self.room)
+        else:
+            # Send message to room group
+            await send_room_message(message_json, self.room.id)
+
+    # This may be of use later on
+    # async def send(self, text_data=None, bytes_data=None, close=False):
+    #     """
+    #     Description:
+    #         Send an encoded WebSocket frame to the client, NOT to another consumer in this
+    #         consumers group.
+    #         Each consumer of a group which receives a message event will call this method.
+    #         This is called last in the consumer messaging process.
+
+    #     Arguments:
+    #         self (OBConsumer)
+    #         text_data (string): A JSON string containing the message text.
+    #         bytes_data: Not used yet, but will contain images or other message contents which
+    #             cannot be represented by text.
+    #         close: Used to send a WebSocket close signal to terminate the connection.
+
+    #     Return values:
+    #         None
+    #     """
+
+    #     super().send(text_data, bytes_data, close)
 
     ###############################################################################################
     # Event Handler Methods                                                                       #
@@ -210,7 +232,8 @@ class OBConsumer(AsyncWebsocketConsumer):
             None
         """
 
-        await self.send(text_data=event["message_json"])
+        if event["recipient_id"] < 0 or event["recipient_id"] == self.user.id:
+            await self.send(text_data=event["message_json"])
 
     async def kick(self, event):
         """
@@ -220,11 +243,11 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         Arguments:
             self (OBConsumer)
-            event (dict): Contains the target user
+            event (dict): Contains the target user's ID
 
         Return values:
             None
         """
 
-        if event["target"] == self.user:
+        if event["target_id"] == self.user.id:
             await self.close()

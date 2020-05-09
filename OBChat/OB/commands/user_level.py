@@ -44,7 +44,7 @@ async def who(args, user, room):
 
         # Send error message back to issuing user
         if error_message:
-            await send_system_room_message(error_message, room)
+            await send_system_room_message(error_message, room, user)
             return
 
         who_string = ""
@@ -68,7 +68,7 @@ async def who(args, user, room):
         who_strings.append(who_string)
 
     # Send user list back to the issuing user
-    await send_system_room_message("\n\n".join(who_strings), room)
+    await send_system_room_message("\n\n".join(who_strings), room, user)
 
 async def private(args, user, room):
     """
@@ -105,7 +105,7 @@ async def private(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room, user)
         return
 
     # Reconstruct message from args
@@ -140,7 +140,7 @@ async def create_room(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room, user)
         return
 
     # Save the new room
@@ -152,4 +152,4 @@ async def create_room(args, user, room):
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: \"{args[0]}\""
-    await send_system_room_message(success_message, room)
+    await send_system_room_message(success_message, room, user)
