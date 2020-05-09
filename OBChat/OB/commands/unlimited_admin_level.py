@@ -9,7 +9,7 @@ from OB.utilities.command import get_privilege
 from OB.utilities.database import try_get
 from OB.utilities.event import send_system_room_message
 
-async def hire(args, user, room):
+async def hire(args, sender, room):
     """
     Description:
         Saves one or more new Admin database objects. The user may issue admin-level commands
@@ -17,15 +17,15 @@ async def hire(args, user, room):
 
     Arguments:
         args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
-        user (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
     """
 
     # Check for initial errors
-    if get_privilege(user, room) < Privilege.UnlimitedAdmin:
+    if get_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = "That's a little outside your pay-grade. Only unlimited admins may \
             hire admins. Try to /apply to be unlimited."
     elif len(args) == 0:
@@ -46,12 +46,12 @@ async def hire(args, user, room):
         if not arg_user_object:
             error_messages += f"\"{username}\" does not exist. Your imaginary friend needs an \
                 account before they can be an admin."
-        elif arg_user_object == user:
+        elif arg_user_object == sender:
             error_messages += f"You can't hire yourself. I don't care how good your \
                 letter of recommendation is."
         elif arg_user_object == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
-        elif not user.is_authenticated:
+        elif not sender.is_authenticated:
             error_messages += f"\"{username}\" hasn't signed up yet. they cannot be trusted \
                 with the immense responsibility that is adminship."
         elif arg_admin_object:
@@ -66,7 +66,7 @@ async def hire(args, user, room):
     # Make new Admin objects for valid hires (if any) and notify all parties that a user was hired
     for hired_user in valid_hires:
         Admin(
-            user=hired_user,
+            sender=hired_user,
             room=room
         ).save()
 
@@ -82,7 +82,7 @@ async def hire(args, user, room):
     if send_to_others:
         await send_system_room_message("\n".join(send_to_others), room)
 
-async def fire(args, user, room):
+async def fire(args, sender, room):
     """
     Description:
         Removes one or more existing Admin database objects. The user may not issue admin-level
@@ -90,15 +90,15 @@ async def fire(args, user, room):
 
     Arguments:
         args (list[string]): The usernames of OBUsers to fire. Should have length 1 or more.
-        user (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
     """
 
     # Check for initial errors
-    if get_privilege(user, room) < Privilege.UnlimitedAdmin:
+    if get_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = "That's a little outside your pay-grade. Only unlimited admins may \
             fire admins. Try to /apply to be unlimited."
     elif len(args) == 0:
@@ -120,7 +120,7 @@ async def fire(args, user, room):
         if not arg_user_object:
             error_messages += "\"{username}\" does not exist. You can't fire a ghost... can \
                 you?"
-        elif arg_user_object == user:
+        elif arg_user_object == sender:
             error_messages += "You can't fire yourself. I don't care how bad your \
                 performance reviews are."
         elif arg_user_object == room.owner:
@@ -128,7 +128,7 @@ async def fire(args, user, room):
         elif not arg_admin_object:
             error_messages += f"\"{username}\" is just a regular old user, so you can't fire \
                 them. You can /ban them if you want."
-        elif user != room.owner and not arg_admin_object.is_limited:
+        elif sender != room.owner and not arg_admin_object.is_limited:
             error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
                 please direct all complaints to your local room owner, I'm sure they'll \
                 love some more paperwork to do..."

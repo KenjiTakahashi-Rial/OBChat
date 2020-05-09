@@ -8,7 +8,7 @@ from OB.utilities.database import sync_get_owner, sync_len_all, sync_model_list,
     sync_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
-async def who(args, user, room):
+async def who(args, sender, room):
     """
     Description:
         Lists all the occupants in a room. Can be called without arguments to list the users of the
@@ -17,8 +17,8 @@ async def who(args, user, room):
     Arguments:
         args (list[string]): The name of the Room to list to occupants of. Should have length 0 or
             1, where 0 implies the room parameter as the argument.
-        user (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
@@ -44,7 +44,7 @@ async def who(args, user, room):
 
         # Send error message back to issuing user
         if error_message:
-            await send_system_room_message(error_message, room, user)
+            await send_system_room_message(error_message, room, sender)
             return
 
         who_string = ""
@@ -60,17 +60,17 @@ async def who(args, user, room):
                 occupant_string += " [owner]"
             if await sync_try_get(Admin, user=occupant, room=room):
                 occupant_string += " [admin]"
-            if occupant == user:
+            if occupant == sender:
                 occupant_string += " [you]"
 
             who_string += occupant_string + "\n"
 
         who_strings.append(who_string)
 
-    # Send user list back to the issuing user
-    await send_system_room_message("\n\n".join(who_strings), room, user)
+    # Send user list back to the sender
+    await send_system_room_message("\n\n".join(who_strings), room, sender)
 
-async def private(args, user, room):
+async def private(args, sender, room):
     """
     Description:
         Sends a private message from the user parameter to another OBUser. The private message will
@@ -79,9 +79,9 @@ async def private(args, user, room):
     Arguments:
         args (list[string]): The first item should be a username prepended with '/' and the
             following strings should be words in the private message.
-        user (OBUser): Not used, but included as a parameter so the function can be called from the
+        sender (OBUser): Not used, but included as a parameter so the function can be called from the
             COMMANDS dict.
-        room (Room): The room the command was issued in.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
@@ -105,22 +105,22 @@ async def private(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room, user)
+        await send_system_room_message(error_message, room, sender)
         return
 
     # Reconstruct message from args
     message_text = " ".join(args[1:])
-    await send_private_message(message_text, user, recipient_object)
+    await send_private_message(message_text, sender, recipient_object)
 
-async def create_room(args, user, room):
+async def create_room(args, sender, room):
     """
     Description:
         Create a new chat room from a commandline instead of through the website GUI.
 
     Arguments:
         args (list[string]): The desired name of the new room.
-        user (OBUser): The OBUser who issued the command call and the owner of the new room.
-        room (Room): The room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
@@ -131,7 +131,7 @@ async def create_room(args, user, room):
     # Check for errors
     if not args:
         error_message = "Usage: /room <name>"
-    elif not user.is_authenticated or user.is_anon:
+    elif not sender.is_authenticated or sender.is_anon:
         error_message = "Identify yourself! Must log in to create a room."
     elif len(args) > 1:
         error_message = "Room name cannot contain spaces."
@@ -140,16 +140,16 @@ async def create_room(args, user, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room, user)
+        await send_system_room_message(error_message, room, sender)
         return
 
     # Save the new room
     await sync_save(
         Room,
         name=args[0],
-        owner=user
+        owner=sender
     )
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: \"{args[0]}\""
-    await send_system_room_message(success_message, room, user)
+    await send_system_room_message(success_message, room, sender)

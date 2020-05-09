@@ -8,7 +8,7 @@ from OB.utilities.command import get_privilege
 from OB.utilities.database import sync_get_owner, sync_model_list, sync_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
-async def kick(args, user, room):
+async def kick(args, sender, room):
     """
     Description:
         Remove one or more OBConsumers from the group a Room is associated with. They will not
@@ -16,7 +16,7 @@ async def kick(args, user, room):
 
     Arguments:
         args (list[string]): The usernames of OBUsers to kick. Should have length 1 or more.
-        user (OBUser): The OBUser who issued the command.
+        sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was issued in.
 
     Return values:
@@ -26,7 +26,7 @@ async def kick(args, user, room):
     error_message = ""
 
     # Check for initial errors
-    if await get_privilege(user, room) < Privilege.Admin:
+    if await get_privilege(sender, room) < Privilege.Admin:
         error_message = "That's a little outside your pay-grade. Only admins may kick \
             users. Try to /apply to be an admin."
     elif len(args) == 0:
@@ -34,7 +34,7 @@ async def kick(args, user, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room, user)
+        await send_system_room_message(error_message, room, sender)
         return
 
     valid_kicks = []
@@ -48,12 +48,12 @@ async def kick(args, user, room):
         if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
             error_messages += f"Nobody named \"{username}\" in this room. Are you seeing \
                 things?"
-        elif arg_user_object == user:
+        elif arg_user_object == sender:
             error_messages += f"You can't kick yourself. Just leave the room. Or put \
                 yourself on time-out."
         elif arg_user_object == await sync_get_owner(room):
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
-        elif arg_admin_object and user != await sync_get_owner(room):
+        elif arg_admin_object and sender != await sync_get_owner(room):
             error_messages += f"\"{username}\" is an unlimited admin, so you can't fire them.\
                 Please direct all complaints to your local room owner, I'm sure they'll \
                 love some more paperwork to do..."
@@ -80,11 +80,11 @@ async def kick(args, user, room):
             to you all."
 
     if send_to_sender:
-        await send_system_room_message("\n".join(send_to_sender), room, user)
+        await send_system_room_message("\n".join(send_to_sender), room, sender)
     if send_to_others:
         await send_system_room_message("\n".join(send_to_others), room)
 
-async def ban(args, user, room):
+async def ban(args, sender, room):
     """
     Description:
         Remove one or more OBConsumers from the group a Room is associated with and do not allow
@@ -92,8 +92,8 @@ async def ban(args, user, room):
 
     Arguments:
         args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
-        user (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
@@ -102,7 +102,7 @@ async def ban(args, user, room):
     # TODO: Implement this
 
 
-async def lift_ban(args, user, room):
+async def lift_ban(args, sender, room):
     """
     Description:
         Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after
@@ -110,8 +110,8 @@ async def lift_ban(args, user, room):
 
     Arguments:
         args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
-        user (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was issued in.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.

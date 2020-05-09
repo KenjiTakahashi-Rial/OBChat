@@ -45,8 +45,8 @@ async def handle_command(command, sender, room):
     Arguments:
         data (string): A space-separated string of a command with arguments.
             ex: "/command arg1 arg2"
-        user (OBUser): The OBUser database object from whom the command originated.
-        room (Room): The Room database object from where the command originated.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
 
     Return values:
         None.
