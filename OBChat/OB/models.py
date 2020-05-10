@@ -180,7 +180,7 @@ class Message(Model):
                 f"   sender: {self.sender}\n"
                 f"   anon_username: {self.anon_username}\n"
                 f"   room: {self.room}\n"
-                f"   timestamp: {self.rotimestampom}\n"
+                f"   timestamp: {self.timestamp}\n"
                 f"   is_edited: {self.is_edited}\n"
                 f"   is_deleted: {self.is_deleted}\n"
                 "}\n")
