@@ -29,13 +29,16 @@ class OBUser(AbstractUser):
         super().save(*args, **kwargs)
         return self
 
-    def __str__(self):
+    def __str__(self, show_id=False):
         if self.display_name:
-            name_string = f"{self.display_name} ({self.username})"
+            display_string = f"{self.display_name} ({self.username})"
         else:
-            name_string = self.username
+            display_string = self.username
 
-        return f"{name_string} [{self.id}]"
+        if show_id:
+            display_string += f"[{self.id}]"
+
+        return display_string
 
 class Room(Model):
     group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
@@ -51,13 +54,19 @@ class Room(Model):
                      update_fields=update_fields)
         return self
 
-    def __str__(self):
+    def __str__(self, show_id=False, show_owner=False):
         if self.display_name:
-            name_string = f"{self.display_name} ({self.name})"
+            display_string = f"{self.display_name} ({self.name})"
         else:
-            name_string = self.name
+            display_string = self.name
 
-        return f"{name_string} [{self.id}], owned by {self.owner}"
+        if show_id:
+            display_string += f"[{self.id}]"
+
+        if show_owner:
+            display_string += f", owned by {self.owner}"
+
+        return display_string
 
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -71,8 +80,13 @@ class Admin(Model):
                      update_fields=update_fields)
         return self
 
-    def __str__(self):
-        return f"{self.user}, admin of {self.room.name} [{self.id}]"
+    def __str__(self, show_id=False):
+        display_string = f"{self.user}, admin of {self.room.name}"
+
+        if show_id:
+            display_string += f"[{self.id}]"
+
+        return display_string
 
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -85,9 +99,16 @@ class Ban(Model):
                      update_fields=update_fields)
         return self
 
-    def __str__(self):
-        lifted_string = " (lifted)" if self.is_lifted else ""
-        return f"{self.user}, banned in {self.room} {lifted_string} [{self.id}]"
+    def __str__(self, show_id=False):
+        display_string = f"{self.user}, banned in {self.room}"
+
+        if self.is_lifted:
+            display_string += "(lifted)"
+
+        if show_id:
+            display_string += f"[{self.id}]"
+
+        return display_string
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
@@ -107,8 +128,10 @@ class Message(Model):
                      update_fields=update_fields)
         return self
 
-    def __str__(self):
-        if self.sender:
-            return f"{self.message} from {self.sender} [{self.id}]"
+    def __str__(self, show_id=False):
+        display_string = f"\"{self.message}\" from {self.sender or self.anon_username}"
 
-        return f"{self.message} from {self.anon_username} [{self.id}]"
+        if show_id:
+            display_string += f"[{self.id}]"
+
+        return display_string
