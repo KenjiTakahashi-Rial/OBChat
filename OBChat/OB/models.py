@@ -40,6 +40,18 @@ class OBUser(AbstractUser):
 
         return display_string
 
+    def __repr__(self):
+        return ("\nOBUser {\n"
+                f"   id: {self.id}\n"
+                f"   username: {self.username}\n"
+                f"   display_name: {self.display_name}\n"
+                f"   first_name: {self.first_name}\n"
+                f"   last_name: {self.last_name}\n"
+                f"   birthday: {self.birthday}\n"
+                f"   last_login: {self.last_login}\n"
+                f"   date_joined: {self.date_joined}\n"
+                "}\n")
+
 class Room(Model):
     group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
     name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
@@ -68,10 +80,20 @@ class Room(Model):
 
         return display_string
 
+    def __repr__(self):
+        return ("\nRoom {\n"
+                f"   group_type: {self.group_type}\n"
+                f"   name: {self.name}\n"
+                f"   display_name: {self.display_name}\n"
+                f"   owner: {self.owner}\n"
+                f"   timestamp: {self.timestamp}\n"
+                f"   is_suspended: {self.is_suspended}\n"
+                f"   occupants: {self.occupants}\n"
+                "}\n")
+
 class Admin(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
     room = ForeignKey(Room, on_delete=CASCADE, default=0)
-    # admin must apply to an unlimited admin to promote/demote limited admins
     is_limited = BooleanField(default=True)
     is_revoked = BooleanField(default=False)
 
@@ -87,6 +109,14 @@ class Admin(Model):
             display_string += f"[{self.id}]"
 
         return display_string
+
+    def __repr__(self):
+        return ("\nAdmin {\n"
+                f"   user: {self.user}\n"
+                f"   room: {self.room}\n"
+                f"   is_limited: {self.is_limited}\n"
+                f"   is_revoked: {self.is_revoked}\n"
+                "}\n")
 
 class Ban(Model):
     user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
@@ -109,6 +139,14 @@ class Ban(Model):
             display_string += f"[{self.id}]"
 
         return display_string
+
+    def __repr__(self):
+        return ("\nBan {\n"
+                f"   user: {self.user}\n"
+                f"   room: {self.room}\n"
+                f"   timestamp: {self.timestamp}\n"
+                f"   is_lifted: {self.is_lifted}\n"
+                "}\n")
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
@@ -135,3 +173,14 @@ class Message(Model):
             display_string += f"[{self.id}]"
 
         return display_string
+
+    def __repr__(self):
+        return ("\nMessage {\n"
+                f"   message: {self.message}\n"
+                f"   sender: {self.sender}\n"
+                f"   anon_username: {self.anon_username}\n"
+                f"   room: {self.room}\n"
+                f"   timestamp: {self.rotimestampom}\n"
+                f"   is_edited: {self.is_edited}\n"
+                f"   is_deleted: {self.is_deleted}\n"
+                "}\n")
