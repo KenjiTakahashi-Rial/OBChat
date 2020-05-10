@@ -58,7 +58,7 @@ async def kick(args, sender, room):
                 Please direct all complaints to your local room owner, I'm sure they'll \
                 love some more paperwork to do..."
         else:
-            valid_kicks.append(arg_user_object)
+            valid_kicks += [arg_user_object]
 
     send_to_sender = error_messages
     send_to_others = []

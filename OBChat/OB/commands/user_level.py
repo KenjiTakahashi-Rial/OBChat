@@ -50,10 +50,7 @@ async def who(args, sender, room):
         who_string = ""
 
         for occupant in await sync_model_list(arg_room.occupants):
-            if occupant.display_name:
-                occupant_string = f"{occupant.display_name} ({occupant.username})"
-            else:
-                occupant_string = occupant.username
+            occupant_string = str(occupant)
 
             # Tag occupant appropriately
             if occupant == await sync_get_owner(arg_room):
@@ -65,7 +62,7 @@ async def who(args, sender, room):
 
             who_string += occupant_string + "\n"
 
-        who_strings.append(who_string)
+        who_strings += [who_string]
 
     # Send user list back to the sender
     await send_system_room_message("\n\n".join(who_strings), room, sender)
@@ -135,21 +132,24 @@ async def create_room(args, sender, room):
         error_message = "Identify yourself! Must log in to create a room."
     elif len(args) > 1:
         error_message = "Room name cannot contain spaces."
-    elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0]):
-        error_message = f"Someone beat you to it. \"{args[0]}\" already exists."
+    elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0].lower()):
+        error_message = f"Someone beat you to it. \"{args[0].lower()}\" already exists."
 
     # Send error message back to issuing user
     if error_message:
         await send_system_room_message(error_message, room, sender)
         return
 
+    display_name = args[0] if not args[0].islower() else None
+
     # Save the new room
-    await sync_save(
+    created_room = await sync_save(
         Room,
-        name=args[0],
-        owner=sender
+        name=args[0].lower(),
+        owner=sender,
+        display_name=display_name
     )
 
     # Send success message back to issueing user
-    success_message = f"Sold! Check out your new room: \"{args[0]}\""
+    success_message = f"Sold! Check out your new room: {created_room}"
     await send_system_room_message(success_message, room, sender)
