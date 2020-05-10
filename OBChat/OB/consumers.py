@@ -193,26 +193,26 @@ class OBConsumer(AsyncWebsocketConsumer):
             await send_room_message(message_json, self.room.id)
 
     # This may be of use later on
-    # async def send(self, text_data=None, bytes_data=None, close=False):
-    #     """
-    #     Description:
-    #         Send an encoded WebSocket frame to the client, NOT to another consumer in this
-    #         consumers group.
-    #         Each consumer of a group which receives a message event will call this method.
-    #         This is called last in the consumer messaging process.
+    async def send(self, text_data=None, bytes_data=None, close=False):
+        """
+        Description:
+            Send an encoded WebSocket frame to the client, NOT to another consumer in this
+            consumers group.
+            Each consumer of a group which receives a message event will call this method.
+            This is called last in the consumer messaging process.
 
-    #     Arguments:
-    #         self (OBConsumer)
-    #         text_data (string): A JSON string containing the message text.
-    #         bytes_data: Not used yet, but will contain images or other message contents which
-    #             cannot be represented by text.
-    #         close: Used to send a WebSocket close signal to terminate the connection.
+        Arguments:
+            self (OBConsumer)
+            text_data (string): A JSON string containing the message text.
+            bytes_data: Not used yet, but will contain images or other message contents which
+                cannot be represented by text.
+            close: Used to send a WebSocket close signal to terminate the connection.
 
-    #     Return values:
-    #         None
-    #     """
+        Return values:
+            None
+        """
 
-    #     super().send(text_data, bytes_data, close)
+        await super().send(text_data, bytes_data, close)
 
     ###############################################################################################
     # Event Handler Methods                                                                       #
