@@ -169,11 +169,14 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Decode the JSON
         message_text = json.loads(text_data)["message_text"]
 
+        recipient = self.user if is_command(message_text) else None
+
         # Save message to database
         new_message_object = await sync_save(
             Message,
             message=message_text,
             sender=self.user if not self.user.is_anon else None,
+            recipient=recipient,
             room=self.room,
             anon_username=self.user.username if self.user.is_anon else None
         )
@@ -185,12 +188,12 @@ class OBConsumer(AsyncWebsocketConsumer):
             "timestamp": get_datetime_string(new_message_object.timestamp)
         })
 
+        # Send message to room group
+        await send_room_message(message_json, self.room.id, recipient)
+
         if is_command(message_text):
             # Handle command
             await handle_command(message_text, self.user, self.room)
-        else:
-            # Send message to room group
-            await send_room_message(message_json, self.room.id)
 
     # This may be of use later on
     async def send(self, text_data=None, bytes_data=None, close=False):

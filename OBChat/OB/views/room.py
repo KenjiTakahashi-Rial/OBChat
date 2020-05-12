@@ -7,6 +7,8 @@ https://docs.djangoproject.com/en/3.0/topics/http/views/
 """
 
 import json
+
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -125,9 +127,12 @@ def room(request, room_name):
         room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         if room_object:
-            # Get the messages
             websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
-            message_objects = Message.objects.filter(room=room_object)
+
+            # Get the messages
+            general_messages = Q(recipient=None)
+            recipient_messages = Q(recipient=request.user)
+            message_objects = Message.objects.filter(general_messages or recipient_messages)
             messages_timestrings = [(message, get_datetime_string(message.timestamp))\
                                     for message in message_objects]
 

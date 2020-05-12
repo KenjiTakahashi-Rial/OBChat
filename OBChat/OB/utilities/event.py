@@ -93,6 +93,7 @@ async def send_system_room_message(message_text, room, recipient=None):
         Message,
         message=message_text,
         sender=system_user_object,
+        recipient=recipient,
         room=room
     )
 

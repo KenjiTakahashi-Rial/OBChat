@@ -150,7 +150,8 @@ class Ban(Model):
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = ForeignKey(OBUser, on_delete=CASCADE, default=0, null=True)
+    sender = ForeignKey(OBUser, related_name="message_sent", on_delete=CASCADE, null=True)
+    recipient = ForeignKey(OBUser, related_name="message_received", default=None, on_delete=CASCADE, null=True)
     anon_username = CharField(
         max_length=ANON_USERNAME_MAX_LENGTH,
         default=None,
