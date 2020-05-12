@@ -9,7 +9,7 @@ from OB.commands.owner_level import delete_room
 from OB.utilities.event import send_system_room_message
 
 # pylint: disable=bad-whitespace
-# Separate the commands that do the same things into columns
+# Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
     "/room": create_room,   "/r": create_room,

@@ -170,7 +170,8 @@ def sync_model_list(model):
     """
 
     # pylint: disable=unnecessary-comprehension
-    # These comprehensions are necessary to make a list of database objects, not QuerySets.
+    # Justification: These comprehensions are necessary to make a list of database objects. If
+    #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     try:
         return [user for user in model.objects.all()]
     except AttributeError:
