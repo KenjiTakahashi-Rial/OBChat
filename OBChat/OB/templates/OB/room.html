@@ -113,7 +113,11 @@ A chatroom for users to talk
                   <div class="col-1"></div>
                   <div class="col">
                     <div style="display: table-cell;">
-                      <p>{{ message.message }}</p>
+                      {% if message.recipient %}
+                        <pre>{{ message.message }}</pre>
+                      {% else %}
+                        <p>{{ message.message }}</p>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
@@ -160,7 +164,14 @@ A chatroom for users to talk
       // TODO: Change this to the user's actual icon
       newMessage.querySelector("#user-icon").src = "{% static "favicon.ico" %}";
       newMessage.querySelector("#user-icon").alt = "user";
-      newMessage.querySelector("#message-text").innerHTML = message.text;
+
+      // Change <p> to <pre> if message has a recipient
+      if (message.has_recipient) {
+        newMessage.querySelector("#message-text").innerHTML = "<pre>" + message.text + "</pre>";
+      } else {
+        newMessage.querySelector("#message-text").innerHTML = message.text;
+      }
+
       newMessage.querySelector("#timestamp").innerHTML = message.timestamp;
 
       // Display the message

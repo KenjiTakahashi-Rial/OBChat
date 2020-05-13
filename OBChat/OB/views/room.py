@@ -130,9 +130,10 @@ def room(request, room_name):
             websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
 
             # Get the messages
-            general_messages = Q(recipient=None)
-            recipient_messages = Q(recipient=request.user)
-            message_objects = Message.objects.filter(general_messages or recipient_messages)
+            message_query = Q(recipient=None)
+            if request.user.is_authenticated:
+                message_query |= Q(recipient=(request.user))
+            message_objects = Message.objects.filter(message_query)
             messages_timestrings = [(message, get_datetime_string(message.timestamp))\
                                     for message in message_objects]
 

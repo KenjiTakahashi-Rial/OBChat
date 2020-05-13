@@ -185,6 +185,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         message_json = json.dumps({
             "text": message_text,
             "sender_name": self.user.display_name or self.user.username,
+            "has_recipient": bool(recipient),
             "timestamp": get_datetime_string(new_message_object.timestamp)
         })
 

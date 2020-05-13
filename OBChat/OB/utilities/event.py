@@ -100,6 +100,7 @@ async def send_system_room_message(message_text, room, recipient=None):
     message_json = json.dumps({
         "text": message_text,
         "sender_name": SYSTEM_USERNAME,
+        "has_recipient": bool(recipient),
         "timestamp": get_datetime_string(new_message_object.timestamp)
     })
 
