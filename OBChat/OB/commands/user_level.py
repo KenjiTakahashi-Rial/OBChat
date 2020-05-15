@@ -36,8 +36,8 @@ async def who(args, sender, room):
 
         # Check for errors
         if not arg_room:
-            error_message = f"{args[0]} doesn't exist, so that probably means nobody is in \
-                there."
+            error_message = (f"{args[0]} doesn't exist, so that probably means nobody is in "
+                             "there.")
         else:
             if await sync_len_all(room.occupants) == 0:
                 error_message = f"{args[0]} is all empty!"
