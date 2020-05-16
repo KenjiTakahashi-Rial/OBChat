@@ -1,5 +1,6 @@
 """
-A user must be an admin (see models.Admin) of the room to perform these commands.
+A user must have admin privileges of the room to perform these commands (see OB.models.Admin &
+OB.utilities.command.get_privilege()).
 """
 
 from OB.constants import Privilege
@@ -26,9 +27,12 @@ async def kick(args, sender, room):
     error_message = ""
 
     # Check for initial errors
-    if await get_privilege(sender, room) < Privilege.Admin:
-        error_message = ("That's a little outside your pay-grade. Only admins may kick"
-                         "users. Try to /apply to be an admin.")
+    if not sender.is_authenticated or sender.is_anon:
+        error_message = ("You're not even logged in! Try making an account first, then we can talk"
+                         " about kicking people.")
+    elif await get_privilege(sender, room) < Privilege.Admin:
+        error_message = ("That's a little outside your pay-grade. Only admins may kick users. Try "
+                         "to /apply to be an admin.")
     elif len(args) == 0:
         error_message = "Usage: /kick <user1> <user2> ..."
 
@@ -46,17 +50,17 @@ async def kick(args, sender, room):
 
         # Check for per-argument errors
         if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
-            error_messages += (f"Nobody named \"{username}\" in this room. Are you seeing "
-                               "things?")
+            error_messages += [f"Nobody named {username} in this room. Are you seeing "
+                               "things?"]
         elif arg_user_object == sender:
-            error_messages += (f"You can't kick yourself. Just leave the room. Or put "
-                               "yourself on time-out.")
+            error_messages += [f"You can't kick yourself. Just leave the room. Or put "
+                               "yourself on time-out."]
         elif arg_user_object == await sync_get_owner(room):
-            error_messages += f"That's the owner. You know, your BOSS. Nice try."
+            error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_admin_object and sender != await sync_get_owner(room):
-            error_messages += (f"\"{username}\" is an unlimited admin, so you can't fire them. "
+            error_messages += [f"{username} is an unlimited admin, so you can't fire them. "
                                "Please direct all complaints to your local room owner, I'm sure "
-                               "they'll love some more paperwork to do...")
+                               "they'll love some more paperwork to do..."]
         else:
             valid_kicks += [arg_user_object]
 
@@ -75,9 +79,9 @@ async def kick(args, sender, room):
         await send_system_room_message(f"You were kicked from {room.name}. Check yourself before "
                                        "you wreck yourself.", room, kicked_user)
 
-        send_to_sender += f"Kicked {kicked_user.username} from {room.name}. That'll show them."
-        send_to_others += (f"{kicked_user.username} was kicked from the room. Let this be a lesson "
-                           "to you all.")
+        send_to_sender += [f"Kicked {kicked_user.username} from {room.name}. That'll show them."]
+        send_to_others += [f"{kicked_user.username} was kicked from the room. Let this be a lesson "
+                           "to you all."]
 
     if send_to_sender:
         await send_system_room_message("\n".join(send_to_sender), room, sender)

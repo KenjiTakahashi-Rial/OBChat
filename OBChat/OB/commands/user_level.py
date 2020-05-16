@@ -133,7 +133,7 @@ async def create_room(args, sender, room):
     elif len(args) > 1:
         error_message = "Room name cannot contain spaces."
     elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0].lower()):
-        error_message = f"Someone beat you to it. \"{args[0].lower()}\" already exists."
+        error_message = f"Someone beat you to it. {args[0].lower()} already exists."
 
     # Send error message back to issuing user
     if error_message:
