@@ -15,8 +15,8 @@ async def who(args, sender, room):
         issuing user's current room.
 
     Arguments:
-        args (list[string]): The name of the Room to list to occupants of. Should have length 0 or
-            1, where 0 implies the room parameter as the argument.
+        args (list[string]): The names of the Rooms to list the occupants of. No argument implies
+            the room parameter as the argument.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
 
@@ -38,9 +38,8 @@ async def who(args, sender, room):
         if not arg_room:
             error_message = (f"{args[0]} doesn't exist, so that probably means nobody is in "
                              "there.")
-        else:
-            if await sync_len_all(room.occupants) == 0:
-                error_message = f"{args[0]} is all empty!"
+        elif await sync_len_all(arg_room.occupants) == 0:
+            error_message = f"{args[0]} is all empty!"
 
         # Send error message back to issuing user
         if error_message:
@@ -62,10 +61,11 @@ async def who(args, sender, room):
 
             who_string += occupant_string + "\n"
 
-        who_strings += [who_string]
+        if who_string:
+            who_strings += [who_string]
 
-    # Send user list back to the sender
-    await send_system_room_message("\n\n".join(who_strings), room, sender)
+    # Send user lists back to the sender
+    await send_system_room_message("\n".join(who_strings), room, sender)
 
 async def private(args, sender, room):
     """
@@ -76,8 +76,8 @@ async def private(args, sender, room):
     Arguments:
         args (list[string]): The first item should be a username prepended with '/' and the
             following strings should be words in the private message.
-        sender (OBUser): Not used, but included as a parameter so the function can be called from the
-            COMMANDS dict.
+        sender (OBUser): Not used, but included as a parameter so the function can be called from
+            the COMMANDS dict.
         room (Room): The Room the command was sent from.
 
     Return values:
