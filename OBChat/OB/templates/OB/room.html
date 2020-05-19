@@ -57,25 +57,27 @@ A chatroom for users to talk
   It is not displayed on the webpage.
   --------------------------------------------------------------------------------------------->
 
-  <div class="card" id="message-outer-div-template" style="display: none;">
-    <div class="container">
-      <div class="row">
-        <div class="col-1">
-          <img class="user-icon" id="user-icon" alt="user">
-        </div>
-        <div class="col text-left">
-          <strong id="display-name"></strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-1"></div>
-        <div class="col">
-          <div style="display: table-cell;" id="message-inner-div">
-            <p id="message-text"></p>
+  <div class="text-justify" id="message-outer-div-template" style="display: none;">
+    <div class="card">
+      <div class="container">
+        <div class="row">
+          <div class="col-1">
+            <img class="user-icon" id="user-icon" alt="user">
+          </div>
+          <div class="col text-left">
+            <strong id="display-name"></strong>
           </div>
         </div>
+        <div class="row">
+          <div class="col-1"></div>
+          <div class="col">
+            <div style="display: table-cell;" id="message-inner-div">
+              <p id="message-text"></p>
+            </div>
+          </div>
+        </div>
+        <p class="timestamp" id="timestamp"></p>
       </div>
-      <p class="timestamp" id="timestamp"></p>
     </div>
   </div>
 
@@ -89,41 +91,43 @@ A chatroom for users to talk
       <div class="card log-card" id="log">
         {% if messages %}
           {% for message, timestring in messages %}
-            <div class="card">
-              <div class="container">
-                <div class="row">
-                  <div class="col-1">
-                    <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
-                  </div>
-                  <div class="col text-left">
-                    <strong>
-                      {% if message.sender %}
-                        {% if message.sender.display_name %}
-                          {{ message.sender.display_name }}
+            <div class="text-justify mw-100">
+              <div class="card">
+                <div class="container">
+                  <div class="row">
+                    <div class="col-1">
+                      <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+                    </div>
+                    <div class="col text-left">
+                      <strong>
+                        {% if message.sender %}
+                          {% if message.sender.display_name %}
+                            {{ message.sender.display_name }}
+                          {% else %}
+                            {{ message.sender.username }}
+                          {% endif %}
                         {% else %}
-                          {{ message.sender.username }}
+                          {{ message.anon_username }}
                         {% endif %}
-                      {% else %}
-                        {{ message.anon_username }}
-                      {% endif %}
-                    </strong>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-1"></div>
-                  <div class="col">
-                    <div style="display: table-cell;">
-                      {% if message.recipient %}
-                        <pre>{{ message.message }}</pre>
-                      {% else %}
-                        <p>{{ message.message }}</p>
-                      {% endif %}
+                      </strong>
                     </div>
                   </div>
+                  <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col">
+                      <div style="display: table-cell;">
+                        {% if message.recipient %}
+                          <pre>{{ message.message }}</pre>
+                        {% else %}
+                          <p>{{ message.message }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  <p class="timestamp">
+                    {{ timestring }}
+                  </p>
                 </div>
-                <p class="timestamp">
-                  {{ timestring }}
-                </p>
               </div>
             </div>
           {% endfor %}
