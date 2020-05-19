@@ -24,6 +24,9 @@ async def kick(args, sender, room):
         None.
     """
 
+    # Remove duplicates
+    args = list(dict.fromkeys(args))
+
     error_message = ""
 
     # Check for initial errors
@@ -50,11 +53,10 @@ async def kick(args, sender, room):
 
         # Check for per-argument errors
         if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
-            error_messages += [f"Nobody named {username} in this room. Are you seeing "
-                               "things?"]
+            error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user_object == sender:
-            error_messages += [f"You can't kick yourself. Just leave the room. Or put "
-                               "yourself on time-out."]
+            error_messages += [f"You can't kick yourself. Just leave the room. Or put yourself on "
+                               "time-out."]
         elif arg_user_object == await sync_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_admin_object and sender != await sync_get_owner(room):
@@ -64,8 +66,8 @@ async def kick(args, sender, room):
         else:
             valid_kicks += [arg_user_object]
 
-    send_to_sender = error_messages
-    send_to_others = []
+    send_to_sender = error_messages + ["\nKicked:"]
+    send_to_others = ["One or more users have been kicked:"]
 
     # Execute valid kicks (if any) and notify all parties that a user was kicked
     for kicked_user in valid_kicks:
@@ -74,19 +76,22 @@ async def kick(args, sender, room):
             "target_id": kicked_user.id
         }
 
-        await send_room_event(room.id, kick_event)
-
         await send_system_room_message(f"You were kicked from {room.name}. Check yourself before "
                                        "you wreck yourself.", room, kicked_user)
 
-        send_to_sender += [f"Kicked {kicked_user.username} from {room.name}. That'll show them."]
-        send_to_others += [f"{kicked_user.username} was kicked from the room. Let this be a lesson "
-                           "to you all."]
+        send_to_sender += [f"   {kicked_user.username}"]
+        send_to_others += [f"   {kicked_user.username}"]
 
-    if send_to_sender:
+        await send_room_event(room.id, kick_event)
+
+    if valid_kicks:
+        send_to_sender += ["That'll show them."]
         await send_system_room_message("\n".join(send_to_sender), room, sender)
-    if send_to_others:
+
+        send_to_others += ["Let this be a lesson to you all."]
         await send_system_room_message("\n".join(send_to_others), room)
+    elif error_messages:
+        await send_system_room_message("\n".join(error_messages), room, sender)
 
 async def ban(args, sender, room):
     """
