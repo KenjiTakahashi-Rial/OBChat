@@ -100,7 +100,7 @@ async def private(args, sender, room):
         # Check for per-argument errors
         if not recipient_object:
             error_message = (f"{args[0]} doesn't exist. Your private message will broadcasted "
-                            "into space instead.")
+                             "into space instead.")
         elif len(args) == 1:
             error_message = "No message specified. Did you give up at just the username?"
 

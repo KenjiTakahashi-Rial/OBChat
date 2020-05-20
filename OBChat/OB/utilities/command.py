@@ -48,9 +48,12 @@ def get_privilege(user, room):
     admin_object = try_get(Admin, user=user)
 
     if admin_object:
-        if admin_object.is_limited:
+        if not admin_object.is_limited:
             return Privilege.UnlimitedAdmin
 
         return Privilege.Admin
+
+    if user.is_authenticated and not user.is_anon:
+        return Privilege.AuthUser
 
     return Privilege.User
