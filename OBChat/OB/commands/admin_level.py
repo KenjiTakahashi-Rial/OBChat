@@ -36,7 +36,7 @@ async def kick(args, sender, room):
     elif await get_privilege(sender, room) < Privilege.Admin:
         error_message = ("That's a little outside your pay-grade. Only admins may kick users. Try "
                          "to /apply to be an admin.")
-    elif len(args) == 0:
+    elif not args:
         error_message = "Usage: /kick <user1> <user2> ..."
 
     # Send error message back to the issuing user
@@ -60,7 +60,7 @@ async def kick(args, sender, room):
         elif arg_user_object == await sync_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_admin_object and sender != await sync_get_owner(room):
-            error_messages += [f"{username} is an unlimited admin, so you can't fire them. "
+            error_messages += [f"{username} is an unlimited admin, so you can't kick them. "
                                "Please direct all complaints to your local room owner, I'm sure "
                                "they'll love some more paperwork to do..."]
         else:
@@ -108,8 +108,74 @@ async def ban(args, sender, room):
         None.
     """
 
-    # TODO: Implement this
+    # Remove duplicates
+    args = list(dict.fromkeys(args))
 
+    error_message = ""
+
+    # Check for initial errors
+    if not sender.is_authenticated or sender.is_anon:
+        error_message = ("You're not even logged in! Try making an account first, then we can talk"
+                         " about banning people.")
+    elif await get_privilege(sender, room) < Privilege.Admin:
+        error_message = ("That's a little outside your pay-grade. Only admins may kick users. Try "
+                         "to /apply to be an admin.")
+    elif not args:
+        error_message = "Usage: /ban <user1> <user2> ..."
+
+    # Send error message back to the issuing user
+    if error_message:
+        await send_system_room_message(error_message, room, sender)
+        return
+
+    valid_bans = []
+    error_messages = []
+
+    for username in args:
+        arg_user_object = await sync_try_get(OBUser, username=username)
+        arg_admin_object = await sync_try_get(Admin, user=arg_user_object)
+
+        # Check for per-argument errors
+        if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
+            error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
+        elif arg_user_object == sender:
+            error_messages += [f"You can't ban yourself. Just leave the room. Or put yourself on "
+                               "time-out."]
+        elif arg_user_object == await sync_get_owner(room):
+            error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
+        elif arg_admin_object and sender != await sync_get_owner(room):
+            error_messages += [f"{username} is an unlimited admin, so you can't ban them. "
+                               "Please direct all complaints to your local room owner, I'm sure "
+                               "they'll love some more paperwork to do..."]
+        else:
+            valid_bans += [arg_user_object]
+
+    send_to_sender = error_messages + ["\nBanned:"]
+    send_to_others = ["One or more users have been banned:"]
+
+    # Execute valid bans (if any) and notify all parties that a user was banned
+    for banned_user in valid_bans:
+        ban_event = {
+            "type": "ban",
+            "target_id": banned_user.id
+        }
+
+        await send_system_room_message(f"You were banned from {room.name}. Check yourself before "
+                                       "you wreck yourself.", room, banned_user)
+
+        send_to_sender += [f"   {banned_user.username}"]
+        send_to_others += [f"   {banned_user.username}"]
+
+        await send_room_event(room.id, ban_event)
+
+    if valid_bans:
+        send_to_sender += ["That'll show them."]
+        await send_system_room_message("\n".join(send_to_sender), room, sender)
+
+        send_to_others += ["Let this be a lesson to you all."]
+        await send_system_room_message("\n".join(send_to_others), room)
+    elif error_messages:
+        await send_system_room_message("\n".join(error_messages), room, sender)
 
 async def lift_ban(args, sender, room):
     """

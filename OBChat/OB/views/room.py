@@ -123,6 +123,7 @@ def room(request, room_name):
         An error page if GET and the room does not exist.
     """
 
+    # TODO: Implement ban logic
     if request.method == "GET":
         room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
