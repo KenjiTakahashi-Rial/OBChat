@@ -7,7 +7,7 @@ https://docs.djangoproject.com/en/3.0/topics/db/models/
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
-    ForeignKey, ManyToManyField, Model, IntegerField, TextField
+    ForeignKey, ManyToManyField, Model, IntegerField, SET_DEFAULT, TextField
 from django.contrib.auth.models import AbstractUser
 
 from OB.constants import ANON_PREFIX, GroupTypes
@@ -19,7 +19,10 @@ ROOM_NAME_MAX_LENGTH = 15
 ANON_USERNAME_MAX_LENGTH = len(ANON_PREFIX) + 40
 
 class OBUser(AbstractUser):
-    display_name = CharField(max_length=DISPLAY_NAME_MAX_LENGTH, null=True)
+    display_name = CharField(
+        max_length=DISPLAY_NAME_MAX_LENGTH,
+        null=True
+    )
     birthday = DateField(null=True)
     is_anon = BooleanField(default=False)
     is_expelled = BooleanField(default=False)
@@ -41,29 +44,52 @@ class OBUser(AbstractUser):
         return display_string
 
     def __repr__(self):
-        return ("\nOBUser {\n"
-                f"   id: {self.id}\n"
-                f"   username: {self.username}\n"
-                f"   display_name: {self.display_name}\n"
-                f"   first_name: {self.first_name}\n"
-                f"   last_name: {self.last_name}\n"
-                f"   birthday: {self.birthday}\n"
-                f"   last_login: {self.last_login}\n"
-                f"   date_joined: {self.date_joined}\n"
-                "}\n")
+        return (
+            "\nOBUser {\n"
+            f"   id: {self.id}\n"
+            f"   username: {self.username}\n"
+            f"   display_name: {self.display_name}\n"
+            f"   first_name: {self.first_name}\n"
+            f"   last_name: {self.last_name}\n"
+            f"   birthday: {self.birthday}\n"
+            f"   last_login: {self.last_login}\n"
+            f"   date_joined: {self.date_joined}\n"
+            "}\n"
+        )
 
 class Room(Model):
-    group_type = IntegerField(default=GroupTypes.Room, choices=GroupTypes.choices())
-    name = CharField(max_length=ROOM_NAME_MAX_LENGTH, default=0)
-    display_name = CharField(max_length=ROOM_NAME_MAX_LENGTH, null=True)
-    owner = ForeignKey(OBUser, on_delete=CASCADE, related_name="owned_room", null=True)
+    group_type = IntegerField(
+        default=GroupTypes.Room,
+        choices=GroupTypes.choices()
+    )
+    name = CharField(
+        max_length=ROOM_NAME_MAX_LENGTH,
+        default=None
+    )
+    display_name = CharField(
+        max_length=ROOM_NAME_MAX_LENGTH,
+        null=True
+    )
+    owner = ForeignKey(
+        OBUser,
+        on_delete=CASCADE,
+        related_name="owned_room",
+        null=True
+    )
     timestamp = DateTimeField(auto_now_add=True)
     is_suspended = BooleanField(default=False)
-    occupants = ManyToManyField(OBUser, related_name="occupied_room")
+    occupants = ManyToManyField(
+        OBUser,
+        related_name="occupied_room"
+    )
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert=force_insert, force_update=force_update, using=using,
-                     update_fields=update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
         return self
 
     def __str__(self, show_id=False, show_owner=False):
@@ -81,25 +107,45 @@ class Room(Model):
         return display_string
 
     def __repr__(self):
-        return ("\nRoom {\n"
-                f"   group_type: {self.group_type}\n"
-                f"   name: {self.name}\n"
-                f"   display_name: {self.display_name}\n"
-                f"   owner: {self.owner}\n"
-                f"   timestamp: {self.timestamp}\n"
-                f"   is_suspended: {self.is_suspended}\n"
-                f"   occupants: {self.occupants}\n"
-                "}\n")
+        return (
+            "\nRoom {\n"
+            f"   group_type: {self.group_type}\n"
+            f"   name: {self.name}\n"
+            f"   display_name: {self.display_name}\n"
+            f"   owner: {self.owner}\n"
+            f"   timestamp: {self.timestamp}\n"
+            f"   is_suspended: {self.is_suspended}\n"
+            f"   occupants: {self.occupants}\n"
+            "}\n"
+        )
 
 class Admin(Model):
-    user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
-    room = ForeignKey(Room, on_delete=CASCADE, default=0)
+    user = ForeignKey(
+        OBUser,
+        on_delete=CASCADE,
+        default=-1
+    )
+    room = ForeignKey(
+        Room,
+        on_delete=CASCADE,
+        default=-1
+    )
+    issuer = ForeignKey(
+        OBUser,
+        related_name="admin_hired",
+        on_delete=SET_DEFAULT,
+        default=-1
+    )
     is_limited = BooleanField(default=True)
     is_revoked = BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert=force_insert, force_update=force_update, using=using,
-                     update_fields=update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
         return self
 
     def __str__(self, show_id=False):
@@ -111,22 +157,43 @@ class Admin(Model):
         return display_string
 
     def __repr__(self):
-        return ("\nAdmin {\n"
-                f"   user: {self.user}\n"
-                f"   room: {self.room}\n"
-                f"   is_limited: {self.is_limited}\n"
-                f"   is_revoked: {self.is_revoked}\n"
-                "}\n")
+        return (
+            "\nAdmin {\n"
+            f"   user: {self.user}\n"
+            f"   room: {self.room}\n"
+            f"   issuer: {self.issuer}\n"
+            f"   is_limited: {self.is_limited}\n"
+            f"   is_revoked: {self.is_revoked}\n"
+            "}\n"
+        )
 
 class Ban(Model):
-    user = ForeignKey(OBUser, on_delete=CASCADE, default=0)
-    room = ForeignKey(Room, on_delete=CASCADE, default=0)
+    user = ForeignKey(
+        OBUser,
+        on_delete=CASCADE,
+        default=-1
+    )
+    room = ForeignKey(
+        Room,
+        on_delete=CASCADE,
+        default=-1
+    )
+    issuer = ForeignKey(
+        OBUser,
+        related_name="ban_issued",
+        on_delete=SET_DEFAULT,
+        default=-1
+    )
     timestamp = DateTimeField(auto_now_add=True)
     is_lifted = BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert=force_insert, force_update=force_update, using=using,
-                     update_fields=update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
         return self
 
     def __str__(self, show_id=False):
@@ -141,23 +208,41 @@ class Ban(Model):
         return display_string
 
     def __repr__(self):
-        return ("\nBan {\n"
-                f"   user: {self.user}\n"
-                f"   room: {self.room}\n"
-                f"   timestamp: {self.timestamp}\n"
-                f"   is_lifted: {self.is_lifted}\n"
-                "}\n")
+        return (
+            "\nBan {\n"
+            f"   user: {self.user}\n"
+            f"   room: {self.room}\n"
+            f"   issuer: {self.issuer}\n"
+            f"   timestamp: {self.timestamp}\n"
+            f"   is_lifted: {self.is_lifted}\n"
+            "}\n"
+        )
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = ForeignKey(OBUser, related_name="message_sent", on_delete=CASCADE, null=True)
-    recipient = ForeignKey(OBUser, related_name="message_received", default=None, on_delete=CASCADE, null=True)
+    sender = ForeignKey(
+        OBUser,
+        related_name="message_sent",
+        on_delete=CASCADE,
+        null=True
+    )
+    recipient = ForeignKey(
+        OBUser,
+        related_name="message_received",
+        default=None,
+        on_delete=CASCADE,
+        null=True
+    )
     anon_username = CharField(
         max_length=ANON_USERNAME_MAX_LENGTH,
         default=None,
         null=True
     )
-    room = ForeignKey(Room, on_delete=CASCADE, default=0)
+    room = ForeignKey(
+        Room,
+        on_delete=CASCADE,
+        default=-1
+    )
     timestamp = DateTimeField(auto_now_add=True)
     is_edited = BooleanField(default=False)
     is_deleted = BooleanField(default=False)
@@ -176,12 +261,14 @@ class Message(Model):
         return display_string
 
     def __repr__(self):
-        return ("\nMessage {\n"
-                f"   message: {self.message}\n"
-                f"   sender: {self.sender}\n"
-                f"   anon_username: {self.anon_username}\n"
-                f"   room: {self.room}\n"
-                f"   timestamp: {self.timestamp}\n"
-                f"   is_edited: {self.is_edited}\n"
-                f"   is_deleted: {self.is_deleted}\n"
-                "}\n")
+        return (
+            "\nMessage {\n"
+            f"   message: {self.message}\n"
+            f"   sender: {self.sender}\n"
+            f"   anon_username: {self.anon_username}\n"
+            f"   room: {self.room}\n"
+            f"   timestamp: {self.timestamp}\n"
+            f"   is_edited: {self.is_edited}\n"
+            f"   is_deleted: {self.is_deleted}\n"
+            "}\n"
+        )
