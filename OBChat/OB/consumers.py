@@ -6,6 +6,7 @@ https://channels.readthedocs.io/en/latest/topics/consumers.html
 """
 
 import json
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from OB.commands.command_handler import handle_command

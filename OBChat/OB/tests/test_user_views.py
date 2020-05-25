@@ -10,10 +10,10 @@ https://docs.pytest.org/en/latest/contents.html
 
 from datetime import date
 
-from pytest import mark
-
 from django.test import Client
 from django.urls import reverse
+
+from pytest import mark
 
 from OB.constants import GroupTypes
 from OB.models import OBUser, Room

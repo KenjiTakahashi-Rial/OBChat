@@ -4,6 +4,7 @@ particular instance of a class.
 """
 
 import json
+
 from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
