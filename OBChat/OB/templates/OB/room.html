@@ -169,6 +169,11 @@ A chatroom for users to talk
     socket.onmessage = function(event) {
       var message = JSON.parse(event.data);
 
+      // Check for refresh signal
+      if (message.refresh) {
+        window.location.href = "{% url 'OB:OB-chat' %}";
+      }
+
       // Copy the message template
       var messageTemplate = document.getElementById("message-outer-div-template");
       var newMessage = messageTemplate.cloneNode(true);

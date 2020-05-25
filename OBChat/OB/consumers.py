@@ -258,4 +258,6 @@ class OBConsumer(AsyncWebsocketConsumer):
         """
 
         if event["target_id"] == self.user.id:
+            refresh_signal = {"refresh": True}
+            await self.send(text_data=json.dumps(refresh_signal))
             await self.close()
