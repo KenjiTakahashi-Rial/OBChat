@@ -21,7 +21,6 @@ from OB.consumers import OBConsumer
 from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_get
 from OB.utilities.format import get_group_name
-from OB.views.room import room
 
 @database_sync_to_async
 def database_setup():
@@ -30,12 +29,6 @@ def database_setup():
         Sets up database objects required to test the commands.
         The built-in pytest setup fixture causes threading issues with the asynchronous command
         testing.
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     OBUser(
@@ -103,12 +96,6 @@ def database_teardown():
         Cleans up the database objects used to test the commands.
         The built-in pytest teardown fixture causes threading issues with the asynchronous command
         testing.
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     for user_object in OBUser.objects.all():
@@ -129,12 +116,6 @@ async def communicator_setup(user, room_name):
 
         See the Django Channels documentation on Testing for more information.
         https://channels.readthedocs.io/en/latest/topics/testing.html
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     application = URLRouter([
@@ -163,9 +144,6 @@ async def communicator_teardown(communicator):
     Arguments:
         communicator (WebsocketCommunicator): The communicator used to test the commands. Should
             originate from consumer_setup().
-
-    Return values:
-        None.
     """
 
     await communicator.disconnect()
@@ -180,12 +158,6 @@ async def test_user_level():
         test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
         for testing commands (see database_teardown()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     try:
@@ -255,12 +227,6 @@ async def test_admin_level():
         test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
         for testing commands (see database_teardown()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     try:

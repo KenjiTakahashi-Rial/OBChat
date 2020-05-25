@@ -22,7 +22,6 @@ def try_get(model, **kwargs):
 
     Return values:
         A single database object whose class variable values match the kwargs, if it exists.
-        Otherwise None.
     """
 
     try:
@@ -42,7 +41,6 @@ def sync_try_get(model, **kwargs):
 
     Return values:
         A single database object whose class variable values match the kwargs, if it exists.
-        Otherwise None.
     """
 
     return try_get(model, **kwargs)
@@ -93,9 +91,6 @@ def sync_delete(delete_object):
 
     Arguments:
         delete_object: The database object to delete.
-
-    Return values:
-        None.
     """
 
     delete_object.delete()
@@ -112,9 +107,6 @@ def sync_add(field, add_object):
         field (OneToManyField/ManyToManyField): A database object's field to add to.
         add_object: The database object to add. Type must match to object model's type (see
             OB.models.py).
-
-    Return values:
-        None.
     """
 
     field.add(add_object)
@@ -130,9 +122,6 @@ def sync_remove(field, remove_object):
         field (OneToManyField/ManyToManyField): A database object's field to remove from.
         remove_object: The database object to remove. Type must match to object model's type (see
             OB.models.py).
-
-    Return values:
-        None.
     """
 
     field.remove(remove_object)

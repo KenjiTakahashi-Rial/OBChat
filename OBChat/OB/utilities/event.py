@@ -22,9 +22,6 @@ async def send_event(event, group_name):
             OB.consumers.OBConsumer).
         group (string): The name of the group to send the event to, as a string (see
             get_group_name()).
-
-    Return values:
-        None.
     """
 
     await get_channel_layer().group_send(group_name, event)
@@ -39,9 +36,6 @@ async def send_room_event(room_id, event):
             a corresponding handling method of the same name defined in the consumer class, (see
             OBConsumer).
         room_id (int): The id of the room whose group to send the event to.
-
-    Return values:
-        None.
     """
 
     await send_event(event, get_group_name(GroupTypes.Room, room_id))
@@ -57,9 +51,6 @@ async def send_room_message(message_json, room_id, recipient=None):
         room_id (int): The id of the room to send the message to.
         recipient (OBUser): The only user who will see the response.
             If None, all occupants of the Room will see the response.
-
-    Return values:
-        None.
     """
 
     event = {
@@ -82,9 +73,6 @@ async def send_system_room_message(message_text, room, recipient=None):
         room (Room): The database object of the room to send this message to.
         recipient (OBUser): The user who initiated the command and will see the response.
             If None, all occupants of the Room will see the response.
-
-    Return values:
-        None.
     """
 
     # Save message to database
@@ -115,9 +103,6 @@ async def send_private_message(message_text, sender, recipient):
     Arguments:
         sender (OBUser): The user sending the private message.
         recipient (OBUser): The user to send the private message to.
-
-    Return values:
-        None.
     """
 
     # Get the Room object for the private messages

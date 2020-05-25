@@ -19,9 +19,6 @@ class OBConfig(AppConfig):
 
         Arguments:
             self (OBConfig): The OBConfig class.
-
-        Return Values:
-            None.
         """
 
         # pylint: disable=import-outside-toplevel

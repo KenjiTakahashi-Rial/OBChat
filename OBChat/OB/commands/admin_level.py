@@ -19,9 +19,6 @@ async def kick(args, sender, room):
         args (list[string]): The usernames of OBUsers to kick. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was issued in.
-
-    Return values:
-        None.
     """
 
     # Remove duplicates
@@ -101,9 +98,6 @@ async def ban(args, sender, room):
         args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     # Remove duplicates
@@ -191,9 +185,6 @@ async def lift_ban(args, sender, room):
         args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     # TODO: Implement this

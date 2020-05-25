@@ -24,12 +24,6 @@ def setup_function():
         This is a built-in pytest fixture that runs before every function.
         See the pytest documentation on xunit-style setup for more information.
         https://docs.pytest.org/en/latest/xunit_setup.html
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     ob_user = OBUser.objects.create_user(
@@ -53,12 +47,6 @@ def teardown_function():
         This is a built-in pytest fixture that runs after every function.
         See the pytest documentation on xunit-style setup for more information.
         https://docs.pytest.org/en/latest/xunit_setup.html
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     for user in OBUser.objects.all():
@@ -72,12 +60,6 @@ def test_chat():
     """
     Description:
         Tests the chat list page (see OB.views.room.chat()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     client = Client()
@@ -93,12 +75,6 @@ def test_create_room():
     """
     Description:
         Tests the room creation page (see OB.views.room.create_room()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     client = Client()
@@ -196,12 +172,6 @@ def test_room():
     """
     Description:
         Tests the room page (see OB.views.room.room()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     client = Client()

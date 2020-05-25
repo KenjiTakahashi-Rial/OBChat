@@ -16,9 +16,6 @@ def sync_cycle_key(session):
 
     Arguments:
         session (Session): The Django Session to cycle the key for.
-
-    Return values:
-        None.
     """
 
     session.cycle_key()

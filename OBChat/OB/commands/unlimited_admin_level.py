@@ -19,9 +19,6 @@ async def hire(args, sender, room):
         args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     # Check for initial errors
@@ -92,9 +89,6 @@ async def fire(args, sender, room):
         args (list[string]): The usernames of OBUsers to fire. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     # Check for initial errors

@@ -27,12 +27,6 @@ def setup_function():
         This is a built-in pytest fixture that runs before every function.
         See the pytest documentation on xunit-style setup for more information.
         https://docs.pytest.org/en/latest/xunit_setup.html
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     OBUser.objects.create_user(
@@ -55,12 +49,6 @@ def teardown_function():
         This is a built-in pytest fixture that runs after every function.
         See the pytest documentation on xunit-style setup for more information.
         https://docs.pytest.org/en/latest/xunit_setup.html
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     for user in OBUser.objects.all():
@@ -71,12 +59,6 @@ def test_user():
     """
     Description:
         Tests the user information page (see OB.views.user.user()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     client = Client()
@@ -223,12 +205,6 @@ def test_private():
     """
     Description:
         Tests the private message page (see OB.views.user.private()).
-
-    Arguments:
-        None.
-
-    Return values:
-        None.
     """
 
     client = Client()

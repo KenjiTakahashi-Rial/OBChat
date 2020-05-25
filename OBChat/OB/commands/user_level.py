@@ -19,9 +19,6 @@ async def who(args, sender, room):
             the room parameter as the argument.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     if not args:
@@ -83,9 +80,6 @@ async def private(args, sender, room):
         sender (OBUser): Not used, but included as a parameter so the function can be called from
             the COMMANDS dict.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     error_message = ""
@@ -122,9 +116,6 @@ async def create_room(args, sender, room):
         args (list[string]): The desired name of the new room.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     error_message = ""

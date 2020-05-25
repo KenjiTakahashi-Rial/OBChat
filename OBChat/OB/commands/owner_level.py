@@ -14,8 +14,5 @@ async def delete_room(args, sender, room):
         args (list[string]): The names of Rooms to delete. Should have length 1 or more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
     # TODO: Implement this

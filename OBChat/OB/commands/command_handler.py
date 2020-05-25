@@ -47,9 +47,6 @@ async def handle_command(command, sender, room):
             ex: "/command arg1 arg2"
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
-
-    Return values:
-        None.
     """
 
     # Separate by whitespace to get arguments
