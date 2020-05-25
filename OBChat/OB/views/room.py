@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from OB.constants import GroupTypes
-from OB.models import OBUser, Room, Message
+from OB.models import Ban, Message, OBUser, Room
 from OB.utilities.database import try_get
 from OB.utilities.format import get_datetime_string
 
@@ -123,26 +123,35 @@ def room(request, room_name):
         An error page if GET and the room does not exist.
     """
 
-    # TODO: Implement ban logic
     if request.method == "GET":
         room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         if room_object:
             websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
 
-            # Get the messages
-            message_query = Q(recipient=None)
-            if request.user.is_authenticated:
-                message_query |= Q(recipient=(request.user))
-            message_objects = Message.objects.filter(message_query)
-            messages_timestrings = [(message, get_datetime_string(message.timestamp))\
-                                    for message in message_objects]
+            ban_object = try_get(
+                Ban,
+                user=request.user if request.user.is_authenticated else None,
+                room=room_object
+            )
+            messages_timestrings = []
+
+            if not ban_object:
+                # Get the messages
+                message_query = Q(recipient=None)
+                if request.user.is_authenticated:
+                    message_query |= Q(recipient=(request.user))
+                message_objects = Message.objects.filter(message_query)
+
+                for message in message_objects:
+                    messages_timestrings += [(message, get_datetime_string(message.timestamp))]
 
             template = "OB/room.html"
             context = {
                 "room_name": room_object.display_name or room_object.name,
                 "websocket_url_json": websocket_url_json,
-                "messages": messages_timestrings
+                "messages": messages_timestrings,
+                "ban": ban_object
             }
         else:
             # Return the room does not exist page

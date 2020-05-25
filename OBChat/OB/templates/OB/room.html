@@ -88,63 +88,73 @@ A chatroom for users to talk
   <div class="row">
     <div class="mx-auto text-center">
       <h1>{{ room_name }}</h1>
-      <div class="card log-card" id="log">
-        {% if messages %}
-          {% for message, timestring in messages %}
-            <div class="text-justify mw-100">
-              <div class="card">
-                <div class="container">
-                  <div class="row">
-                    <div class="col-1">
-                      <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
-                    </div>
-                    <div class="col text-left">
-                      <strong>
-                        {% if message.sender %}
-                          {% if message.sender.display_name %}
-                            {{ message.sender.display_name }}
+
+      {% if ban %}
+        <p><font color="red"><strong>BANNED</strong></font></p>
+        <p>You have been banned from {{ room_name }} by {{ ban.issuer }}</p>
+      {% else %}
+        <div class="card log-card" id="log">
+          {% if messages %}
+            {% for message, timestring in messages %}
+              <div class="text-justify mw-100">
+                <div class="card">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-1">
+                        <img class="user-icon" src="{% static "favicon.ico" %}" alt="user">
+                      </div>
+                      <div class="col text-left">
+                        <strong>
+                          {% if message.sender %}
+                            {% if message.sender.display_name %}
+                              {{ message.sender.display_name }}
+                            {% else %}
+                              {{ message.sender.username }}
+                            {% endif %}
                           {% else %}
-                            {{ message.sender.username }}
+                            {{ message.anon_username }}
                           {% endif %}
-                        {% else %}
-                          {{ message.anon_username }}
-                        {% endif %}
-                      </strong>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-1"></div>
-                    <div class="col">
-                      <div style="display: table-cell;">
-                        {% if message.recipient %}
-                          <pre>{{ message.message }}</pre>
-                        {% else %}
-                          <p>{{ message.message }}</p>
-                        {% endif %}
+                        </strong>
                       </div>
                     </div>
+                    <div class="row">
+                      <div class="col-1"></div>
+                      <div class="col">
+                        <div style="display: table-cell;">
+                          {% if message.recipient %}
+                            <pre>{{ message.message }}</pre>
+                          {% else %}
+                            <p>{{ message.message }}</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <p class="timestamp">
+                      {{ timestring }}
+                    </p>
                   </div>
-                  <p class="timestamp">
-                    {{ timestring }}
-                  </p>
                 </div>
               </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          No messages yet. First one gets a prize!
-        {% endif%}
+            {% endfor %}
+          {% else %}
+            No messages yet. First one gets a prize!
+          {% endif%}
+        </div>
+        <input class="form-control message-input" id="input" type="text" size="100"/>
+        <input class="btn btn-light send-button" id="submit" type="button" value="Send"/>
       </div>
-      <input class="form-control message-input" id="input" type="text" size="100"/>
-      <input class="btn btn-light send-button" id="submit" type="button" value="Send"/>
-    </div>
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block javascript %}
   <script>
+    {% if ban %}
+      throw "User {{ request.user }} is banned from {{ room_name }}";
+    {% endif %}
+
     var websocketUrl = {{ websocket_url_json }};
-    var log = document.querySelector("#log")
+    var log = document.querySelector("#log");
     var input = document.querySelector("#input");
     var submit = document.querySelector("#submit");
 

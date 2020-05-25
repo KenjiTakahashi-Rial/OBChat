@@ -92,12 +92,15 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         self.room = await sync_get(Room, group_type=group_type, name=room_name)
 
-        # Join room group if not banned
-        if not sync_get(Ban, user=self.user, room=self.room):
-            await self.channel_layer.group_add(
-                get_group_name(GroupTypes.Room, self.room.id),
-                self.channel_name
-            )
+        # Stop here if banned
+        if await sync_try_get(Ban, user=self.user, room=self.room):
+            return
+
+        # Add to room group
+        await self.channel_layer.group_add(
+            get_group_name(GroupTypes.Room, self.room.id),
+            self.channel_name
+        )
 
         # Add to the occupants list for this room
         room_object = await sync_get(Room, group_type=group_type, name=room_name)

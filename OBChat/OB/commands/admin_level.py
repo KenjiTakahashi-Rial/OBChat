@@ -4,9 +4,9 @@ OB.utilities.command.get_privilege()).
 """
 
 from OB.constants import Privilege
-from OB.models import Admin, OBUser
+from OB.models import Admin, Ban, OBUser
 from OB.utilities.command import get_privilege
-from OB.utilities.database import sync_get_owner, sync_model_list, sync_try_get
+from OB.utilities.database import sync_get_owner, sync_model_list, sync_save, sync_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
 async def kick(args, sender, room):
@@ -69,20 +69,18 @@ async def kick(args, sender, room):
     send_to_sender = error_messages + ["\nKicked:"]
     send_to_others = ["One or more users have been kicked:"]
 
-    # Execute valid kicks (if any) and notify all parties that a user was kicked
     for kicked_user in valid_kicks:
+        # Kick the user
         kick_event = {
             "type": "kick",
             "target_id": kicked_user.id
         }
 
-        await send_system_room_message(f"You were kicked from {room.name}. Check yourself before "
-                                       "you wreck yourself.", room, kicked_user)
+        await send_room_event(room.id, kick_event)
 
+        # Notify others that a user was kicked
         send_to_sender += [f"   {kicked_user.username}"]
         send_to_others += [f"   {kicked_user.username}"]
-
-        await send_room_event(room.id, kick_event)
 
     if valid_kicks:
         send_to_sender += ["That'll show them."]
@@ -153,20 +151,26 @@ async def ban(args, sender, room):
     send_to_sender = error_messages + ["\nBanned:"]
     send_to_others = ["One or more users have been banned:"]
 
-    # Execute valid bans (if any) and notify all parties that a user was banned
     for banned_user in valid_bans:
-        ban_event = {
-            "type": "ban",
+        # Save the ban to the database
+        await sync_save(
+            Ban,
+            user=banned_user,
+            room=room,
+            issuer=sender
+        )
+
+        # Kick the user
+        kick_event = {
+            "type": "kick",
             "target_id": banned_user.id
         }
 
-        await send_system_room_message(f"You were banned from {room.name}. Check yourself before "
-                                       "you wreck yourself.", room, banned_user)
+        await send_room_event(room.id, kick_event)
 
+        # Notify others that a user was banned
         send_to_sender += [f"   {banned_user.username}"]
         send_to_others += [f"   {banned_user.username}"]
-
-        await send_room_event(room.id, ban_event)
 
     if valid_bans:
         send_to_sender += ["That'll show them."]

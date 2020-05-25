@@ -2,12 +2,12 @@
 These are enums and constant variables used by more than one other file.
 """
 
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 SYSTEM_USERNAME = "OB-Sys"
 ANON_PREFIX = "OB-Anon-"
 
-class GroupTypes(Enum):
+class GroupTypes(IntEnum):
     Invalid = 0
     Line = 1
     Room = 2
