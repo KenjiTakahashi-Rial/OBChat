@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import Admin, OBUser, Room
-from OB.utilities.database import sync_get, sync_model_list
+from OB.utilities.database import sync_get
 from OB.utilities.format import get_group_name
 
 @database_sync_to_async
@@ -78,12 +78,14 @@ def database_setup():
     Admin(
         user=obtmf_user,
         room=obchat_room,
+        issuer=ob_user,
         is_limited=True
     ).save()
 
     Admin(
         user=mafdtfafobtmf_user,
-        room=obchat_room
+        room=obchat_room,
+        issuer=ob_user
     ).save()
 
 @database_sync_to_async
@@ -223,6 +225,8 @@ async def test_admin_level():
         #     assert occupant != obtmf_user
         #     assert occupant != mafdtfafobtmf_user
         #     assert occupant != anon_user
+
+        # TODO: Add ban() tests
 
     finally:
         await database_teardown()
