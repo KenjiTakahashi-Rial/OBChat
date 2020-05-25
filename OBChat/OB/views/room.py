@@ -116,7 +116,7 @@ def room(request, room_name):
 
     Arguments:
         request (AsgiRequest)
-        room_name (string): The name of the room which may or may not exist.
+        room_name (string): The name of the room which may or may not exist. Comes from the URL.
 
     Return values:
         The HTML template for the room if GET.
@@ -148,7 +148,7 @@ def room(request, room_name):
 
             template = "OB/room.html"
             context = {
-                "room_name": room_object.display_name or room_object.name,
+                "room": room_object,
                 "websocket_url_json": websocket_url_json,
                 "messages": messages_timestrings,
                 "ban": ban_object

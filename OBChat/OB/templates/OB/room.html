@@ -87,11 +87,11 @@ A chatroom for users to talk
 
   <div class="row">
     <div class="mx-auto text-center">
-      <h1>{{ room_name }}</h1>
+      <h1>{% if room.display_name %}{{ room.display_name }}{% else %}{{ room.name }}{% endif %}</h1>
 
       {% if ban %}
         <p><font color="red"><strong>BANNED</strong></font></p>
-        <p>You have been banned from {{ room_name }} by {{ ban.issuer }}</p>
+        <p>You have been banned from {{ room }} by {{ ban.issuer }}</p>
       {% else %}
         <div class="card log-card" id="log">
           {% if messages %}
@@ -150,7 +150,7 @@ A chatroom for users to talk
 {% block javascript %}
   <script>
     {% if ban %}
-      throw "User {{ request.user }} is banned from {{ room_name }}";
+      throw "User {{ request.user }} is banned from {{ room }}";
     {% endif %}
 
     var websocketUrl = {{ websocket_url_json }};
