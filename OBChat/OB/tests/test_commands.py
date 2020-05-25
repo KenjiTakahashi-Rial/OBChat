@@ -4,24 +4,32 @@ Tests the command functions (see OB.commands).
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
+from types import SimpleNamespace
+
+from channels.routing import URLRouter
+from channels.testing import WebsocketCommunicator
+from channels.db import database_sync_to_async
+
+from django.conf.urls import url
+from django.contrib.auth import authenticate
 
 from pytest import mark
 
-from channels.db import database_sync_to_async
-from django.contrib.auth import authenticate
-
 from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
+from OB.consumers import OBConsumer
 from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_get
 from OB.utilities.format import get_group_name
+from OB.views.room import room
 
 @database_sync_to_async
 def database_setup():
     """
     Description:
         Sets up database objects required to test the commands.
-        The built-in pytest fixture causes threading issues with the asynchronous command testing.
+        The built-in pytest setup fixture causes threading issues with the asynchronous command
+        testing.
 
     Arguments:
         None.
@@ -93,7 +101,8 @@ def database_teardown():
     """
     Description:
         Cleans up the database objects used to test the commands.
-        The built-in pytest fixture causes threading issues with the asynchronous command testing.
+        The built-in pytest teardown fixture causes threading issues with the asynchronous command
+        testing.
 
     Arguments:
         None.
@@ -102,11 +111,64 @@ def database_teardown():
         None.
     """
 
-    for user in OBUser.objects.all():
-        user.delete()
+    for user_object in OBUser.objects.all():
+        user_object.delete()
 
-    for room in Room.objects.all():
-        room.delete()
+    for room_object in Room.objects.all():
+        room_object.delete()
+
+@mark.asyncio
+@mark.django_db()
+async def communicator_setup(user, room_name):
+    """
+    Description:
+        Sets up the communicator object required to test the commands.
+        Gives a placeholder "session" key for the scope because OBConsumer uses a session key to
+        generate anonymous usernames.
+        Communicator objects are used to test Consumers.
+
+        See the Django Channels documentation on Testing for more information.
+        https://channels.readthedocs.io/en/latest/topics/testing.html
+
+    Arguments:
+        None.
+
+    Return values:
+        None.
+    """
+
+    application = URLRouter([
+        url(r"^chat/(?P<room_name>[-\w]+)/$", OBConsumer)
+    ])
+    communicator = WebsocketCommunicator(application, f"/chat/{room_name}/")
+    communicator.scope["user"] = user
+    communicator.scope["session"] = SimpleNamespace(session_key=8)
+
+    is_connected, subprotocol = await communicator.connect()
+
+    assert is_connected
+    assert not subprotocol
+
+    return communicator
+
+async def communicator_teardown(communicator):
+    """
+    Description:
+        Cleans up the communicator object used to test the commands.
+        Communicator objects are used to test Consumers.
+
+        See the Django Channels documentation on Testing for more information.
+        https://channels.readthedocs.io/en/latest/topics/testing.html
+
+    Arguments:
+        communicator (WebsocketCommunicator): The communicator used to test the commands. Should
+            originate from consumer_setup().
+
+    Return values:
+        None.
+    """
+
+    await communicator.disconnect()
 
 @mark.asyncio
 @mark.django_db()
@@ -115,7 +177,7 @@ async def test_user_level():
     Description:
         Tests user-level commands (see OB.commands.user_level).
         Wrapped in a try block to prevent following tests from failing their database setup if this
-        test fails.
+        test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
         for testing commands (see database_teardown()).
 
@@ -131,6 +193,7 @@ async def test_user_level():
 
         ob_user = await sync_get(OBUser, username="ob")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
+        ob_communicator = await communicator_setup(ob_user, obchat_room.name)
 
         # Test who() errors
         await handle_command("/who knobchat", ob_user, obchat_room)
@@ -176,6 +239,9 @@ async def test_user_level():
         # Test create_room() success
         await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
+        # Clean up communicators
+        await communicator_teardown(ob_communicator)
+
     finally:
         await database_teardown()
 
@@ -186,7 +252,7 @@ async def test_admin_level():
     Description:
         Tests admin-level commands (see OB.commands.admin_level).
         Wrapped in a try block to prevent following tests from failing their database setup if this
-        test fails.
+        test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
         for testing commands (see database_teardown()).
 
