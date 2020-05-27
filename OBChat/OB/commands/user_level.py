@@ -40,14 +40,14 @@ async def who(args, sender, room):
                                "there."]
             continue
         elif await sync_len_all(arg_room.occupants) == 0:
-            who_strings += [f"{room_name} is all empty!\n"]
+            who_strings += [f"{room_name} is all empty!"]
             continue
 
         who_strings += [f"Users in {room_name}:"]
         who_string = ""
 
         for occupant in await sync_model_list(arg_room.occupants):
-            occupant_string = "    " + str(occupant)
+            occupant_string = f"    {occupant}"
 
             # Tag occupant appropriately
             if occupant == await sync_get_owner(arg_room):
@@ -62,8 +62,11 @@ async def who(args, sender, room):
         if who_string:
             who_strings += [who_string]
 
-    if who_strings:
-        who_strings = ["\n"] + who_strings
+    if error_messages and who_strings:
+        who_strings = [""] + who_strings
+
+    print(error_messages + who_strings)
+    print("\n".join(error_messages + who_strings))
 
     # Send user lists back to the sender
     await send_system_room_message("\n".join(error_messages + who_strings), room, sender)

@@ -4,6 +4,9 @@ Tests the command functions (see OB.commands).
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
+
+import json
+
 from types import SimpleNamespace
 
 from channels.routing import URLRouter
@@ -40,19 +43,22 @@ def database_setup():
     ob_user = OBUser(
         username="ob",
         email="ob@ob.ob",
-        password="ob"
+        password="ob",
+        display_name="OB"
     ).save()
 
     obtmf_user = OBUser(
         username="obtmf",
         email="obtmf@ob.ob",
-        password="obtmf"
+        password="obtmf",
+        display_name="OBTMF"
     ).save()
 
     mafdtfafobtmf_user = OBUser(
         username="mafdtfafobtmf",
         email="mafdtfafobtmf@ob.ob",
-        password="mafdtfafobtmf"
+        password="mafdtfafobtmf",
+        display_name="MAFDTFAFOBTMF"
     ).save()
 
     anon_user = OBUser(
@@ -164,19 +170,56 @@ async def test_user_level():
         await database_setup()
 
         ob_user = await sync_get(OBUser, username="ob")
-        obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
-        ob_communicator = await communicator_setup(ob_user, obchat_room.name)
-
-        # Test who() errors
-        await handle_command("/who knobchat", ob_user, obchat_room)
-        await handle_command("/w obtmfchat", ob_user, obchat_room)
-
-        # Test who() correct input
-        await handle_command("/w", ob_user, obchat_room)
-        await handle_command("/w obchat", ob_user, obchat_room)
-        await handle_command("/w obchat obtmfchat", ob_user, obchat_room)
-
+        obtmf_user = await sync_get(OBUser, username="obtmf")
         anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
+        communicator = await communicator_setup(ob_user, obchat_room.name)
+
+        ###########################################################################################
+        # Test who()                                                                              #
+        ###########################################################################################
+
+        # Test invalid room
+        await handle_command("/who knobchat", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        correct_response = "knobchat doesn't exist, so that probably means nobody is in there."
+        assert json.loads(data_frame)["text"] == correct_response
+
+        # Test empty room
+        await handle_command("/w obtmfchat", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        correct_response = "obtmfchat is all empty!"
+        assert json.loads(data_frame)["text"] == correct_response
+
+        # Test no arguments
+        await handle_command("/w", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        correct_response = "\n".join([
+            "Users in obchat:",
+            f"    {ob_user} [owner] [you]",
+            f"    {obtmf_user} [admin]",
+            f"    {anon_user}\n"
+        ])
+        assert json.loads(data_frame)["text"] == correct_response
+
+        # Test occupied room
+        await handle_command("/w obchat", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        assert json.loads(data_frame)["text"] == correct_response
+
+        # Test duplicate room arguments
+        await handle_command("/w obchat obchat obchat", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        assert json.loads(data_frame)["text"] == correct_response
+
+        # Test occupied room, empty room, and invalid room
+        await handle_command("/w obchat obtmfchat flobchat", ob_user, obchat_room)
+        data_frame = await communicator.receive_from()
+        correct_response = (
+            "flobchat doesn't exist, so that probably means nobody is in there."
+            f"{correct_response}"
+            "obtmfchat is all empty!"
+        )
         await database_sync_to_async(authenticate)(username="ob", password="ob")
 
         # Test private() errors
@@ -191,7 +234,6 @@ async def test_user_level():
         await handle_command("/p /obtmf Must be nice, eh?", ob_user, obchat_room)
 
         # Test private room creation
-        obtmf_user = await sync_get(OBUser, username="obtmf")
         await sync_get(
             Room,
             group_type=GroupTypes.Private,
@@ -212,7 +254,7 @@ async def test_user_level():
         await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
         # Clean up communicators
-        await communicator_teardown(ob_communicator)
+        await communicator_teardown(communicator)
 
     finally:
         await database_teardown()
