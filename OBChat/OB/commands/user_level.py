@@ -28,22 +28,22 @@ async def who(args, sender, room):
         # Remove duplicates
         args = list(dict.fromkeys(args))
 
-    error_messages = []
-    who_strings = []
+    return_strings = []
 
     for room_name in args:
         arg_room = await sync_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         # Check for errors
         if not arg_room:
-            error_messages += [f"{room_name} doesn't exist, so that probably means nobody is in "
+            return_strings += [f"{room_name} doesn't exist, so that probably means nobody is in "
                                "there."]
             continue
-        elif await sync_len_all(arg_room.occupants) == 0:
-            who_strings += [f"{room_name} is all empty!"]
+
+        if await sync_len_all(arg_room.occupants) == 0:
+            return_strings += [f"{room_name} is all empty!"]
             continue
 
-        who_strings += [f"Users in {room_name}:"]
+        return_strings += [f"Users in {room_name}:"]
         who_string = ""
 
         for occupant in await sync_model_list(arg_room.occupants):
@@ -60,16 +60,10 @@ async def who(args, sender, room):
             who_string += occupant_string + "\n"
 
         if who_string:
-            who_strings += [who_string]
-
-    if error_messages and who_strings:
-        who_strings = [""] + who_strings
-
-    print(error_messages + who_strings)
-    print("\n".join(error_messages + who_strings))
+            return_strings += [who_string]
 
     # Send user lists back to the sender
-    await send_system_room_message("\n".join(error_messages + who_strings), room, sender)
+    await send_system_room_message("\n".join(return_strings), room, sender)
 
 async def private(args, sender, room):
     """

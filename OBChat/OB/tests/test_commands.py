@@ -212,15 +212,16 @@ async def test_user_level():
         data_frame = await communicator.receive_from()
         assert json.loads(data_frame)["text"] == correct_response
 
-        # Test occupied room, empty room, and invalid room
+        # Test current occupied room, empty room, and invalid room
         await handle_command("/w obchat obtmfchat flobchat", ob_user, obchat_room)
         data_frame = await communicator.receive_from()
         correct_response = (
+            f"{correct_response}\n"
+            "obtmfchat is all empty!\n"
             "flobchat doesn't exist, so that probably means nobody is in there."
-            f"{correct_response}"
-            "obtmfchat is all empty!"
         )
         await database_sync_to_async(authenticate)(username="ob", password="ob")
+        assert json.loads(data_frame)["text"] == correct_response
 
         # Test private() errors
         await handle_command("/private", ob_user, obchat_room)
