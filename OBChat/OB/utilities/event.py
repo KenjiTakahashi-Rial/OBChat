@@ -99,7 +99,7 @@ async def send_system_room_message(message_text, room, recipient=None):
 async def send_private_message(message_text, sender, recipient):
     """
     Description:
-        Sends a private message between two users. For user through OBLine.
+        Sends a private message between two users.
 
     Arguments:
         sender (OBUser): The user sending the private message.
@@ -114,7 +114,6 @@ async def send_private_message(message_text, sender, recipient):
 
     # Create the database_object if it doesn't exist
     if not private_message_room:
-        print("didn't exist")
         private_message_room = await sync_save(
             Room,
             group_type=GroupTypes.Private,
