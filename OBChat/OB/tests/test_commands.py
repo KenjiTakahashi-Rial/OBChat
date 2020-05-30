@@ -9,8 +9,6 @@ https://docs.pytest.org/en/latest/contents.html
 
 from channels.db import database_sync_to_async
 
-from django.contrib.auth import authenticate
-
 from pytest import mark
 
 from OB.commands.command_handler import handle_command
@@ -143,47 +141,40 @@ async def test_who():
 
         # Test invalid room
         await handle_command("/who knobchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "knobchat doesn't exist, so that probably means nobody is in there."
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test empty room
         await handle_command("/w obtmfchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "obtmfchat is all empty!"
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test no arguments
         await handle_command("/w", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "\n".join([
             "Users in obchat:",
             f"    {ob_user} [owner] [you]",
             f"    {obtmf_user} [admin]",
             f"    {anon_user_0}\n"
         ])
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test occupied room
         await handle_command("/w obchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test duplicate room arguments
         await handle_command("/w obchat obchat obchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test multiple arguments
         await handle_command("/w obchat obtmfchat flobchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = (
             f"{correct_response}\n"
             "obtmfchat is all empty!\n"
             "flobchat doesn't exist, so that probably means nobody is in there."
         )
-        await database_sync_to_async(authenticate)(username="ob", password="ob")
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
     finally:
         if ob_communicator:
@@ -225,28 +216,24 @@ async def test_private():
 
         # Test no arguments
         await handle_command("/private", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Usage: /private /<user> <message>"
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test syntax error
         await handle_command("/p obtmjeff", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test invalid recipient
         await handle_command("/p /obtmjeff", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = ("obtmjeff doesn't exist. Your private message will broadcasted into "
                             "space instead.")
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test empty message
         await handle_command("/p /obtmf ", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = ("No message specified. Did you give up at just the username?")
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test private room auto-creation
         await handle_command("/p /ob What's it like to own OBChat?", obtmf_user, obchat_room)
@@ -271,11 +258,12 @@ async def test_private():
 
         # Test private messaging
         await handle_command("/p /obtmf It's pretty cool.", ob_user, obchat_room)
-        response = await ob_private_communicator.receive()
-        second_response = await obtmf_private_communicator.receive()
         correct_response = ("It's pretty cool.")
-        assert response == correct_response
-        assert second_response == correct_response
+        assert (
+            await ob_private_communicator.receive() ==
+            await obtmf_private_communicator.receive() ==
+            correct_response
+        )
 
     finally:
         if ob_communicator:
@@ -331,33 +319,28 @@ async def test_create_room():
 
         # Test no arguments
         await handle_command("/room", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Usage: /room <name>"
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test unauthenticated user
         await handle_command("/r anonchat", anon_user_0, obchat_room)
-        response = await anon_communicator.receive()
         correct_response = "Identify yourself! Must log in to create a room."
-        assert response == correct_response
+        assert await anon_communicator.receive() == correct_response
 
         # Test invalid syntax
         await handle_command("/r ob chat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Room name cannot contain spaces."
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test existing room
         await handle_command("/r obchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Someone beat you to it. obchat already exists."
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
 
         # Test creating room
         await handle_command("/r knobchat", ob_user, obchat_room)
-        response = await ob_communicator.receive()
         correct_response = "Sold! Check out your new room: knobchat"
-        assert response == correct_response
+        assert await ob_communicator.receive() == correct_response
         knobchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
         # Create WebsocketCommunicators to test new room
