@@ -29,9 +29,6 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         Arguments:
             self (OBConsumer)
-
-        Return values:
-            None
         """
 
         self.session = None
@@ -53,9 +50,6 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         Arguments:
             self (OBConsumer)
-
-        Return values:
-            None
         """
 
         # Set the session
@@ -121,9 +115,6 @@ class OBConsumer(AsyncWebsocketConsumer):
         Arguments:
             self (OBConsumer)
             code: A disconnect code to indicate disconnect conditions
-
-        Return values:
-            None
         """
 
         # Leave room group
@@ -154,7 +145,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             consumers group.
             Only the consumer whose user sent the message will call this method.
             This is called first in the consumer messaging process.
-            Finally, if the message is a command (see is_command()), then handle it.
+            Finally, if the message is a command, then handle it (see is_command()).
 
         Arguments:
             self (OBConsumer)
@@ -162,9 +153,6 @@ class OBConsumer(AsyncWebsocketConsumer):
                 JavaScript of room.html.
             bytes_data: Not used yet, but will contain images or other message contents which
                 cannot be represented by text.
-
-        Return values:
-            None
         """
 
         # Skip empty messages
@@ -216,9 +204,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             bytes_data: Not used yet, but will contain images or other message contents which
                 cannot be represented by text.
             close: Used to send a WebSocket close signal to terminate the connection.
-
-        Return values:
-            None
         """
 
         await super().send(text_data, bytes_data, close)
@@ -236,9 +221,6 @@ class OBConsumer(AsyncWebsocketConsumer):
         Arguments:
             self (OBConsumer)
             event (dict): Contains the message JSON
-
-        Return values:
-            None
         """
 
         if event["recipient_id"] < 0 or event["recipient_id"] == self.user.id:
@@ -253,9 +235,6 @@ class OBConsumer(AsyncWebsocketConsumer):
         Arguments:
             self (OBConsumer)
             event (dict): Contains the target user's ID
-
-        Return values:
-            None
         """
 
         if event["target_id"] == self.user.id:
