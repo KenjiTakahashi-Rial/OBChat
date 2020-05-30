@@ -171,20 +171,17 @@ async def communicator_teardown(communicator):
 
 @mark.asyncio
 @mark.django_db()
-async def test_user_level():
+async def test_who():
     """
     Description:
-        Tests user-level commands (see OB.commands.user_level).
+        Tests the /who command (see OB.commands.user_level.who()).
         Wrapped in a try block to prevent following tests from failing their database setup if this
         test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
         for testing commands (see database_teardown()).
     """
 
-    # Declare communicators outside try block so they are in-scope for the finally block
     ob_communicator = None
-    ob_private_communicator = None
-    obtmf_private_communicator = None
 
     try:
         await database_setup()
@@ -194,10 +191,6 @@ async def test_user_level():
         anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
         ob_communicator = await communicator_setup(ob_user, GroupTypes.Room, obchat_room.name)
-
-        ###########################################################################################
-        # Test who()                                                                              #
-        ###########################################################################################
 
         # Test invalid room
         await handle_command("/who knobchat", ob_user, obchat_room)
@@ -243,9 +236,35 @@ async def test_user_level():
         await database_sync_to_async(authenticate)(username="ob", password="ob")
         assert json.loads(data_frame)["text"] == correct_response
 
-        ###########################################################################################
-        # Test private()                                                                          #
-        ###########################################################################################
+    finally:
+        if ob_communicator:
+            await communicator_teardown(ob_communicator)
+
+        await database_teardown()
+
+@mark.asyncio
+@mark.django_db()
+async def test_private():
+    """
+    Description:
+        Tests the /private command (see OB.commands.user_level.private()).
+        Wrapped in a try block to prevent following tests from failing their database setup if this
+        test fails before cleaning up the database.
+        Normally, the built-in pytest teardown_function() accounts for this, but it is not used
+        for testing commands (see database_teardown()).
+    """
+
+    ob_communicator = None
+    ob_private_communicator = None
+    obtmf_private_communicator = None
+
+    try:
+        await database_setup()
+
+        ob_user = await sync_get(OBUser, username="ob")
+        obtmf_user = await sync_get(OBUser, username="obtmf")
+        obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
+        ob_communicator = await communicator_setup(ob_user, GroupTypes.Room, obchat_room.name)
 
         # Test no arguments
         await handle_command("/private", ob_user, obchat_room)
@@ -275,7 +294,7 @@ async def test_user_level():
         # Test private room auto-creation
         await handle_command("/p /ob What's it like to own OBChat?", obtmf_user, obchat_room)
 
-        ob_obtmf_private_room = await sync_get(
+        await sync_get(
             Room,
             group_type=GroupTypes.Private,
             name=get_group_name(GroupTypes.Private, ob_user.id, obtmf_user.id)
@@ -300,9 +319,34 @@ async def test_user_level():
         assert json.loads(data_frame)["text"] == correct_response
         assert json.loads(second_data_frame)["text"] == correct_response
 
-        ###########################################################################################
-        # Test create_room()                                                                      #
-        ###########################################################################################
+    finally:
+        if ob_communicator:
+            await communicator_teardown(ob_communicator)
+        if ob_private_communicator:
+            await communicator_teardown(ob_private_communicator)
+        if obtmf_private_communicator:
+            await communicator_teardown(obtmf_private_communicator)
+
+        await database_teardown()
+
+@mark.asyncio
+@mark.django_db()
+async def test_create_room():
+    """
+    Description:
+        Tests the /room command (see OB.commands.user_level.create_room()).
+        Wrapped in a try block to prevent following tests from failing their database setup if this
+        test fails before cleaning up the database.
+        Normally, the built-in pytest teardown_function() accounts for this, but it is not used
+        for testing commands (see database_teardown()).
+    """
+
+    try:
+        await database_setup()
+
+        ob_user = await sync_get(OBUser, username="ob")
+        anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Test create_room() errors
         await handle_command("/room", ob_user, obchat_room)
@@ -318,21 +362,14 @@ async def test_user_level():
         await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
     finally:
-        if ob_communicator:
-            await communicator_teardown(ob_communicator)
-        if ob_private_communicator:
-            await communicator_teardown(ob_private_communicator)
-        if obtmf_private_communicator:
-            await communicator_teardown(obtmf_private_communicator)
-
         await database_teardown()
 
 @mark.asyncio
 @mark.django_db()
-async def test_admin_level():
+async def test_kick():
     """
     Description:
-        Tests admin-level commands (see OB.commands.admin_level).
+        Tests the /kick command (see OB.commands.kick()).
         Wrapped in a try block to prevent following tests from failing their database setup if this
         test fails before cleaning up the database.
         Normally, the built-in pytest teardown_function() accounts for this, but it is not used
