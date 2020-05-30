@@ -228,9 +228,7 @@ A chatroom for users to talk
 
       input.value = "";
 
-      socket.send(JSON.stringify({
-        "message_text": message_text
-      }));
+      socket.send(JSON.stringify({"message_text": message_text}));
     };
   </script>
 {% endblock %}
