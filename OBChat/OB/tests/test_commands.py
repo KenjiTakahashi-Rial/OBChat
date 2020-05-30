@@ -7,20 +7,15 @@ https://docs.pytest.org/en/latest/contents.html
 
 import json
 
-from types import SimpleNamespace
-
-from channels.routing import URLRouter
-from channels.testing import WebsocketCommunicator
 from channels.db import database_sync_to_async
 
-from django.conf.urls import url
 from django.contrib.auth import authenticate
 
 from pytest import mark
 
 from OB.commands.command_handler import handle_command
+from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
-from OB.consumers import OBConsumer
 from OB.models import Admin, OBUser, Room
 from OB.utilities.database import sync_get
 from OB.utilities.format import get_group_name
@@ -112,65 +107,6 @@ def database_teardown():
 
 @mark.asyncio
 @mark.django_db()
-async def communicator_setup(user, group_type, url_arg):
-    """
-    Description:
-        Sets up the communicator object required to test the commands.
-        Gives a placeholder "session" key for the scope because OBConsumer uses a session key to
-        generate anonymous usernames.
-        Communicator objects are used to test Consumers.
-
-        See the Django Channels documentation on Testing for more information.
-        https://channels.readthedocs.io/en/latest/topics/testing.html
-
-    Arguments:
-        user (OBUser): The user who will be assigned to the communicator's self.user.
-        group_type (GroupType): Determines which type of group the communicator will connect to.
-        url_arg (string): Either a room name or a username, depending on the group type. Additional
-            information to connect to the correct group.
-    """
-
-    if group_type == GroupTypes.Room:
-        application = URLRouter([
-            url(r"^chat/(?P<room_name>[-\w]+)/$", OBConsumer)
-        ])
-        communicator = WebsocketCommunicator(application, f"/chat/{url_arg}/")
-    elif group_type == GroupTypes.Private:
-        application = URLRouter([
-            url(r"^private/(?P<username>[-\w]+)/$", OBConsumer)
-        ])
-        communicator = WebsocketCommunicator(application, f"/private/{url_arg}/")
-    else:
-        raise TypeError("communicator_setup() received an invalid GroupType.")
-
-    communicator.scope["user"] = user
-    communicator.scope["session"] = SimpleNamespace(session_key=8)
-
-    is_connected, subprotocol = await communicator.connect()
-
-    assert is_connected
-    assert not subprotocol
-
-    return communicator
-
-async def communicator_teardown(communicator):
-    """
-    Description:
-        Cleans up the communicator object used to test the commands.
-        Communicator objects are used to test Consumers.
-
-        See the Django Channels documentation on Testing for more information.
-        https://channels.readthedocs.io/en/latest/topics/testing.html
-
-    Arguments:
-        communicator (WebsocketCommunicator): The communicator used to test the commands. Should
-            originate from consumer_setup().
-    """
-
-    await communicator.disconnect()
-
-@mark.asyncio
-@mark.django_db()
 async def test_who():
     """
     Description:
@@ -184,61 +120,69 @@ async def test_who():
     ob_communicator = None
 
     try:
+        # Database setup
         await database_setup()
 
+        # Get database objects
         ob_user = await sync_get(OBUser, username="ob")
         obtmf_user = await sync_get(OBUser, username="obtmf")
         anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
-        ob_communicator = await communicator_setup(ob_user, GroupTypes.Room, obchat_room.name)
+
+        # Create a WebsocketCommunicator to test command responses
+        ob_communicator = await OBCommunicator(
+            ob_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
 
         # Test invalid room
         await handle_command("/who knobchat", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = "knobchat doesn't exist, so that probably means nobody is in there."
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test empty room
         await handle_command("/w obtmfchat", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = "obtmfchat is all empty!"
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test no arguments
         await handle_command("/w", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = "\n".join([
             "Users in obchat:",
             f"    {ob_user} [owner] [you]",
             f"    {obtmf_user} [admin]",
             f"    {anon_user}\n"
         ])
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test occupied room
         await handle_command("/w obchat", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
-        assert json.loads(data_frame)["text"] == correct_response
+        response = await ob_communicator.receive()
+        assert response == correct_response
 
         # Test duplicate room arguments
         await handle_command("/w obchat obchat obchat", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
-        assert json.loads(data_frame)["text"] == correct_response
+        response = await ob_communicator.receive()
+        assert response == correct_response
 
-        # Test current occupied room, empty room, and invalid room
+        # Test multiple arguments
         await handle_command("/w obchat obtmfchat flobchat", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = (
             f"{correct_response}\n"
             "obtmfchat is all empty!\n"
             "flobchat doesn't exist, so that probably means nobody is in there."
         )
         await database_sync_to_async(authenticate)(username="ob", password="ob")
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
     finally:
         if ob_communicator:
-            await communicator_teardown(ob_communicator)
+            await ob_communicator.disconnect()
 
         await database_teardown()
 
@@ -259,37 +203,45 @@ async def test_private():
     obtmf_private_communicator = None
 
     try:
+        # Database setup
         await database_setup()
 
+        # Get database objects
         ob_user = await sync_get(OBUser, username="ob")
         obtmf_user = await sync_get(OBUser, username="obtmf")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
-        ob_communicator = await communicator_setup(ob_user, GroupTypes.Room, obchat_room.name)
+
+        # Create a WebsocketCommunicator to test command responses
+        ob_communicator = await OBCommunicator(
+            ob_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
 
         # Test no arguments
         await handle_command("/private", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = "Usage: /private /<user> <message>"
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test syntax error
         await handle_command("/p obtmjeff", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test invalid recipient
         await handle_command("/p /obtmjeff", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = ("obtmjeff doesn't exist. Your private message will broadcasted into "
                             "space instead.")
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test empty message
         await handle_command("/p /obtmf ", ob_user, obchat_room)
-        data_frame = await ob_communicator.receive_from()
+        response = await ob_communicator.receive()
         correct_response = ("No message specified. Did you give up at just the username?")
-        assert json.loads(data_frame)["text"] == correct_response
+        assert response == correct_response
 
         # Test private room auto-creation
         await handle_command("/p /ob What's it like to own OBChat?", obtmf_user, obchat_room)
@@ -300,32 +252,33 @@ async def test_private():
             name=get_group_name(GroupTypes.Private, ob_user.id, obtmf_user.id)
         )
 
-        # Test private messaging
-        ob_private_communicator = await communicator_setup(
+        # Create WebsocketCommunicators to test private messaging
+        ob_private_communicator = await OBCommunicator(
             ob_user,
             GroupTypes.Private,
             obtmf_user.username
-        )
-        obtmf_private_communicator = await communicator_setup(
+        ).connect()
+        obtmf_private_communicator = await OBCommunicator(
             obtmf_user,
             GroupTypes.Private,
             ob_user.username
-        )
+        ).connect()
 
+        # Test private messaging
         await handle_command("/p /obtmf It's pretty cool.", ob_user, obchat_room)
-        data_frame = await ob_private_communicator.receive_from()
-        second_data_frame = await obtmf_private_communicator.receive_from()
+        response = await ob_private_communicator.receive()
+        second_response = await obtmf_private_communicator.receive()
         correct_response = ("It's pretty cool.")
-        assert json.loads(data_frame)["text"] == correct_response
-        assert json.loads(second_data_frame)["text"] == correct_response
+        assert response == correct_response
+        assert second_response == correct_response
 
     finally:
         if ob_communicator:
-            await communicator_teardown(ob_communicator)
+            await ob_communicator.disconnect()
         if ob_private_communicator:
-            await communicator_teardown(ob_private_communicator)
+            await ob_private_communicator.disconnect()
         if obtmf_private_communicator:
-            await communicator_teardown(obtmf_private_communicator)
+            await obtmf_private_communicator.disconnect()
 
         await database_teardown()
 
