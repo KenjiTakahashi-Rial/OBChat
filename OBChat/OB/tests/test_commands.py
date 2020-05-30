@@ -5,7 +5,7 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-import json
+# TODO: Change all handle_command() calls to be messages sent through the Communicator
 
 from channels.db import database_sync_to_async
 
@@ -56,8 +56,13 @@ def database_setup():
         display_name="MAFDTFAFOBTMF"
     ).save()
 
-    anon_user = OBUser(
+    anon_user_0_0 = OBUser(
         username=f"{ANON_PREFIX}0",
+        is_anon=True
+    ).save()
+
+    OBUser(
+        username=f"{ANON_PREFIX}1",
         is_anon=True
     ).save()
 
@@ -75,7 +80,7 @@ def database_setup():
 
     obchat_room.occupants.add(ob_user)
     obchat_room.occupants.add(obtmf_user)
-    obchat_room.occupants.add(anon_user)
+    obchat_room.occupants.add(anon_user_0_0)
 
     Admin(
         user=obtmf_user,
@@ -126,7 +131,7 @@ async def test_who():
         # Get database objects
         ob_user = await sync_get(OBUser, username="ob")
         obtmf_user = await sync_get(OBUser, username="obtmf")
-        anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        anon_user_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Create a WebsocketCommunicator to test command responses
@@ -155,7 +160,7 @@ async def test_who():
             "Users in obchat:",
             f"    {ob_user} [owner] [you]",
             f"    {obtmf_user} [admin]",
-            f"    {anon_user}\n"
+            f"    {anon_user_0}\n"
         ])
         assert response == correct_response
 
@@ -294,27 +299,126 @@ async def test_create_room():
         for testing commands (see database_teardown()).
     """
 
+    ob_communicator = None
+    anon_communicator = None
+    ob_knobchat_communicator = None
+    obtmf_knobchat_communicator = None
+    anon_knobchat_communicator = None
+
     try:
+        # Database setup
         await database_setup()
 
+        # Get database objects
         ob_user = await sync_get(OBUser, username="ob")
-        anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        obtmf_user = await sync_get(OBUser, username="obtmf")
+        anon_user_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        anon_user_1 = await sync_get(OBUser, username=f"{ANON_PREFIX}1")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
-        # Test create_room() errors
+        # Create WebsocketCommunicators to test command responses
+        ob_communicator = await OBCommunicator(
+            ob_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        anon_communicator = await OBCommunicator(
+            anon_user_0,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        # Test no arguments
         await handle_command("/room", ob_user, obchat_room)
-        await handle_command("/r", ob_user, obchat_room)
-        await handle_command("/room anonchat", anon_user, obchat_room)
+        response = await ob_communicator.receive()
+        correct_response = "Usage: /room <name>"
+        assert response == correct_response
+
+        # Test unauthenticated user
+        await handle_command("/r anonchat", anon_user_0, obchat_room)
+        response = await anon_communicator.receive()
+        correct_response = "Identify yourself! Must log in to create a room."
+        assert response == correct_response
+
+        # Test invalid syntax
         await handle_command("/r ob chat", ob_user, obchat_room)
+        response = await ob_communicator.receive()
+        correct_response = "Room name cannot contain spaces."
+        assert response == correct_response
+
+        # Test existing room
         await handle_command("/r obchat", ob_user, obchat_room)
+        response = await ob_communicator.receive()
+        correct_response = "Someone beat you to it. obchat already exists."
+        assert response == correct_response
 
-        # Test create_room() correct input
+        # Test creating room
         await handle_command("/r knobchat", ob_user, obchat_room)
+        response = await ob_communicator.receive()
+        correct_response = "Sold! Check out your new room: knobchat"
+        assert response == correct_response
+        knobchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
-        # Test create_room() success
-        await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
+        # Create WebsocketCommunicators to test new room
+        ob_knobchat_communicator = await OBCommunicator(
+            ob_user,
+            GroupTypes.Room,
+            knobchat_room.name
+        ).connect()
+
+        obtmf_knobchat_communicator = await OBCommunicator(
+            obtmf_user,
+            GroupTypes.Room,
+            knobchat_room.name
+        ).connect()
+
+        anon_knobchat_communicator = await OBCommunicator(
+            anon_user_1,
+            GroupTypes.Room,
+            knobchat_room.name
+        ).connect()
+
+        # Test new room messaging
+        message = "So I heard you made a new room."
+        await obtmf_knobchat_communicator.send(message)
+        assert (
+            await ob_knobchat_communicator.receive() ==
+            await obtmf_knobchat_communicator.receive() ==
+            await anon_knobchat_communicator.receive() ==
+            message
+        )
+
+        message = "You heard right. How's the signal?"
+        await ob_knobchat_communicator.send(message)
+        assert (
+            await ob_knobchat_communicator.receive() ==
+            await obtmf_knobchat_communicator.receive() ==
+            await anon_knobchat_communicator.receive() ==
+            message
+        )
+
+        message = "Can I join in on the fun?"
+        await anon_knobchat_communicator.send(message)
+        assert (
+            await ob_knobchat_communicator.receive() ==
+            await obtmf_knobchat_communicator.receive() ==
+            await anon_knobchat_communicator.receive() ==
+            message
+        )
 
     finally:
+        if ob_communicator:
+            await ob_communicator.disconnect()
+        if anon_communicator:
+            await anon_communicator.disconnect()
+        if ob_knobchat_communicator:
+            await ob_knobchat_communicator.disconnect()
+        if obtmf_knobchat_communicator:
+            await obtmf_knobchat_communicator.disconnect()
+        if anon_knobchat_communicator:
+            await anon_knobchat_communicator.disconnect()
+
         await database_teardown()
 
 @mark.asyncio
@@ -335,11 +439,11 @@ async def test_kick():
         ob_user = await sync_get(OBUser, username="ob")
         obtmf_user = await sync_get(OBUser, username="obtmf")
         mafdtfafobtmf_user = await sync_get(OBUser, username="mafdtfafobtmf")
-        anon_user = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
+        anon_user_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Test kick() errors
-        await handle_command("/kick", anon_user, obchat_room)
+        await handle_command("/kick", anon_user_0, obchat_room)
         await handle_command("/k", obtmf_user, obchat_room)
         await handle_command("/k throwbtmf", obtmf_user, obchat_room)
         await handle_command("/k obtmf", obtmf_user, obchat_room)
@@ -356,7 +460,7 @@ async def test_kick():
         # for occupant in await sync_model_list(obchat_room.occupants):
         #     assert occupant != obtmf_user
         #     assert occupant != mafdtfafobtmf_user
-        #     assert occupant != anon_user
+        #     assert occupant != anon_user_0
 
         # TODO: Add ban() tests
 
