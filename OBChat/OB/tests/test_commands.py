@@ -128,7 +128,7 @@ async def test_who():
         for testing commands (see database_teardown()).
     """
 
-    ob_communicator = None
+    communicators = {}
 
     try:
         # Database setup
@@ -141,7 +141,7 @@ async def test_who():
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Create a WebsocketCommunicator to test command responses
-        ob_communicator = await OBCommunicator(
+        communicators["ob"] = await OBCommunicator(
             ob_user,
             GroupTypes.Room,
             obchat_room.name
@@ -150,12 +150,12 @@ async def test_who():
         # Test invalid room
         await handle_command("/who knobchat", ob_user, obchat_room)
         correct_response = "knobchat doesn't exist, so that probably means nobody is in there."
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test empty room
         await handle_command("/w obtmfchat", ob_user, obchat_room)
         correct_response = "obtmfchat is all empty!"
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test no arguments
         await handle_command("/w", ob_user, obchat_room)
@@ -165,15 +165,15 @@ async def test_who():
             f"    {obtmf_user} [admin]",
             f"    {anon_user_0}\n"
         ])
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test occupied room
         await handle_command("/w obchat", ob_user, obchat_room)
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test duplicate room arguments
         await handle_command("/w obchat obchat obchat", ob_user, obchat_room)
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test multiple arguments
         await handle_command("/w obchat obtmfchat flobchat", ob_user, obchat_room)
@@ -182,11 +182,11 @@ async def test_who():
             "obtmfchat is all empty!\n"
             "flobchat doesn't exist, so that probably means nobody is in there."
         )
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
     finally:
-        if ob_communicator:
-            await ob_communicator.disconnect()
+        for communicator in communicators.values():
+            await communicator.disconnect()
 
         await database_teardown()
 
@@ -202,9 +202,7 @@ async def test_private():
         for testing commands (see database_teardown()).
     """
 
-    ob_communicator = None
-    ob_private_communicator = None
-    obtmf_private_communicator = None
+    communicators = {}
 
     try:
         # Database setup
@@ -216,7 +214,7 @@ async def test_private():
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Create a WebsocketCommunicator to test command responses
-        ob_communicator = await OBCommunicator(
+        communicators["ob"] = await OBCommunicator(
             ob_user,
             GroupTypes.Room,
             obchat_room.name
@@ -225,24 +223,24 @@ async def test_private():
         # Test no arguments
         await handle_command("/private", ob_user, obchat_room)
         correct_response = "Usage: /private /<user> <message>"
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test syntax error
         await handle_command("/p obtmjeff", ob_user, obchat_room)
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test invalid recipient
         await handle_command("/p /obtmjeff", ob_user, obchat_room)
         correct_response = (
             "obtmjeff doesn't exist. Your private message will broadcasted into space instead."
         )
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test empty message
         await handle_command("/p /obtmf ", ob_user, obchat_room)
         correct_response = "No message specified. Did you give up at just the username?"
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test private room auto-creation
         await handle_command("/p /ob What's it like to own OBChat?", obtmf_user, obchat_room)
@@ -254,12 +252,12 @@ async def test_private():
         )
 
         # Create WebsocketCommunicators to test private messaging
-        ob_private_communicator = await OBCommunicator(
+        communicators["ob_private"] = await OBCommunicator(
             ob_user,
             GroupTypes.Private,
             obtmf_user.username
         ).connect()
-        obtmf_private_communicator = await OBCommunicator(
+        communicators["obtmf_private"] = await OBCommunicator(
             obtmf_user,
             GroupTypes.Private,
             ob_user.username
@@ -269,18 +267,14 @@ async def test_private():
         await handle_command("/p /obtmf It's pretty cool.", ob_user, obchat_room)
         correct_response = "It's pretty cool."
         assert (
-            await ob_private_communicator.receive() ==
-            await obtmf_private_communicator.receive() ==
+            await communicators["ob_private"].receive() ==
+            await communicators["obtmf_private"].receive() ==
             correct_response
         )
 
     finally:
-        if ob_communicator:
-            await ob_communicator.disconnect()
-        if ob_private_communicator:
-            await ob_private_communicator.disconnect()
-        if obtmf_private_communicator:
-            await obtmf_private_communicator.disconnect()
+        for communicator in communicators.values():
+            await communicator.disconnect()
 
         await database_teardown()
 
@@ -296,11 +290,7 @@ async def test_create_room():
         for testing commands (see database_teardown()).
     """
 
-    ob_communicator = None
-    anon_communicator = None
-    ob_knobchat_communicator = None
-    obtmf_knobchat_communicator = None
-    anon_knobchat_communicator = None
+    communicators = {}
 
     try:
         # Database setup
@@ -314,13 +304,13 @@ async def test_create_room():
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Create WebsocketCommunicators to test command responses
-        ob_communicator = await OBCommunicator(
+        communicators["ob"] = await OBCommunicator(
             ob_user,
             GroupTypes.Room,
             obchat_room.name
         ).connect()
 
-        anon_communicator = await OBCommunicator(
+        communicators["anon"] = await OBCommunicator(
             anon_user_0,
             GroupTypes.Room,
             obchat_room.name
@@ -329,43 +319,43 @@ async def test_create_room():
         # Test no arguments
         await handle_command("/room", ob_user, obchat_room)
         correct_response = "Usage: /room <name>"
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test unauthenticated user
         await handle_command("/r anonchat", anon_user_0, obchat_room)
         correct_response = "Identify yourself! Must log in to create a room."
-        assert await anon_communicator.receive() == correct_response
+        assert await communicators["anon"].receive() == correct_response
 
         # Test invalid syntax
         await handle_command("/r ob chat", ob_user, obchat_room)
         correct_response = "Room name cannot contain spaces."
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test existing room
         await handle_command("/r obchat", ob_user, obchat_room)
         correct_response = "Someone beat you to it. obchat already exists."
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
 
         # Test creating room
         await handle_command("/r knobchat", ob_user, obchat_room)
         correct_response = "Sold! Check out your new room: knobchat"
-        assert await ob_communicator.receive() == correct_response
+        assert await communicators["ob"].receive() == correct_response
         knobchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="knobchat")
 
         # Create WebsocketCommunicators to test new room
-        ob_knobchat_communicator = await OBCommunicator(
+        communicators["ob_knobchat"] = await OBCommunicator(
             ob_user,
             GroupTypes.Room,
             knobchat_room.name
         ).connect()
 
-        obtmf_knobchat_communicator = await OBCommunicator(
+        communicators["obtmf_knobchat"] = await OBCommunicator(
             obtmf_user,
             GroupTypes.Room,
             knobchat_room.name
         ).connect()
 
-        anon_knobchat_communicator = await OBCommunicator(
+        communicators["anon_knobchat"] = await OBCommunicator(
             anon_user_1,
             GroupTypes.Room,
             knobchat_room.name
@@ -373,43 +363,35 @@ async def test_create_room():
 
         # Test new room messaging
         message = "So I heard you made a new room."
-        await obtmf_knobchat_communicator.send(message)
+        await communicators["obtmf_knobchat"].send(message)
         assert (
-            await ob_knobchat_communicator.receive() ==
-            await obtmf_knobchat_communicator.receive() ==
-            await anon_knobchat_communicator.receive() ==
+            await communicators["ob_knobchat"].receive() ==
+            await communicators["obtmf_knobchat"].receive() ==
+            await communicators["anon_knobchat"].receive() ==
             message
         )
 
         message = "You heard right. How's the signal?"
-        await ob_knobchat_communicator.send(message)
+        await communicators["ob_knobchat"].send(message)
         assert (
-            await ob_knobchat_communicator.receive() ==
-            await obtmf_knobchat_communicator.receive() ==
-            await anon_knobchat_communicator.receive() ==
+            await communicators["ob_knobchat"].receive() ==
+            await communicators["obtmf_knobchat"].receive() ==
+            await communicators["anon_knobchat"].receive() ==
             message
         )
 
         message = "Can I join in on the fun?"
-        await anon_knobchat_communicator.send(message)
+        await communicators["anon_knobchat"].send(message)
         assert (
-            await ob_knobchat_communicator.receive() ==
-            await obtmf_knobchat_communicator.receive() ==
-            await anon_knobchat_communicator.receive() ==
+            await communicators["ob_knobchat"].receive() ==
+            await communicators["obtmf_knobchat"].receive() ==
+            await communicators["anon_knobchat"].receive() ==
             message
         )
 
     finally:
-        if ob_communicator:
-            await ob_communicator.disconnect()
-        if anon_communicator:
-            await anon_communicator.disconnect()
-        if ob_knobchat_communicator:
-            await ob_knobchat_communicator.disconnect()
-        if obtmf_knobchat_communicator:
-            await obtmf_knobchat_communicator.disconnect()
-        if anon_knobchat_communicator:
-            await anon_knobchat_communicator.disconnect()
+        for communicator in communicators.values():
+            await communicator.disconnect()
 
         await database_teardown()
 
@@ -425,11 +407,7 @@ async def test_kick():
         for testing commands (see database_teardown()).
     """
 
-    ob_communicator = None
-    obtmf_communicator = None
-    mafdtfafobtmf_communicator = None
-    throwbtmf_communicator = None
-    anon_communicator = None
+    communicators = {}
 
     try:
         # Database setup
@@ -444,31 +422,31 @@ async def test_kick():
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
         # Create WebsocketCommunicators to test command responses
-        ob_communicator = await OBCommunicator(
+        communicators["ob"] = await OBCommunicator(
             ob_user,
             GroupTypes.Room,
             obchat_room.name
         ).connect()
 
-        obtmf_communicator = await OBCommunicator(
+        communicators["obtmf"] = await OBCommunicator(
             obtmf_user,
             GroupTypes.Room,
             obchat_room.name
         ).connect()
 
-        mafdtfafobtmf_communicator = await OBCommunicator(
+        communicators["mafdtfafobtmf"] = await OBCommunicator(
             mafdtfafobtmf_user,
             GroupTypes.Room,
             obchat_room.name
         ).connect()
 
-        throwbtmf_communicator = await OBCommunicator(
+        communicators["throwbtmf"] = await OBCommunicator(
             throwbtmf_user,
             GroupTypes.Room,
             obchat_room.name
         ).connect()
 
-        anon_communicator = await OBCommunicator(
+        communicators["anon"] = await OBCommunicator(
             anon_user_0,
             GroupTypes.Room,
             obchat_room.name
@@ -480,7 +458,7 @@ async def test_kick():
             "You're not even logged in! Try making an account first, then we can talk about "
             "kicking people."
         )
-        assert await anon_communicator.receive() == correct_response
+        assert await communicators["anon"].receive() == correct_response
 
         # Test insufficient privilege
         await handle_command("/k", throwbtmf_user, obchat_room)
@@ -488,29 +466,29 @@ async def test_kick():
             "That's a little outside your pay-grade. Only admins may kick users. "
             "Try to /apply to be an admin."
         )
-        assert await throwbtmf_communicator.receive() == correct_response
+        assert await communicators["throwbtmf"].receive() == correct_response
 
         # Test no arguments
         await handle_command("/k", mafdtfafobtmf_user, obchat_room)
         correct_response = "Usage: /kick <user1> <user2> ..."
-        assert await mafdtfafobtmf_communicator.receive() == correct_response
+        assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
         # Test invalid target
         await handle_command("/k showbtmf", mafdtfafobtmf_user, obchat_room)
         correct_response = "Nobody named showbtmf in this room. Are you seeing things?"
-        assert await mafdtfafobtmf_communicator.receive() == correct_response
+        assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
         # Test self target
         await handle_command("/k mafdtfafobtmf", mafdtfafobtmf_user, obchat_room)
         correct_response = (
             "You can't kick yourself. Just leave the room. Or put yourself on time-out."
         )
-        assert await mafdtfafobtmf_communicator.receive() == correct_response
+        assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
         # Test owner target
         await handle_command("/k ob", mafdtfafobtmf_user, obchat_room)
         correct_response = "That's the owner. You know, your BOSS. Nice try."
-        assert await mafdtfafobtmf_communicator.receive() == correct_response
+        assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
         # Test unlimited admin target
         await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
@@ -518,14 +496,13 @@ async def test_kick():
             "obtmf is an unlimited admin, so you can't kick them. Please direct all complaints to "
             "your local room owner, I'm sure they'll love some more paperwork to do..."
         )
-        assert await mafdtfafobtmf_communicator.receive() == correct_response
+        assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
         # Test kick admin
-        await handle_command("/k mafdtfafobtmf", obtmf_user, obchat_room)
-        await handle_command(f"/k obtmf {ANON_PREFIX}0", ob_user, obchat_room)
+        # await handle_command("/k mafdtfafobtmf", obtmf_user, obchat_room)
+        # await handle_command(f"/k obtmf {ANON_PREFIX}0", ob_user, obchat_room)
 
         # Test kick() success
-        # TODO: kick() test does not remove occupants because that code lies in OBConsumer, which
         # does not exists while testing. Find a way to test this works
         # for occupant in await sync_model_list(obchat_room.occupants):
         #     assert occupant != obtmf_user
@@ -533,16 +510,8 @@ async def test_kick():
         #     assert occupant != anon_user_0
 
     finally:
-        if ob_communicator:
-            await ob_communicator.disconnect()
-        if obtmf_communicator:
-            await obtmf_communicator.disconnect()
-        if mafdtfafobtmf_communicator:
-            await mafdtfafobtmf_communicator.disconnect()
-        if throwbtmf_communicator:
-            await throwbtmf_communicator.disconnect()
-        if anon_communicator:
-            await anon_communicator.disconnect()
+        for communicator in communicators.values():
+            await communicator.disconnect()
 
         await database_teardown()
 
