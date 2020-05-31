@@ -204,9 +204,12 @@ A chatroom for users to talk
 
     socket.onclose = function(event) {
       if (event.wasClean) {
-        console.log("WebSocket connection closed normally (code: " + event.code + ", reason: " + event.reason + ").");
+        console.log(
+          "WebSocket connection closed normally (code: " + event.code + ", reason: "
+          + event.reason + ").");
       } else {
-        console.log("WebSocket connection aborted abnormally (code: " + event.code + ", reason: " + event.reason + ").");
+        console.log("WebSocket connection aborted abnormally (code: " + event.code + ", reason: "
+          + event.reason + ").");
       }
 
     };

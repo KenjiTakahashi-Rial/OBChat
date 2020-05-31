@@ -234,13 +234,14 @@ async def test_private():
 
         # Test invalid recipient
         await handle_command("/p /obtmjeff", ob_user, obchat_room)
-        correct_response = ("obtmjeff doesn't exist. Your private message will broadcasted into "
-                            "space instead.")
+        correct_response = (
+            "obtmjeff doesn't exist. Your private message will broadcasted into space instead."
+        )
         assert await ob_communicator.receive() == correct_response
 
         # Test empty message
         await handle_command("/p /obtmf ", ob_user, obchat_room)
-        correct_response = ("No message specified. Did you give up at just the username?")
+        correct_response = "No message specified. Did you give up at just the username?"
         assert await ob_communicator.receive() == correct_response
 
         # Test private room auto-creation
@@ -266,7 +267,7 @@ async def test_private():
 
         # Test private messaging
         await handle_command("/p /obtmf It's pretty cool.", ob_user, obchat_room)
-        correct_response = ("It's pretty cool.")
+        correct_response = "It's pretty cool."
         assert (
             await ob_private_communicator.receive() ==
             await obtmf_private_communicator.receive() ==
@@ -475,14 +476,18 @@ async def test_kick():
 
         # Test unauthenticated user
         await handle_command("/kick", anon_user_0, obchat_room)
-        correct_response = ("You're not even logged in! Try making an account first, then we can "
-                            "talk about kicking people.")
+        correct_response = (
+            "You're not even logged in! Try making an account first, then we can talk about "
+            "kicking people."
+        )
         assert await anon_communicator.receive() == correct_response
 
         # Test insufficient privilege
         await handle_command("/k", throwbtmf_user, obchat_room)
-        correct_response = ("That's a little outside your pay-grade. Only admins may kick users. "
-                            "Try to /apply to be an admin.")
+        correct_response = (
+            "That's a little outside your pay-grade. Only admins may kick users. "
+            "Try to /apply to be an admin."
+        )
         assert await throwbtmf_communicator.receive() == correct_response
 
         # Test no arguments
@@ -497,8 +502,9 @@ async def test_kick():
 
         # Test self target
         await handle_command("/k mafdtfafobtmf", mafdtfafobtmf_user, obchat_room)
-        correct_response = ("You can't kick yourself. Just leave the room. Or put yourself on "
-                            "time-out.")
+        correct_response = (
+            "You can't kick yourself. Just leave the room. Or put yourself on time-out."
+        )
         assert await mafdtfafobtmf_communicator.receive() == correct_response
 
         # Test owner target
@@ -508,9 +514,10 @@ async def test_kick():
 
         # Test unlimited admin target
         await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
-        correct_response = ("obtmf is an unlimited admin, so you can't kick them. Please direct "
-                            "all complaints to your local room owner, I'm sure they'll love some "
-                            "more paperwork to do...")
+        correct_response = (
+            "obtmf is an unlimited admin, so you can't kick them. Please direct all complaints to "
+            "your local room owner, I'm sure they'll love some more paperwork to do..."
+        )
         assert await mafdtfafobtmf_communicator.receive() == correct_response
 
         # Test kick admin

@@ -35,8 +35,9 @@ async def who(args, sender, room):
 
         # Check for errors
         if not arg_room:
-            return_strings += [f"{room_name} doesn't exist, so that probably means nobody is in "
-                               "there."]
+            return_strings += [
+                f"{room_name} doesn't exist, so that probably means nobody is in there."
+            ]
             continue
 
         if await sync_len_all(arg_room.occupants) == 0:
@@ -90,8 +91,10 @@ async def private(args, sender, room):
         recipient_object = await sync_try_get(OBUser, username=args[0][1:])
         # Check for per-argument errors
         if not recipient_object:
-            error_message = (f"{args[0][1:]} doesn't exist. Your private message will broadcasted "
-                             "into space instead.")
+            error_message = (
+                f"{args[0][1:]} doesn't exist. Your private message will broadcasted into space "
+                "instead."
+            )
         elif len(args) == 1:
             error_message = "No message specified. Did you give up at just the username?"
 

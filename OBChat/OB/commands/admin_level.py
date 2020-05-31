@@ -28,11 +28,15 @@ async def kick(args, sender, room):
 
     # Check for initial errors
     if not sender.is_authenticated or sender.is_anon:
-        error_message = ("You're not even logged in! Try making an account first, then we can talk"
-                         " about kicking people.")
+        error_message = (
+            "You're not even logged in! Try making an account first, then we can talk about "
+            "kicking people."
+        )
     elif await sync_get_privilege(sender, room) < Privilege.Admin:
-        error_message = ("That's a little outside your pay-grade. Only admins may kick users. Try "
-                         "to /apply to be an admin.")
+        error_message = (
+            "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
+            "be an admin."
+        )
     elif not args:
         error_message = "Usage: /kick <user1> <user2> ..."
 
@@ -55,8 +59,9 @@ async def kick(args, sender, room):
         if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user_object == sender:
-            error_messages += [f"You can't kick yourself. Just leave the room. Or put yourself on "
-                               "time-out."]
+            error_messages += [
+                f"You can't kick yourself. Just leave the room. Or put yourself on time-out."
+            ]
         elif arg_user_object == await sync_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_privilege >= sender_privilege:
@@ -120,11 +125,15 @@ async def ban(args, sender, room):
 
     # Check for initial errors
     if sender.is_anon:
-        error_message = ("You're not even logged in! Try making an account first, then we can talk"
-                         " about banning people.")
-    elif await gsync_get_privilegeet_privilege(sender, room) < Privilege.Admin:
-        error_message = ("That's a little outside your pay-grade. Only admins may kick users. Try "
-                         "to /apply to be an admin.")
+        error_message = (
+            "You're not even logged in! Try making an account first, then we can talk about "
+            "banning people."
+        )
+    elif await sync_get_privilege(sender, room) < Privilege.Admin:
+        error_message = (
+            "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
+            "be an admin."
+        )
     elif not args:
         error_message = "Usage: /ban <user1> <user2> ..."
 
@@ -144,14 +153,17 @@ async def ban(args, sender, room):
         if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user_object == sender:
-            error_messages += [f"You can't ban yourself. Just leave the room. Or put yourself on "
-                               "time-out."]
+            error_messages += [
+                f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
+            ]
         elif arg_user_object == await sync_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_admin_object and sender != await sync_get_owner(room):
-            error_messages += [f"{username} is an unlimited admin, so you can't ban them. "
-                               "Please direct all complaints to your local room owner, I'm sure "
-                               "they'll love some more paperwork to do..."]
+            error_messages += [
+                f"{username} is an unlimited admin, so you can't ban them. Please direct all "
+                "complaints to your local room owner, I'm sure they'll love some more paperwork "
+                "to do..."
+            ]
         else:
             valid_bans += [arg_user_object]
 

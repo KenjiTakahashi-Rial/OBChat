@@ -23,8 +23,10 @@ async def hire(args, sender, room):
 
     # Check for initial errors
     if sync_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
-        error_message = ("That's a little outside your pay-grade. Only unlimited admins may "
-                         "hire admins. Try to /apply to be unlimited.")
+        error_message = (
+            "That's a little outside your pay-grade. Only unlimited admins may hire admins. Try to"
+            " /apply to be unlimited."
+        )
     elif len(args) == 0:
         error_message = "Usage: /admin <user1> <user2> ..."
 
@@ -41,19 +43,26 @@ async def hire(args, sender, room):
 
         # Check for per-argument errors
         if not arg_user_object:
-            error_messages += (f"\"{username}\" does not exist. Your imaginary friend needs an "
-                               "account before they can be an admin.")
+            error_messages += (
+                f"\"{username}\" does not exist. Your imaginary friend needs an account before "
+                "they can be an admin."
+            )
         elif arg_user_object == sender:
-            error_messages += (f"You can't hire yourself. I don't care how good your "
-                               "letter of recommendation is.")
+            error_messages += (
+                f"You can't hire yourself. I don't care how good your letter of recommendation is."
+            )
         elif arg_user_object == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
         elif not sender.is_authenticated:
-            error_messages += (f"\"{username}\" hasn't signed up yet. they cannot be trusted "
-                               "with the immense responsibility that is adminship.")
+            error_messages += (
+                f"\"{username}\" hasn't signed up yet. they cannot be trusted with the immense "
+                "responsibility that is adminship."
+            )
         elif arg_admin_object:
-            error_messages += (f"{username} already works here. I can't believe you "
-                               "forgot. Did you mean /promote?")
+            error_messages += (
+                f"{username} already works here. I can't believe you forgot. Did you mean "
+                "/promote?"
+            )
         else:
             valid_hires += arg_user_object
 
@@ -67,11 +76,14 @@ async def hire(args, sender, room):
             room=room
         ).save()
 
-        await send_system_room_message(f"With great power comes great responsibility. You were "
-                                       "promoted to admin in \"{room.name}\"!", room)
+        await send_system_room_message(
+            f"With great power comes great responsibility. You were promoted to admin in "
+            "\"{room.name}\"!", room
+        )
 
-        send_to_sender += (f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye "
-                           "on them.")
+        send_to_sender += (
+            f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye on them."
+        )
         send_to_others += f"{hired_user.username} was promoted to admin. Drinks on them!"
 
     if send_to_sender:
@@ -92,9 +104,11 @@ async def fire(args, sender, room):
     """
 
     # Check for initial errors
-    if gsync_get_privilegeet_privilege(sender, room) < Privilege.UnlimitedAdmin:
-        error_message = ("That's a little outside your pay-grade. Only unlimited admins may "
-                         "fire admins. Try to /apply to be unlimited.")
+    if sync_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
+        error_message = (
+            "That's a little outside your pay-grade. Only unlimited admins may fire admins. Try to"
+            " /apply to be unlimited."
+        )
     elif len(args) == 0:
         error_message = "Usage: /fire <user1> <user2> ..."
 
@@ -112,20 +126,25 @@ async def fire(args, sender, room):
 
         # Check for per-argument errors
         if not arg_user_object:
-            error_messages += ("\"{username}\" does not exist. You can't fire a ghost... can "
-                               "you?")
+            error_messages += (
+                "\"{username}\" does not exist. You can't fire a ghost... can you?"
+            )
         elif arg_user_object == sender:
-            error_messages += ("You can't fire yourself. I don't care how bad your "
-                               "performance reviews are.")
+            error_messages += (
+                "You can't fire yourself. I don't care how bad your performance reviews are."
+            )
         elif arg_user_object == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
         elif not arg_admin_object:
-            error_messages += (f"\"{username}\" is just a regular old user, so you can't fire "
-                               "them. You can /ban them if you want.")
+            error_messages += (
+                f"\"{username}\" is just a regular ol' user, so you can't fire them. You can /ban "
+                "them if you want."
+            )
         elif sender != room.owner and not arg_admin_object.is_limited:
-            error_messages += (f"\"{username}\" is an unlimited admin, so you can't fire them. "
-                               "Please direct all complaints to your local room owner, I'm sure "
-                               "they'll love some more paperwork to do...")
+            error_messages += (
+                f"\"{username}\" is an unlimited admin, so you can't fire them. Please direct all "
+                "complaints to your local room owner, I'm sure they'll love some more paperwork to"
+                " do...")
         else:
             valid_fires += (arg_user_object, arg_admin_object)
 

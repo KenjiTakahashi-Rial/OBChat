@@ -16,9 +16,14 @@ from OB.views.user import private, user
 
 app_name = "OB"
 urlpatterns = [
-    url("favicon.ico", RedirectView.as_view(
-        url=staticfiles_storage.url("favicon.ico"),
-        permanent=False), name="favicon"),
+    url(
+        "favicon.ico",
+        RedirectView.as_view(
+            url=staticfiles_storage.url("favicon.ico"),
+            permanent=False
+        ),
+        name="favicon"
+    ),
 
     # Authentication
     path("log_in/", log_in, name="OB-log_in"),
