@@ -49,3 +49,16 @@ async def create_room(args, sender, room):
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: {created_room}"
     await send_system_room_message(success_message, room, sender)
+
+async def apply(args, sender, room):
+    """
+    Description:
+        ...
+
+    Arguments:
+        args (list[string]): The desired name of the new room.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
+    """
+
+    # TODO: Implement this
