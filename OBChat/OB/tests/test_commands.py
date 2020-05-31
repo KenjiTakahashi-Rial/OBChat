@@ -6,6 +6,7 @@ https://docs.pytest.org/en/latest/contents.html
 """
 
 # TODO: Change all handle_command() calls to be messages sent through the Communicator
+# TODO: Move test functions to separate files and just call them here
 
 from channels.db import database_sync_to_async
 
@@ -54,6 +55,13 @@ def database_setup():
         display_name="MAFDTFAFOBTMF"
     ).save()
 
+    OBUser(
+        username="throwbtmf",
+        email="throwbtmf@ob.ob",
+        password="throwbtmf",
+        display_name="ThrowBTMF"
+    ).save()
+
     anon_user_0_0 = OBUser(
         username=f"{ANON_PREFIX}0",
         is_anon=True
@@ -84,7 +92,7 @@ def database_setup():
         user=obtmf_user,
         room=obchat_room,
         issuer=ob_user,
-        is_limited=True
+        is_limited=False
     ).save()
 
     Admin(
@@ -416,25 +424,97 @@ async def test_kick():
         for testing commands (see database_teardown()).
     """
 
+    ob_communicator = None
+    obtmf_communicator = None
+    mafdtfafobtmf_communicator = None
+    throwbtmf_communicator = None
+    anon_communicator = None
+
     try:
+        # Database setup
         await database_setup()
 
+        # Get database objects
         ob_user = await sync_get(OBUser, username="ob")
         obtmf_user = await sync_get(OBUser, username="obtmf")
         mafdtfafobtmf_user = await sync_get(OBUser, username="mafdtfafobtmf")
+        throwbtmf_user = await sync_get(OBUser, username="throwbtmf")
         anon_user_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         obchat_room = await sync_get(Room, group_type=GroupTypes.Room, name="obchat")
 
-        # Test kick() errors
-        await handle_command("/kick", anon_user_0, obchat_room)
-        await handle_command("/k", obtmf_user, obchat_room)
-        await handle_command("/k throwbtmf", obtmf_user, obchat_room)
-        await handle_command("/k obtmf", obtmf_user, obchat_room)
-        await handle_command("/k ob", obtmf_user, obchat_room)
-        await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
+        # Create WebsocketCommunicators to test command responses
+        ob_communicator = await OBCommunicator(
+            ob_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
 
-        # Test kick() correct input
-        await handle_command("/kick mafdtfafobtmf", obtmf_user, obchat_room)
+        obtmf_communicator = await OBCommunicator(
+            obtmf_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        mafdtfafobtmf_communicator = await OBCommunicator(
+            mafdtfafobtmf_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        throwbtmf_communicator = await OBCommunicator(
+            throwbtmf_user,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        anon_communicator = await OBCommunicator(
+            anon_user_0,
+            GroupTypes.Room,
+            obchat_room.name
+        ).connect()
+
+        # Test unauthenticated user
+        await handle_command("/kick", anon_user_0, obchat_room)
+        correct_response = ("You're not even logged in! Try making an account first, then we can "
+                            "talk about kicking people.")
+        assert await anon_communicator.receive() == correct_response
+
+        # Test insufficient privilege
+        await handle_command("/k", throwbtmf_user, obchat_room)
+        correct_response = ("That's a little outside your pay-grade. Only admins may kick users. "
+                            "Try to /apply to be an admin.")
+        assert await throwbtmf_communicator.receive() == correct_response
+
+        # Test no arguments
+        await handle_command("/k", mafdtfafobtmf_user, obchat_room)
+        correct_response = "Usage: /kick <user1> <user2> ..."
+        assert await mafdtfafobtmf_communicator.receive() == correct_response
+
+        # Test invalid target
+        await handle_command("/k showbtmf", mafdtfafobtmf_user, obchat_room)
+        correct_response = "Nobody named showbtmf in this room. Are you seeing things?"
+        assert await mafdtfafobtmf_communicator.receive() == correct_response
+
+        # Test self target
+        await handle_command("/k mafdtfafobtmf", mafdtfafobtmf_user, obchat_room)
+        correct_response = ("You can't kick yourself. Just leave the room. Or put yourself on "
+                            "time-out.")
+        assert await mafdtfafobtmf_communicator.receive() == correct_response
+
+        # Test owner target
+        await handle_command("/k ob", mafdtfafobtmf_user, obchat_room)
+        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        assert await mafdtfafobtmf_communicator.receive() == correct_response
+
+        # Test unlimited admin target
+        await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
+        correct_response = ("obtmf is an unlimited admin, so you can't kick them. Please direct "
+                            "all complaints to your local room owner, I'm sure they'll love some "
+                            "more paperwork to do...")
+        assert await mafdtfafobtmf_communicator.receive() == correct_response
+
+        # Test kick admin
+        await handle_command("/k mafdtfafobtmf", obtmf_user, obchat_room)
         await handle_command(f"/k obtmf {ANON_PREFIX}0", ob_user, obchat_room)
 
         # Test kick() success
@@ -445,7 +525,30 @@ async def test_kick():
         #     assert occupant != mafdtfafobtmf_user
         #     assert occupant != anon_user_0
 
-        # TODO: Add ban() tests
-
     finally:
+        if ob_communicator:
+            await ob_communicator.disconnect()
+        if obtmf_communicator:
+            await obtmf_communicator.disconnect()
+        if mafdtfafobtmf_communicator:
+            await mafdtfafobtmf_communicator.disconnect()
+        if throwbtmf_communicator:
+            await throwbtmf_communicator.disconnect()
+        if anon_communicator:
+            await anon_communicator.disconnect()
+
         await database_teardown()
+
+@mark.asyncio
+@mark.django_db()
+async def test_ban():
+    """
+    Description:
+        Tests the /ban command (see OB.commands.ban()).
+        Wrapped in a try block to prevent following tests from failing their database setup if this
+        test fails before cleaning up the database.
+        Normally, the built-in pytest teardown_function() accounts for this, but it is not used
+        for testing commands (see database_teardown()).
+    """
+
+    # TODO: Implement this

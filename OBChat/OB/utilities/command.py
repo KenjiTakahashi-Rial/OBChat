@@ -29,7 +29,7 @@ def is_command(command):
     return command and command[0] == '/'
 
 @database_sync_to_async
-def get_privilege(user, room):
+def sync_get_privilege(user, room):
     """
     Description:
         Determines the highest privilege level of a user for a room.

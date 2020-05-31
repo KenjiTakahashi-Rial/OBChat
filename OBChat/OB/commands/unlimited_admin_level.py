@@ -5,7 +5,7 @@ commands.
 
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
-from OB.utilities.command import get_privilege
+from OB.utilities.command import sync_get_privilege
 from OB.utilities.database import try_get
 from OB.utilities.event import send_system_room_message
 
@@ -22,7 +22,7 @@ async def hire(args, sender, room):
     """
 
     # Check for initial errors
-    if get_privilege(sender, room) < Privilege.UnlimitedAdmin:
+    if sync_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = ("That's a little outside your pay-grade. Only unlimited admins may "
                          "hire admins. Try to /apply to be unlimited.")
     elif len(args) == 0:
@@ -92,7 +92,7 @@ async def fire(args, sender, room):
     """
 
     # Check for initial errors
-    if get_privilege(sender, room) < Privilege.UnlimitedAdmin:
+    if gsync_get_privilegeet_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = ("That's a little outside your pay-grade. Only unlimited admins may "
                          "fire admins. Try to /apply to be unlimited.")
     elif len(args) == 0:
