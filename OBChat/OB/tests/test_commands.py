@@ -15,8 +15,8 @@ from pytest import mark
 from OB.commands.command_handler import handle_command
 from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
-from OB.models import Admin, OBUser, Room
-from OB.utilities.database import sync_get
+from OB.models import Admin, Ban, Message, OBUser, Room
+from OB.utilities.database import sync_get, sync_model_list
 from OB.utilities.format import get_group_name
 
 @database_sync_to_async
@@ -140,8 +140,21 @@ def database_teardown():
         testing.
     """
 
-    for user_object in OBUser.objects.all():
-        user_object.delete()
+    for admin in Admin.objects.all():
+        admin.delete()
+
+    for ban in Ban.objects.all():
+        ban.delete()
+
+    for message in Message.objects.all():
+        message.delete()
+
+    for ob_user in OBUser.objects.all():
+        ob_user.delete()
+
+    for room in Room.objects.all():
+        room.delete()
+
 
     for room_object in Room.objects.all():
         room_object.delete()
@@ -352,7 +365,7 @@ async def test_create_room():
             room_0.name
         ).connect()
 
-        communicators["anon"] = await OBCommunicator(
+        communicators["anon_0"] = await OBCommunicator(
             anon_0,
             GroupTypes.Room,
             room_0.name
@@ -366,7 +379,7 @@ async def test_create_room():
         # Test unauthenticated user error
         await handle_command("/r anon_room", anon_0, room_0)
         correct_response = "Identify yourself! Must log in to create a room."
-        assert await communicators["anon"].receive() == correct_response
+        assert await communicators["anon_0"].receive() == correct_response
 
         # Test multiple arguments error
         await handle_command("/r room 1", owner, room_0)
