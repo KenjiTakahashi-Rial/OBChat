@@ -110,7 +110,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             receive from that group.
             Remove the OBConsumer's user reference to the OBConsumer's room reference's list of
             occupants.
-            Called when a WebSocket connection is closed.
+            Called automatically when a WebSocket connection is disconnected by the client.
 
         Arguments:
             self (OBConsumer)
@@ -133,6 +133,19 @@ class OBConsumer(AsyncWebsocketConsumer):
         if self.user.is_anon:
             await sync_delete(self.user)
             self.user = None
+
+    async def close(self, code=None):
+        """
+        Description:
+            Forcibly closes a WebSocket from the server.
+
+        Arguments:
+            self (OBConsumer)
+            code: A close code to indicate close conditions
+        """
+
+        await self.disconnect(code)
+        await super().close(code)
 
     ###############################################################################################
     # Messaging Methods                                                                           #

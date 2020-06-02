@@ -8,6 +8,8 @@ https://docs.pytest.org/en/latest/contents.html
 # TODO: Change all handle_command() calls to be messages sent through the Communicator
 # TODO: Move test functions to separate files and just call them here
 
+import asyncio
+
 from channels.db import database_sync_to_async
 
 from pytest import mark
@@ -100,12 +102,18 @@ def database_setup():
         owner=unlimited_admin_0
     ).save()
 
-    room_0.occupants.add(owner)
-    room_0.occupants.add(unlimited_admin_0)
-    room_0.occupants.add(unlimited_admin_1)
-    room_0.occupants.add(limited_admin_0)
-    room_0.occupants.add(limited_admin_1)
-    room_0.occupants.add(anon_0)
+    add_occupants(
+        room_0,
+        [
+            owner,
+            unlimited_admin_0,
+            unlimited_admin_1,
+            limited_admin_0,
+            limited_admin_1,
+            auth_user,
+            anon_0
+        ]
+    )
 
     Admin(
         user=unlimited_admin_0,
@@ -157,6 +165,20 @@ def database_teardown():
     for room in Room.objects.all():
         room.delete()
 
+def add_occupants(room, occupants):
+    """
+    Description:
+        Adds a list of users to the occupants of room if they are not already in it.
+
+    Arguments:
+        room (Room): The room to add users to the occupants of.
+        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+    """
+
+    for user in occupants:
+        if user not in room.occupants.all():
+            room.occupants.add(user)
+
 async def communicator_setup(room):
     """
     Description:
@@ -198,7 +220,13 @@ async def communicator_teardown(communicators):
         return
 
     for communicator in communicators.values():
-        await communicator.disconnect()
+        try:
+            await communicator.disconnect()
+        except AttributeError:
+            # The commnicator has already been disconnected
+            # OB.consumers.disconnect() raises an AttributeError because OBConsumer.room is None
+            pass
+
 
 @mark.asyncio
 @mark.django_db()
@@ -542,16 +570,44 @@ async def test_kick():
         )
         assert await communicators["limited_admin_0"].receive() == correct_response
 
-        # Test kick admin
-        # await handle_command("/k mafdtfafobtmf", unlimited_admin_0, room_0)
-        # await handle_command(f"/k obtmf {ANON_PREFIX}0", owner, room_0)
+        # Test limited admin kicking limited admin error
+        await handle_command("/k limited_admin_1", limited_admin_0, room_0)
+        correct_response = (
+            "limited_admin_1 is an admin just like you, so you can't kick them. Please direct all "
+            "complaints to your local room owner, I'm sure they'll love some more paperwork to "
+            "do..."
+        )
+        assert await communicators["limited_admin_0"].receive() == correct_response
 
-        # Test kick() success
-        # does not exists while testing. Find a way to test this works
-        # for occupant in await sync_model_list(room_0.occupants):
-        #     assert occupant != unlimited_admin_0
-        #     assert occupant != limited_admin_0
-        #     assert occupant != anon_0
+        # Test limited admin kicking authenticated user
+        await handle_command("/k auth_user", limited_admin_0, room_0)
+        sender_response = (
+            "Kicked:\n"
+            f"   {auth_user.username}\n"
+            "That'll show them."
+        )
+        others_response = (
+            "One or more users have been kicked:\n"
+            f"   {auth_user.username}\n"
+            "Let this be a lesson to you all."
+        )
+        assert auth_user not in await sync_model_list(room_0.occupants)
+        assert await communicators["limited_admin_0"].receive() == sender_response
+        assert (
+            await communicators["owner"].receive() ==
+            await communicators["unlimited_admin_0"].receive() ==
+            await communicators["unlimited_admin_1"].receive() ==
+            await communicators["limited_admin_0"].receive() ==
+            await communicators["limited_admin_1"].receive() ==
+            await communicators[f"{ANON_PREFIX}0"].receive() ==
+            others_response
+        )
+        assert (await communicators["auth_user"].receive())["refresh"]
+        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
+
+        # Add kicked users back to room occupants
+
+        # await handle_command(f"/k obtmf {ANON_PREFIX}0", owner, room_0)
 
     finally:
         await communicator_teardown(communicators)

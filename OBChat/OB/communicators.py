@@ -79,12 +79,24 @@ class OBCommunicator(WebsocketCommunicator):
         """
         Description:
             Decodes a JSON message received by this OBCommunicator and returns the message text.
+            If the frame received does not contain text, but contains a refresh signal, the refresh
+            signal is returned as a dict.
+            If the frame received contains neither text nor a refresh signal, the method attempts
+            to receive another frame.
 
         Arguments:
             self (OBCommunicator)
 
         Return Values:
-            The decoded message receieved.
+            If text is received, the decoded text is returned.
+            If a refresh signal is received, the refresh signal as a dict is returned.
         """
 
-        return json.loads(await self.receive_from())["text"]
+        while True:
+            receipt = json.loads(await self.receive_from())
+
+            if "text" in receipt:
+                return receipt["text"]
+
+            if "refresh" in receipt:
+                return receipt

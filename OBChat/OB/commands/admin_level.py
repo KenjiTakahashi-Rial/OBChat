@@ -81,7 +81,7 @@ async def kick(args, sender, room):
         else:
             valid_kicks += [arg_user_object]
 
-    send_to_sender = error_messages + ["\nKicked:"]
+    send_to_sender = error_messages + [("\n" if error_messages else "") + "Kicked:"]
     send_to_others = ["One or more users have been kicked:"]
 
     for kicked_user in valid_kicks:
@@ -167,7 +167,7 @@ async def ban(args, sender, room):
         else:
             valid_bans += [arg_user_object]
 
-    send_to_sender = error_messages + ["\nBanned:"]
+    send_to_sender = error_messages + [("\n" if error_messages else "") + "Banned:"]
     send_to_others = ["One or more users have been banned:"]
 
     for banned_user in valid_bans:
