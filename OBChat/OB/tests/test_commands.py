@@ -24,6 +24,8 @@ def database_setup():
     """
     Description:
         Sets up database objects required to test the commands.
+        Ideally, the return value would be a dict of OBUsers and Rooms, but returning any database
+        objects from this function will cause threading issues by locking the database.
         The built-in pytest setup fixture causes threading issues with the asynchronous command
         testing.
     """
@@ -69,7 +71,7 @@ def database_setup():
         display_name="LimitedAdmin1"
     ).save()
 
-    OBUser(
+    auth_user = OBUser(
         username="auth_user",
         email="auth_user@ob.ob",
         password="auth_user",
@@ -155,12 +157,48 @@ def database_teardown():
     for room in Room.objects.all():
         room.delete()
 
+async def communicator_setup(room):
+    """
+    Description:
+        Sets up the communicator objects used to test the commands.
+        The built-in pytest setup fixture causes threading issues with the asynchronous command
+        testing.
 
-    for room_object in Room.objects.all():
-        room_object.delete()
+    Arguments:
+        room (Room): The room to get a dict of communicators for.
 
-    for admin_object in Admin.objects.all():
-        admin_object.delete()
+    Return values:
+        Returns a dict of communicators for each user occupying the room argument.
+        The keys are the usernames of the occupants.
+    """
+
+    communicators = {}
+
+    for user in await sync_model_list(room.occupants):
+        communicators[user.username] = await OBCommunicator(
+            user,
+            GroupTypes.Room,
+            room.name
+        ).connect()
+
+    return communicators
+
+async def communicator_teardown(communicators):
+    """
+    Description:
+        Cleans up the communicator objects used to test the commands.
+        The built-in pytest teardown fixture causes threading issues with the asynchronous command
+        testing.
+
+    Arguments:
+        communicators (dict{string: OBCommunicator}): The dict of communicators to clean up.
+    """
+
+    if not communicators:
+        return
+
+    for communicator in communicators.values():
+        await communicator.disconnect()
 
 @mark.asyncio
 @mark.django_db()
@@ -174,7 +212,7 @@ async def test_who():
         for testing commands (see database_teardown()).
     """
 
-    communicators = {}
+    communicators = None
 
     try:
         # Database setup
@@ -186,15 +224,12 @@ async def test_who():
         unlimited_admin_1 = await sync_get(OBUser, username="unlimited_admin_1")
         limited_admin_0 = await sync_get(OBUser, username="limited_admin_0")
         limited_admin_1 = await sync_get(OBUser, username="limited_admin_1")
+        auth_user = await sync_get(OBUser, username="auth_user")
         anon_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
 
-        # Create a WebsocketCommunicator to test command responses
-        communicators["owner"] = await OBCommunicator(
-            owner,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
+        # Communicator setup
+        communicators = await communicator_setup(room_0)
 
         # Test nonexistent room error
         await handle_command("/who nonexistent_room", owner, room_0)
@@ -217,6 +252,7 @@ async def test_who():
             f"    {unlimited_admin_1} [admin]",
             f"    {limited_admin_0} [admin]",
             f"    {limited_admin_1} [admin]",
+            f"    {auth_user}",
             f"    {anon_0}\n"
         ])
         assert await communicators["owner"].receive() == correct_response
@@ -239,9 +275,7 @@ async def test_who():
         assert await communicators["owner"].receive() == correct_response
 
     finally:
-        for communicator in communicators.values():
-            await communicator.disconnect()
-
+        await communicator_teardown(communicators)
         await database_teardown()
 
 @mark.asyncio
@@ -256,7 +290,7 @@ async def test_private():
         for testing commands (see database_teardown()).
     """
 
-    communicators = {}
+    communicators = None
 
     try:
         # Database setup
@@ -267,12 +301,8 @@ async def test_private():
         unlimited_admin_0 = await sync_get(OBUser, username="unlimited_admin_0")
         room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
 
-        # Create a WebsocketCommunicator to test command responses
-        communicators["owner"] = await OBCommunicator(
-            owner,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
+        # Communicator setup
+        communicators = await communicator_setup(room_0)
 
         # Test no arguments error
         await handle_command("/private", owner, room_0)
@@ -328,9 +358,7 @@ async def test_private():
         )
 
     finally:
-        for communicator in communicators.values():
-            await communicator.disconnect()
-
+        await communicator_teardown(communicators)
         await database_teardown()
 
 @mark.asyncio
@@ -345,7 +373,7 @@ async def test_create_room():
         for testing commands (see database_teardown()).
     """
 
-    communicators = {}
+    communicators = None
 
     try:
         # Database setup
@@ -358,18 +386,8 @@ async def test_create_room():
         anon_1 = await sync_get(OBUser, username=f"{ANON_PREFIX}1")
         room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
 
-        # Create WebsocketCommunicators to test command responses
-        communicators["owner"] = await OBCommunicator(
-            owner,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
-
-        communicators["anon_0"] = await OBCommunicator(
-            anon_0,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
+        # Communicator setup
+        communicators = await communicator_setup(room_0)
 
         # Test no arguments error
         await handle_command("/room", owner, room_0)
@@ -379,7 +397,7 @@ async def test_create_room():
         # Test unauthenticated user error
         await handle_command("/r anon_room", anon_0, room_0)
         correct_response = "Identify yourself! Must log in to create a room."
-        assert await communicators["anon_0"].receive() == correct_response
+        assert await communicators[f"{ANON_PREFIX}0"].receive() == correct_response
 
         # Test multiple arguments error
         await handle_command("/r room 1", owner, room_0)
@@ -445,9 +463,7 @@ async def test_create_room():
         )
 
     finally:
-        for communicator in communicators.values():
-            await communicator.disconnect()
-
+        await communicator_teardown(communicators)
         await database_teardown()
 
 @mark.asyncio
@@ -462,7 +478,7 @@ async def test_kick():
         for testing commands (see database_teardown()).
     """
 
-    communicators = {}
+    communicators = None
 
     try:
         # Database setup
@@ -476,46 +492,18 @@ async def test_kick():
         anon_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
         room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
 
-        # Create WebsocketCommunicators to test command responses
-        communicators["owner"] = await OBCommunicator(
-            owner,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
+        # Communicator setup
+        communicators = await communicator_setup(room_0)
 
-        communicators["unlimited_admin_0"] = await OBCommunicator(
-            unlimited_admin_0,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
-
-        communicators["limited_admin_0"] = await OBCommunicator(
-            limited_admin_0,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
-
-        communicators["auth_user"] = await OBCommunicator(
-            auth_user,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
-
-        communicators["anon"] = await OBCommunicator(
-            anon_0,
-            GroupTypes.Room,
-            room_0.name
-        ).connect()
-
-        # Test unauthenticated user error
+        # Test unauthenticated user kicking error
         await handle_command("/kick", anon_0, room_0)
         correct_response = (
             "You're not even logged in! Try making an account first, then we can talk about "
             "kicking people."
         )
-        assert await communicators["anon"].receive() == correct_response
+        assert await communicators[f"{ANON_PREFIX}0"].receive() == correct_response
 
-        # Test insufficient privileges error
+        # Test authenticated user kicking error
         await handle_command("/k", auth_user, room_0)
         correct_response = (
             "That's a little outside your pay-grade. Only admins may kick users. "
@@ -566,9 +554,7 @@ async def test_kick():
         #     assert occupant != anon_0
 
     finally:
-        for communicator in communicators.values():
-            await communicator.disconnect()
-
+        await communicator_teardown(communicators)
         await database_teardown()
 
 @mark.asyncio
