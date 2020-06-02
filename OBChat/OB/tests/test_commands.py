@@ -147,17 +147,17 @@ async def test_who():
             obchat_room.name
         ).connect()
 
-        # Test invalid room
+        # Test nonexistent room error
         await handle_command("/who knobchat", ob_user, obchat_room)
         correct_response = "knobchat doesn't exist, so that probably means nobody is in there."
         assert await communicators["ob"].receive() == correct_response
 
-        # Test empty room
+        # Test empty room error
         await handle_command("/w obtmfchat", ob_user, obchat_room)
         correct_response = "obtmfchat is all empty!"
         assert await communicators["ob"].receive() == correct_response
 
-        # Test no arguments
+        # Test current room with no argument
         await handle_command("/w", ob_user, obchat_room)
         correct_response = "\n".join([
             "Users in obchat:",
@@ -167,7 +167,7 @@ async def test_who():
         ])
         assert await communicators["ob"].receive() == correct_response
 
-        # Test occupied room
+        # Test current room with explicit argument
         await handle_command("/w obchat", ob_user, obchat_room)
         assert await communicators["ob"].receive() == correct_response
 
@@ -220,24 +220,24 @@ async def test_private():
             obchat_room.name
         ).connect()
 
-        # Test no arguments
+        # Test no arguments error
         await handle_command("/private", ob_user, obchat_room)
         correct_response = "Usage: /private /<user> <message>"
         assert await communicators["ob"].receive() == correct_response
 
-        # Test syntax error
+        # Test missing "/" error
         await handle_command("/p obtmjeff", ob_user, obchat_room)
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
         assert await communicators["ob"].receive() == correct_response
 
-        # Test invalid recipient
+        # Test nonexistent recipient error
         await handle_command("/p /obtmjeff", ob_user, obchat_room)
         correct_response = (
             "obtmjeff doesn't exist. Your private message will broadcasted into space instead."
         )
         assert await communicators["ob"].receive() == correct_response
 
-        # Test empty message
+        # Test empty message error
         await handle_command("/p /obtmf ", ob_user, obchat_room)
         correct_response = "No message specified. Did you give up at just the username?"
         assert await communicators["ob"].receive() == correct_response
@@ -316,27 +316,27 @@ async def test_create_room():
             obchat_room.name
         ).connect()
 
-        # Test no arguments
+        # Test no arguments error
         await handle_command("/room", ob_user, obchat_room)
         correct_response = "Usage: /room <name>"
         assert await communicators["ob"].receive() == correct_response
 
-        # Test unauthenticated user
+        # Test unauthenticated user error
         await handle_command("/r anonchat", anon_user_0, obchat_room)
         correct_response = "Identify yourself! Must log in to create a room."
         assert await communicators["anon"].receive() == correct_response
 
-        # Test invalid syntax
+        # Test multiple arguments error
         await handle_command("/r ob chat", ob_user, obchat_room)
         correct_response = "Room name cannot contain spaces."
         assert await communicators["ob"].receive() == correct_response
 
-        # Test existing room
+        # Test existing room error
         await handle_command("/r obchat", ob_user, obchat_room)
         correct_response = "Someone beat you to it. obchat already exists."
         assert await communicators["ob"].receive() == correct_response
 
-        # Test creating room
+        # Test room creation
         await handle_command("/r knobchat", ob_user, obchat_room)
         correct_response = "Sold! Check out your new room: knobchat"
         assert await communicators["ob"].receive() == correct_response
@@ -452,7 +452,7 @@ async def test_kick():
             obchat_room.name
         ).connect()
 
-        # Test unauthenticated user
+        # Test unauthenticated user error
         await handle_command("/kick", anon_user_0, obchat_room)
         correct_response = (
             "You're not even logged in! Try making an account first, then we can talk about "
@@ -460,7 +460,7 @@ async def test_kick():
         )
         assert await communicators["anon"].receive() == correct_response
 
-        # Test insufficient privilege
+        # Test insufficient privileges error
         await handle_command("/k", throwbtmf_user, obchat_room)
         correct_response = (
             "That's a little outside your pay-grade. Only admins may kick users. "
@@ -468,29 +468,29 @@ async def test_kick():
         )
         assert await communicators["throwbtmf"].receive() == correct_response
 
-        # Test no arguments
+        # Test no arguments error
         await handle_command("/k", mafdtfafobtmf_user, obchat_room)
         correct_response = "Usage: /kick <user1> <user2> ..."
         assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
-        # Test invalid target
+        # Test absent target error
         await handle_command("/k showbtmf", mafdtfafobtmf_user, obchat_room)
         correct_response = "Nobody named showbtmf in this room. Are you seeing things?"
         assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
-        # Test self target
+        # Test self target error
         await handle_command("/k mafdtfafobtmf", mafdtfafobtmf_user, obchat_room)
         correct_response = (
             "You can't kick yourself. Just leave the room. Or put yourself on time-out."
         )
         assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
-        # Test owner target
+        # Test limited admin kicking owner error
         await handle_command("/k ob", mafdtfafobtmf_user, obchat_room)
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         assert await communicators["mafdtfafobtmf"].receive() == correct_response
 
-        # Test unlimited admin target
+        # Test limited admin kicking unlimited admin error
         await handle_command("/k obtmf", mafdtfafobtmf_user, obchat_room)
         correct_response = (
             "obtmf is an unlimited admin, so you can't kick them. Please direct all complaints to "
