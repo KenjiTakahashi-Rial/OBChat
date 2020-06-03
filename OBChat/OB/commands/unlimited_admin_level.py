@@ -104,7 +104,7 @@ async def fire(args, sender, room):
     """
 
     # Check for initial errors
-    if await sync_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
+    if await async_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = (
             "That's a little outside your pay-grade. Only unlimited admins may fire admins. Try to"
             " /apply to be unlimited."
