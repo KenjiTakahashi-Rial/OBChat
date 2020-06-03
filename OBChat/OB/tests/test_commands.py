@@ -16,7 +16,7 @@ from OB.commands.command_handler import handle_command
 from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import Admin, Ban, Message, OBUser, Room
-from OB.utilities.database import async_get, async_model_list
+from OB.utilities.database import async_get, async_model_list, async_save
 from OB.utilities.format import get_group_name
 
 @database_sync_to_async
@@ -163,7 +163,7 @@ def database_teardown():
     for room in Room.objects.all():
         room.delete()
 
-def add_occupants(room, occupants):
+def add_occupants(room, occupants, b=False):
     """
     Description:
         Adds a list of users to the occupants of room if they are not already in it.
@@ -173,9 +173,18 @@ def add_occupants(room, occupants):
         occupants (list[OBUser]): The list of users to add to the room's occupants list.
     """
 
+    if b:
+        print([u.username for u in occupants])
+        print([u.username for u in room.occupants.all()])
     for user in occupants:
         if user not in room.occupants.all():
+            if b:
+                print("adding " + str(user))
             room.occupants.add(user)
+            if b:
+                print("added " + str(user))
+    if b:
+        print([u.username for u in room.occupants.all()])
 
 @database_sync_to_async
 def async_add_occupants(room, occupants):
@@ -189,7 +198,7 @@ def async_add_occupants(room, occupants):
         occupants (list[OBUser]): The list of users to add to the room's occupants list.
     """
 
-    add_occupants(room, occupants)
+    add_occupants(room, occupants, True)
 
 async def communicator_setup(room):
     """
@@ -238,6 +247,8 @@ async def communicator_teardown(communicators):
             # The commnicator has already been disconnected
             # OB.consumers.disconnect() raises an AttributeError because OBConsumer.room is None
             pass
+
+    communicators.clear()
 
 
 @mark.asyncio
@@ -596,12 +607,12 @@ async def test_kick():
         await handle_command("/k auth_user", limited_admin_0, room_0)
         sender_response = (
             "Kicked:\n"
-            f"   auth_user\n"
+            "   auth_user\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            f"   auth_user\n"
+            "   auth_user\n"
             "Let this be a lesson to you all."
         )
         assert auth_user not in await async_model_list(room_0.occupants)
@@ -618,9 +629,147 @@ async def test_kick():
         assert (await communicators["auth_user"].receive())["refresh"]
         assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
 
-        # Add kicked users back to room occupants
+        # Add kicked users back to room occupants and reset Communicators
+        await communicator_teardown(communicators)
+        # Anonymous users are deleted when their OBConsumer disconnects, so make an identical one
+        anon_0 = await async_save(
+            OBUser,
+            id=anon_0.id,
+            username=anon_0.username,
+            is_anon=True
+        )
+        occupants = [anon_0 if user.id == anon_0.id else user for user in occupants]
+        await async_add_occupants(room_0, occupants)
+        communicators = await communicator_setup(room_0)
 
-        # await handle_command(f"/k obtmf {ANON_PREFIX}0", owner, room_0)
+        # Test unlimited admin kicking owner error
+        await handle_command("/k owner", unlimited_admin_0, room_0)
+        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        assert await communicators["unlimited_admin_0"].receive() == correct_response
+
+        # Test unlimited admin kicking unlimited admin error
+        await handle_command("/k unlimited_admin_1", unlimited_admin_0, room_0)
+        correct_response = (
+            "unlimited_admin_1 is an unlimited admin just like you, so you can't kick them. Please"
+            " direct all complaints to your local room owner, I'm sure they'll love some more "
+            "paperwork to do..."
+        )
+        assert await communicators["unlimited_admin_0"].receive() == correct_response
+
+        # Test unlimited admin kicking limited admin
+        await handle_command("/k limited_admin_0", unlimited_admin_0, room_0)
+        sender_response = (
+            "Kicked:\n"
+            "   limited_admin_0\n"
+            "That'll show them."
+        )
+        others_response = (
+            "One or more users have been kicked:\n"
+            "   limited_admin_0\n"
+            "Let this be a lesson to you all."
+        )
+        assert limited_admin_0 not in await async_model_list(room_0.occupants)
+        assert await communicators["unlimited_admin_0"].receive() == sender_response
+        assert (
+            await communicators["owner"].receive() ==
+            await communicators["unlimited_admin_0"].receive() ==
+            await communicators["unlimited_admin_1"].receive() ==
+            await communicators["limited_admin_1"].receive() ==
+            await communicators["auth_user"].receive() ==
+            await communicators[f"{ANON_PREFIX}0"].receive() ==
+            others_response
+        )
+        assert (await communicators["limited_admin_0"].receive())["refresh"]
+        assert (
+            (await communicators["limited_admin_0"].receive_output())["type"] == "websocket.close"
+        )
+
+        # Test unlimited admin kicking authenticated user
+        await handle_command("/k auth_user", unlimited_admin_0, room_0)
+        sender_response = (
+            "Kicked:\n"
+            "   auth_user\n"
+            "That'll show them."
+        )
+        others_response = (
+            "One or more users have been kicked:\n"
+            "   auth_user\n"
+            "Let this be a lesson to you all."
+        )
+        assert auth_user not in await async_model_list(room_0.occupants)
+        assert await communicators["unlimited_admin_0"].receive() == sender_response
+        assert (
+            await communicators["owner"].receive() ==
+            await communicators["unlimited_admin_0"].receive() ==
+            await communicators["unlimited_admin_1"].receive() ==
+            await communicators["limited_admin_1"].receive() ==
+            await communicators[f"{ANON_PREFIX}0"].receive() ==
+            others_response
+        )
+        assert (await communicators["auth_user"].receive())["refresh"]
+        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
+
+        # Add kicked users back to room occupants and reset Communicators
+        await communicator_teardown(communicators)
+        # Anonymous users are deleted when their OBConsumer disconnects, so make an identical one
+        anon_0 = await async_save(
+            OBUser,
+            id=anon_0.id,
+            username=anon_0.username,
+            is_anon=True
+        )
+        occupants = [anon_0 if user.id == anon_0.id else user for user in occupants]
+        await async_add_occupants(room_0, occupants)
+        communicators = await communicator_setup(room_0)
+
+        # Test owner kicking multiple users
+        await handle_command(
+            # TODO: Testing kicking anonymous users is causing database lock
+            f"/k unlimited_admin_0 limited_admin_0 auth_user", #{ANON_PREFIX}0",
+            owner,
+            room_0
+        )
+        sender_response = (
+            "Kicked:\n"
+            "   unlimited_admin_0\n"
+            "   limited_admin_0\n"
+            "   auth_user\n"
+            # f"   {ANON_PREFIX}0"
+            "That'll show them."
+        )
+        others_response = (
+            "One or more users have been kicked:\n"
+            "   unlimited_admin_0\n"
+            "   limited_admin_0\n"
+            "   auth_user\n"
+            # f"   {ANON_PREFIX}0\n"
+            "Let this be a lesson to you all."
+        )
+        assert unlimited_admin_0 not in await async_model_list(room_0.occupants)
+        assert limited_admin_0 not in await async_model_list(room_0.occupants)
+        assert auth_user not in await async_model_list(room_0.occupants)
+        # assert anon_0 not in await async_model_list(room_0.occupants)
+        assert await communicators["owner"].receive() == sender_response
+        assert (
+            await communicators["owner"].receive() ==
+            await communicators["unlimited_admin_1"].receive() ==
+            await communicators["limited_admin_1"].receive() ==
+            others_response
+        )
+        assert (await communicators["unlimited_admin_0"].receive())["refresh"]
+        assert (await communicators["limited_admin_0"].receive())["refresh"]
+        assert (await communicators["auth_user"].receive())["refresh"]
+        # assert (await communicators[f"{ANON_PREFIX}0"].receive())["refresh"]
+        assert (
+            (await communicators["unlimited_admin_0"].receive_output())["type"] == "websocket.close"
+        )
+        assert (
+            (await communicators["limited_admin_0"].receive_output())["type"] == "websocket.close"
+        )
+        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
+        # assert (
+        #     (await communicators[f"{ANON_PREFIX}0"].receive_output())["type"] == "websocket.close"
+        # )
 
     finally:
         await communicator_teardown(communicators)
