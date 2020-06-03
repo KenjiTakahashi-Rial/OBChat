@@ -4,8 +4,8 @@ Any user may perform these commands.
 
 from OB.constants import GroupTypes
 from OB.models import Admin, OBUser, Room
-from OB.utilities.database import sync_get_owner, sync_len_all, sync_model_list, sync_save,\
-    sync_try_get
+from OB.utilities.database import async_get_owner, async_len_all, async_model_list, async_save,\
+    async_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
 async def who(args, sender, room):
@@ -31,7 +31,7 @@ async def who(args, sender, room):
     return_strings = []
 
     for room_name in args:
-        arg_room = await sync_try_get(Room, group_type=GroupTypes.Room, name=room_name)
+        arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         # Check for errors
         if not arg_room:
@@ -40,20 +40,20 @@ async def who(args, sender, room):
             ]
             continue
 
-        if await sync_len_all(arg_room.occupants) == 0:
+        if await async_len_all(arg_room.occupants) == 0:
             return_strings += [f"{room_name} is all empty!"]
             continue
 
         return_strings += [f"Users in {room_name}:"]
         who_string = ""
 
-        for occupant in await sync_model_list(arg_room.occupants):
+        for occupant in await async_model_list(arg_room.occupants):
             occupant_string = f"    {occupant}"
 
             # Tag occupant appropriately
-            if occupant == await sync_get_owner(arg_room):
+            if occupant == await async_get_owner(arg_room):
                 occupant_string += " [owner]"
-            if await sync_try_get(Admin, user=occupant, room=room):
+            if await async_try_get(Admin, user=occupant, room=room):
                 occupant_string += " [admin]"
             if occupant == sender:
                 occupant_string += " [you]"
@@ -88,7 +88,7 @@ async def private(args, sender, room):
     elif args[0][0] != '/':
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
-        recipient_object = await sync_try_get(OBUser, username=args[0][1:])
+        recipient_object = await async_try_get(OBUser, username=args[0][1:])
         # Check for per-argument errors
         if not recipient_object:
             error_message = (

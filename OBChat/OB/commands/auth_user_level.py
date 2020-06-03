@@ -5,7 +5,7 @@ OB.utilities.command.get_privilege()).
 
 from OB.constants import GroupTypes
 from OB.models import Room
-from OB.utilities.database import sync_save, sync_try_get
+from OB.utilities.database import async_save, async_try_get
 from OB.utilities.event import send_system_room_message
 
 async def create_room(args, sender, room):
@@ -28,7 +28,7 @@ async def create_room(args, sender, room):
         error_message = "Identify yourself! Must log in to create a room."
     elif len(args) > 1:
         error_message = "Room name cannot contain spaces."
-    elif await sync_try_get(Room, group_type=GroupTypes.Room, name=args[0].lower()):
+    elif await async_try_get(Room, group_type=GroupTypes.Room, name=args[0].lower()):
         error_message = f"Someone beat you to it. {args[0].lower()} already exists."
 
     # Send error message back to issuing user
@@ -39,7 +39,7 @@ async def create_room(args, sender, room):
     display_name = args[0] if not args[0].islower() else None
 
     # Save the new room
-    created_room = await sync_save(
+    created_room = await async_save(
         Room,
         name=args[0].lower(),
         owner=sender,

@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/http/sessions/
 from channels.db import database_sync_to_async
 
 @database_sync_to_async
-def sync_cycle_key(session):
+def async_cycle_key(session):
     """
     Description:
         Allows an asynchronous function to change a session's key.

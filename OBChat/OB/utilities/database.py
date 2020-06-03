@@ -30,7 +30,7 @@ def try_get(model, **kwargs):
         return None
 
 @database_sync_to_async
-def sync_try_get(model, **kwargs):
+def async_try_get(model, **kwargs):
     """
     Description:
         Allows an asynchronous function to safely retreive a single database object.
@@ -46,7 +46,7 @@ def sync_try_get(model, **kwargs):
     return try_get(model, **kwargs)
 
 @database_sync_to_async
-def sync_get(model, **kwargs):
+def async_get(model, **kwargs):
     """
     Description:
         Allows an asynchronous function to retreive a single database object.
@@ -62,7 +62,7 @@ def sync_get(model, **kwargs):
     return model.objects.get(**kwargs)
 
 @database_sync_to_async
-def sync_save(model, **kwargs):
+def async_save(model, **kwargs):
     """
     Description:
         Allows an asynchronous function to save a new database object.
@@ -84,7 +84,7 @@ def sync_save(model, **kwargs):
     return new_database_object
 
 @database_sync_to_async
-def sync_delete(delete_object):
+def async_delete(delete_object):
     """
     Description:
         Allows an asynchronous function to delete a database object.
@@ -97,7 +97,7 @@ def sync_delete(delete_object):
 
 
 @database_sync_to_async
-def sync_add(field, add_object):
+def async_add(field, add_object):
     """
     Description:
         Allows an asynchronous function to add to a database object's OneToManyField or
@@ -112,7 +112,7 @@ def sync_add(field, add_object):
     field.add(add_object)
 
 @database_sync_to_async
-def sync_remove(field, remove_object):
+def async_remove(field, remove_object):
     """
     Description:
         Allows an asynchronous function to remove from a database object's OneToManyField or
@@ -127,7 +127,7 @@ def sync_remove(field, remove_object):
     field.remove(remove_object)
 
 @database_sync_to_async
-def sync_len_all(query_set):
+def async_len_all(query_set):
     """
     Description:
         Allows an asynchronous function to get the length of a database table.
@@ -144,7 +144,7 @@ def sync_len_all(query_set):
     return len(query_set.all())
 
 @database_sync_to_async
-def sync_model_list(model):
+def async_model_list(model):
     """
     Description:
         Allows an asynchronous function to get a list of database objects of a model so that it
@@ -168,7 +168,7 @@ def sync_model_list(model):
         return [user for user in model.all()]
 
 @database_sync_to_async
-def sync_get_owner(room):
+def async_get_owner(room):
     """
     Description:
         Allows an asynchronous function to get the owner attribute of a Room.

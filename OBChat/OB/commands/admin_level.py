@@ -5,8 +5,8 @@ OB.utilities.command.get_privilege()).
 
 from OB.constants import Privilege
 from OB.models import Admin, Ban, OBUser
-from OB.utilities.command import sync_get_privilege
-from OB.utilities.database import sync_get_owner, sync_model_list, sync_save, sync_try_get
+from OB.utilities.command import async_get_privilege
+from OB.utilities.database import async_get_owner, async_model_list, async_save, async_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
 async def kick(args, sender, room):
@@ -32,7 +32,7 @@ async def kick(args, sender, room):
             "You're not even logged in! Try making an account first, then we can talk about "
             "kicking people."
         )
-    elif await sync_get_privilege(sender, room) < Privilege.Admin:
+    elif await async_get_privilege(sender, room) < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
             "be an admin."
@@ -49,20 +49,20 @@ async def kick(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = await sync_try_get(OBUser, username=username)
+        arg_user_object = await async_try_get(OBUser, username=username)
 
         if arg_user_object:
-            arg_privilege = await sync_get_privilege(arg_user_object, room)
-            sender_privilege = await sync_get_privilege(sender, room)
+            arg_privilege = await async_get_privilege(arg_user_object, room)
+            sender_privilege = await async_get_privilege(sender, room)
 
         # Check for per-argument errors
-        if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
+        if not arg_user_object or arg_user_object not in await async_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user_object == sender:
             error_messages += [
                 f"You can't kick yourself. Just leave the room. Or put yourself on time-out."
             ]
-        elif arg_user_object == await sync_get_owner(room):
+        elif arg_user_object == await async_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_privilege >= sender_privilege:
             job_title = "admin"
@@ -129,7 +129,7 @@ async def ban(args, sender, room):
             "You're not even logged in! Try making an account first, then we can talk about "
             "banning people."
         )
-    elif await sync_get_privilege(sender, room) < Privilege.Admin:
+    elif await async_get_privilege(sender, room) < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
             "be an admin."
@@ -146,19 +146,19 @@ async def ban(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = await sync_try_get(OBUser, username=username)
-        arg_admin_object = await sync_try_get(Admin, user=arg_user_object)
+        arg_user_object = await async_try_get(OBUser, username=username)
+        arg_admin_object = await async_try_get(Admin, user=arg_user_object)
 
         # Check for per-argument errors
-        if not arg_user_object or arg_user_object not in await sync_model_list(room.occupants):
+        if not arg_user_object or arg_user_object not in await async_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user_object == sender:
             error_messages += [
                 f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
             ]
-        elif arg_user_object == await sync_get_owner(room):
+        elif arg_user_object == await async_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
-        elif arg_admin_object and sender != await sync_get_owner(room):
+        elif arg_admin_object and sender != await async_get_owner(room):
             error_messages += [
                 f"{username} is an unlimited admin, so you can't ban them. Please direct all "
                 "complaints to your local room owner, I'm sure they'll love some more paperwork "
@@ -172,7 +172,7 @@ async def ban(args, sender, room):
 
     for banned_user in valid_bans:
         # Save the ban to the database
-        await sync_save(
+        await async_save(
             Ban,
             user=banned_user,
             room=room,

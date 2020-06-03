@@ -13,11 +13,11 @@ from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Ban, Message, OBUser, Room
 from OB.utilities.command import is_command
-from OB.utilities.database import sync_add, sync_delete, sync_get, sync_remove, sync_save,\
-    sync_try_get
+from OB.utilities.database import async_add, async_delete, async_get, async_remove, async_save,\
+    async_try_get
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
-from OB.utilities.session import sync_cycle_key
+from OB.utilities.session import async_cycle_key
 
 class OBConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -56,17 +56,17 @@ class OBConsumer(AsyncWebsocketConsumer):
         # TODO: Consider pros and cons filesystem/cache/cookie sessions vs database sessions
         self.session = self.scope["session"]
         if not self.session.session_key:
-            await sync_cycle_key(self.session)
+            await async_cycle_key(self.session)
 
         # Set the user
         if self.scope["user"].is_authenticated:
             self.user = self.scope["user"]
         else:
             # Make an OBUser object for this anonymous user's session
-            while await sync_try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
-                await sync_cycle_key(self.session)
+            while await async_try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
+                await async_cycle_key(self.session)
 
-            self.user = await sync_save(
+            self.user = await async_save(
                 OBUser,
                 username=f"{ANON_PREFIX}{self.session.session_key}",
                 is_anon=True
@@ -79,16 +79,16 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Private message
         elif "username" in self.scope["url_route"]["kwargs"]:
             target_username = self.scope["url_route"]["kwargs"]["username"]
-            target_user = await sync_get(OBUser, username=target_username)
+            target_user = await async_get(OBUser, username=target_username)
             room_name = get_group_name(GroupTypes.Private, self.user.id, target_user.id)
             group_type = GroupTypes.Private
         else:
             raise SystemError("OBConsumer could not get arguments from URL route.")
 
-        self.room = await sync_get(Room, group_type=group_type, name=room_name)
+        self.room = await async_get(Room, group_type=group_type, name=room_name)
 
         # Stop here if banned
-        if await sync_try_get(Ban, user=self.user, room=self.room):
+        if await async_try_get(Ban, user=self.user, room=self.room):
             return
 
         # Add to room group
@@ -98,8 +98,8 @@ class OBConsumer(AsyncWebsocketConsumer):
         )
 
         # Add to the occupants list for this room
-        room_object = await sync_get(Room, group_type=group_type, name=room_name)
-        await sync_add(room_object.occupants, self.user)
+        room_object = await async_get(Room, group_type=group_type, name=room_name)
+        await async_add(room_object.occupants, self.user)
 
         await self.accept()
 
@@ -126,12 +126,12 @@ class OBConsumer(AsyncWebsocketConsumer):
         print(f"WebSocket disconnected with code {code}.")
 
         # Remove from the occupants list for this room and remove the room reference
-        await sync_remove(self.room.occupants, self.user)
+        await async_remove(self.room.occupants, self.user)
         self.room = None
 
         # Delete anonymous users' temporary OBUser from the database and remove the user reference
         if self.user.is_anon:
-            await sync_delete(self.user)
+            await async_delete(self.user)
             self.user = None
 
     async def close(self, code=None):
@@ -178,7 +178,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         recipient = self.user if is_command(message_text) else None
 
         # Save message to database
-        new_message_object = await sync_save(
+        new_message_object = await async_save(
             Message,
             message=message_text,
             sender=self.user if not self.user.is_anon else None,
