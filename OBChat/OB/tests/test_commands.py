@@ -208,7 +208,7 @@ async def communicator_setup(room):
 
     communicators = {}
 
-    for user in await sync_model_list(room.occupants):
+    for user in await async_model_list(room.occupants):
         communicators[user.username] = await OBCommunicator(
             user,
             GroupTypes.Room,
@@ -259,14 +259,14 @@ async def test_who():
         await database_setup()
 
         # Get database objects
-        owner = await sync_get(OBUser, username="owner")
-        unlimited_admin_0 = await sync_get(OBUser, username="unlimited_admin_0")
-        unlimited_admin_1 = await sync_get(OBUser, username="unlimited_admin_1")
-        limited_admin_0 = await sync_get(OBUser, username="limited_admin_0")
-        limited_admin_1 = await sync_get(OBUser, username="limited_admin_1")
-        auth_user = await sync_get(OBUser, username="auth_user")
-        anon_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
-        room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
+        owner = await async_get(OBUser, username="owner")
+        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        unlimited_admin_1 = await async_get(OBUser, username="unlimited_admin_1")
+        limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
+        limited_admin_1 = await async_get(OBUser, username="limited_admin_1")
+        auth_user = await async_get(OBUser, username="auth_user")
+        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
+        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
 
         # Communicator setup
         communicators = await communicator_setup(room_0)
@@ -337,9 +337,9 @@ async def test_private():
         await database_setup()
 
         # Get database objects
-        owner = await sync_get(OBUser, username="owner")
-        unlimited_admin_0 = await sync_get(OBUser, username="unlimited_admin_0")
-        room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
+        owner = await async_get(OBUser, username="owner")
+        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
 
         # Communicator setup
         communicators = await communicator_setup(room_0)
@@ -370,7 +370,7 @@ async def test_private():
         # Test private room auto-creation
         await handle_command("/p /owner What's it like to own room_0?", unlimited_admin_0, room_0)
 
-        await sync_get(
+        await async_get(
             Room,
             group_type=GroupTypes.Private,
             name=get_group_name(GroupTypes.Private, owner.id, unlimited_admin_0.id)
@@ -420,11 +420,11 @@ async def test_create_room():
         await database_setup()
 
         # Get database objects
-        owner = await sync_get(OBUser, username="owner")
-        unlimited_admin_0 = await sync_get(OBUser, username="unlimited_admin_0")
-        anon_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
-        anon_1 = await sync_get(OBUser, username=f"{ANON_PREFIX}1")
-        room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
+        owner = await async_get(OBUser, username="owner")
+        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
+        anon_1 = await async_get(OBUser, username=f"{ANON_PREFIX}1")
+        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
 
         # Communicator setup
         communicators = await communicator_setup(room_0)
@@ -453,7 +453,7 @@ async def test_create_room():
         await handle_command("/r room_1", owner, room_0)
         correct_response = "Sold! Check out your new room: room_1"
         assert await communicators["owner"].receive() == correct_response
-        room_1 = await sync_get(Room, group_type=GroupTypes.Room, name="room_1")
+        room_1 = await async_get(Room, group_type=GroupTypes.Room, name="room_1")
 
         # Create WebsocketCommunicators to test new room
         communicators["owner_room_1"] = await OBCommunicator(
@@ -525,12 +525,13 @@ async def test_kick():
         await database_setup()
 
         # Get database objects
-        owner = await sync_get(OBUser, username="owner")
-        unlimited_admin_0 = await sync_get(OBUser, username="unlimited_admin_0")
-        limited_admin_0 = await sync_get(OBUser, username="limited_admin_0")
-        auth_user = await sync_get(OBUser, username="auth_user")
-        anon_0 = await sync_get(OBUser, username=f"{ANON_PREFIX}0")
-        room_0 = await sync_get(Room, group_type=GroupTypes.Room, name="room_0")
+        owner = await async_get(OBUser, username="owner")
+        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
+        auth_user = await async_get(OBUser, username="auth_user")
+        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
+        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
+        occupants = await async_model_list(room_0.occupants)
 
         # Communicator setup
         communicators = await communicator_setup(room_0)
@@ -595,15 +596,15 @@ async def test_kick():
         await handle_command("/k auth_user", limited_admin_0, room_0)
         sender_response = (
             "Kicked:\n"
-            f"   {auth_user.username}\n"
+            f"   auth_user\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            f"   {auth_user.username}\n"
+            f"   auth_user\n"
             "Let this be a lesson to you all."
         )
-        assert auth_user not in await sync_model_list(room_0.occupants)
+        assert auth_user not in await async_model_list(room_0.occupants)
         assert await communicators["limited_admin_0"].receive() == sender_response
         assert (
             await communicators["owner"].receive() ==
