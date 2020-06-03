@@ -8,8 +8,6 @@ https://docs.pytest.org/en/latest/contents.html
 # TODO: Change all handle_command() calls to be messages sent through the Communicator
 # TODO: Move test functions to separate files and just call them here
 
-import asyncio
-
 from channels.db import database_sync_to_async
 
 from pytest import mark
@@ -18,7 +16,7 @@ from OB.commands.command_handler import handle_command
 from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import Admin, Ban, Message, OBUser, Room
-from OB.utilities.database import sync_get, sync_model_list
+from OB.utilities.database import async_get, async_model_list
 from OB.utilities.format import get_group_name
 
 @database_sync_to_async
@@ -178,6 +176,20 @@ def add_occupants(room, occupants):
     for user in occupants:
         if user not in room.occupants.all():
             room.occupants.add(user)
+
+@database_sync_to_async
+def async_add_occupants(room, occupants):
+    """
+    Description:
+        Allows an asynchronous function to add a list of users to the occupants of room if they are
+        not already in it.
+
+    Arguments:
+        room (Room): The room to add users to the occupants of.
+        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+    """
+
+    add_occupants(room, occupants)
 
 async def communicator_setup(room):
     """
