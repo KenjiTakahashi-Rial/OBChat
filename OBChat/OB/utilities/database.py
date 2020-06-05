@@ -181,3 +181,31 @@ def async_get_owner(room):
     """
 
     return room.owner
+
+def add_occupants(room, occupants):
+    """
+    Description:
+        Adds a list of users to the occupants of room if they are not already in it.
+
+    Arguments:
+        room (Room): The room to add users to the occupants of.
+        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+    """
+
+    for user in occupants:
+        if user not in room.occupants.all():
+            room.occupants.add(user)
+
+@database_sync_to_async
+def async_add_occupants(room, occupants):
+    """
+    Description:
+        Allows an asynchronous function to add a list of users to the occupants of room if they are
+        not already in it.
+
+    Arguments:
+        room (Room): The room to add users to the occupants of.
+        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+    """
+
+    add_occupants(room, occupants)
