@@ -7,7 +7,6 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import OBUser, Room
 from OB.utilities.test import communicator_setup, communicator_teardown, database_setup, \
@@ -47,20 +46,22 @@ async def test_who():
 
         # Test nonexistent room error
         message = "/who nonexistent_room"
+        correct_response = (
+            "nonexistent_room doesn't exist, so that probably means nobody is in there."
+        )
         await communicators["owner"].send(message)
         assert await communicators["owner"].receive() == message
-        correct_response = (
-            "nonexistent_room doesn't exist, so that probably means nobody is in therea."
-        )
         assert await communicators["owner"].receive() == correct_response
 
         # Test empty room error
-        await handle_command("/w empty_room", owner, room_0)
+        message = "/w empty_room"
         correct_response = "empty_room is all empty!"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test current room with no argument
-        await handle_command("/w", owner, room_0)
+        message = "/w"
         correct_response = "\n".join([
             "Users in room_0:",
             f"    {owner} [owner] [you]",
@@ -71,23 +72,31 @@ async def test_who():
             f"    {auth_user}",
             f"    {anon_0}\n"
         ])
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test current room with explicit argument
-        await handle_command("/w room_0", owner, room_0)
+        message = "/w room_0"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test duplicate room arguments
-        await handle_command("/w room_0 room_0 room_0", owner, room_0)
+        message = "/w room_0 room_0 room_0"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test multiple arguments
-        await handle_command("/w room_0 empty_room nonexistent_room", owner, room_0)
+        message = "/w room_0 empty_room nonexistent_room"
         correct_response = (
             f"{correct_response}\n"
             "empty_room is all empty!\n"
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
         )
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
     finally:
