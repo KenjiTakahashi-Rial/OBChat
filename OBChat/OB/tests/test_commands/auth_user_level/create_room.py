@@ -7,7 +7,6 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.commands.command_handler import handle_command
 from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import OBUser, Room
@@ -36,7 +35,6 @@ async def test_create_room():
         # Get database objects
         owner = await async_get(OBUser, username="owner")
         unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
-        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
         anon_1 = await async_get(OBUser, username=f"{ANON_PREFIX}1")
         room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
 
@@ -44,28 +42,38 @@ async def test_create_room():
         communicators = await communicator_setup(room_0)
 
         # Test no arguments error
-        await handle_command("/room", owner, room_0)
+        message = "/room"
         correct_response = "Usage: /room <name>"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test unauthenticated user error
-        await handle_command("/r anon_room", anon_0, room_0)
+        message = "/r anon_room"
         correct_response = "Identify yourself! Must log in to create a room."
+        await communicators[f"{ANON_PREFIX}0"].send(message)
+        assert await communicators[f"{ANON_PREFIX}0"].receive() == message
         assert await communicators[f"{ANON_PREFIX}0"].receive() == correct_response
 
         # Test multiple arguments error
-        await handle_command("/r room 1", owner, room_0)
+        message = "/r room 1"
         correct_response = "Room name cannot contain spaces."
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test existing room error
-        await handle_command("/r room_0", owner, room_0)
+        message = "/r room_0"
         correct_response = "Someone beat you to it. room_0 already exists."
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test room creation
-        await handle_command("/r room_1", owner, room_0)
+        message = "/r room_1"
         correct_response = "Sold! Check out your new room: room_1"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
         room_1 = await async_get(Room, group_type=GroupTypes.Room, name="room_1")
 
