@@ -7,7 +7,6 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.commands.command_handler import handle_command
 from OB.communicators import OBCommunicator
 from OB.constants import GroupTypes
 from OB.models import OBUser, Room
@@ -43,31 +42,40 @@ async def test_private():
         communicators = await communicator_setup(room_0)
 
         # Test no arguments error
-        await handle_command("/private", owner, room_0)
+        message = "/private"
         correct_response = "Usage: /private /<user> <message>"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test missing "/" error
-        await handle_command("/p no_slash", owner, room_0)
+        message = "/p no_slash"
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test nonexistent recipient error
-        await handle_command("/p /nonexistent_user", owner, room_0)
+        message = "/p /nonexistent_user"
         correct_response = (
             "nonexistent_user doesn't exist. Your private message will broadcasted into space "
             "instead."
         )
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test empty message error
-        await handle_command("/p /unlimited_admin_0", owner, room_0)
+        message = "/p /unlimited_admin_0"
         correct_response = "No message specified. Did you give up at just the username?"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
 
         # Test private room auto-creation
-        await handle_command("/p /owner What's it like to own room_0?", unlimited_admin_0, room_0)
-
+        message = "/p /owner What's it like to own room_0?"
+        await communicators["unlimited_admin_0"].send(message)
+        assert await communicators["unlimited_admin_0"].receive() == message
         await async_get(
             Room,
             group_type=GroupTypes.Private,
@@ -87,8 +95,10 @@ async def test_private():
         ).connect()
 
         # Test private messaging
-        await handle_command("/p /unlimited_admin_0 It's pretty cool.", owner, room_0)
+        message = "/p /unlimited_admin_0 It's pretty cool."
         correct_response = "It's pretty cool."
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         assert (
             await communicators["owner_private"].receive() ==
             await communicators["unlimited_admin_0_private"].receive() ==
