@@ -46,9 +46,11 @@ async def test_who():
         communicators = await communicator_setup(room_0)
 
         # Test nonexistent room error
-        await handle_command("/who nonexistent_room", owner, room_0)
+        message = "/who nonexistent_room"
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
         correct_response = (
-            "nonexistent_room doesn't exist, so that probably means nobody is in there."
+            "nonexistent_room doesn't exist, so that probably means nobody is in therea."
         )
         assert await communicators["owner"].receive() == correct_response
 
