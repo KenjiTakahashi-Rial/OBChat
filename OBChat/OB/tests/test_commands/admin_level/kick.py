@@ -271,17 +271,3 @@ async def test_kick():
     finally:
         await communicator_teardown(communicators)
         await database_teardown()
-
-@mark.asyncio
-@mark.django_db()
-async def test_ban():
-    """
-    Description:
-        Tests the /ban command (see OB.commands.ban()).
-        Wrapped in a try block to prevent following tests from failing their database setup if this
-        test fails before cleaning up the database.
-        Normally, the built-in pytest teardown_function() accounts for this, but it is not used
-        for testing commands (see database_teardown()).
-    """
-
-    # TODO: Implement this
