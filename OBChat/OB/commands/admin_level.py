@@ -131,7 +131,7 @@ async def ban(args, sender, room):
         )
     elif await async_get_privilege(sender, room) < Privilege.Admin:
         error_message = (
-            "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
+            "That's a little outside your pay-grade. Only admins may ban users. Try to /apply to "
             "be an admin."
         )
     elif not args:

@@ -3,6 +3,8 @@ Storage for test functions that are called in multiple places and are not associ
 particular instance of a class.
 """
 
+import django, sqlite3
+
 from channels.db import database_sync_to_async
 
 from OB.communicators import OBCommunicator
@@ -180,7 +182,7 @@ async def communicator_setup(room):
 
     return communicators
 
-async def communicator_teardown(communicators):
+async def communicator_teardown(communicators, safe=True):
     """
     Description:
         Cleans up the communicator objects used to test the commands.
@@ -189,6 +191,8 @@ async def communicator_teardown(communicators):
 
     Arguments:
         communicators (dict{string: OBCommunicator}): The dict of communicators to clean up.
+        safe (bool): Indicates whether to use "safe" disconnection, where the database is not
+            accessed. Occupants and anonymous users are not deleted.
     """
 
     if not communicators:
@@ -196,10 +200,13 @@ async def communicator_teardown(communicators):
 
     for communicator in communicators.values():
         try:
-            await communicator.disconnect()
+            await communicator.disconnect(code=("safe" if safe else 1000))
         except AttributeError:
             # The commnicator has already been disconnected
             # OB.consumers.disconnect() raises an AttributeError because OBConsumer.room is None
+            pass
+        except (django.db.utils.OperationalError, sqlite3.OperationalError):
+            # The database is locked, but he current communicator disconnected before the error
             pass
 
     communicators.clear()

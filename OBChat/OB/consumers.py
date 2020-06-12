@@ -125,6 +125,9 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         print(f"WebSocket disconnected with code {code}.")
 
+        if code == "safe":
+            return
+
         # Remove from the occupants list for this room and remove the room reference
         await async_remove(self.room.occupants, self.user)
         self.room = None

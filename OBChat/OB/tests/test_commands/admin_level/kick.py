@@ -5,7 +5,7 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-from django.db.utils import OperationalError
+import django, sqlite3
 
 from pytest import mark
 
@@ -296,7 +296,7 @@ async def test_kick():
     # Occasionally test_kick() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
     # Restart the test until it succeeds or fails from a relevant error
-    except OperationalError:
+    except (django.db.utils.OperationalError, sqlite3.OperationalError):
         await communicator_teardown(communicators)
         await database_teardown()
         await test_kick()
