@@ -5,6 +5,8 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
+from django.db.utils import OperationalError
+
 from pytest import mark
 
 from OB.constants import ANON_PREFIX, GroupTypes
@@ -290,6 +292,14 @@ async def test_kick():
         assert limited_admin_0 not in await async_model_list(room_0.occupants)
         assert auth_user not in await async_model_list(room_0.occupants)
         # assert anon_0 not in await async_model_list(room_0.occupants)
+
+    # Occasionally test_kick() will crash because of a database lock from threading collisions
+    # This is pytest clashing with Django Channels and does not happen during in live testing
+    # Restart the test until it succeeds or fails from a relevant error
+    except OperationalError:
+        await communicator_teardown(communicators)
+        await database_teardown()
+        await test_kick()
 
     finally:
         await communicator_teardown(communicators)
