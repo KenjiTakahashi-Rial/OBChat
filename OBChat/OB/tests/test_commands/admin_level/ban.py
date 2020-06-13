@@ -295,7 +295,14 @@ async def test_ban():
         assert auth_user not in await async_model_list(room_0.occupants)
         # assert anon_0 not in await async_model_list(room_0.occupants)
 
+    # Occasionally test_ban() will crash because of a database lock from threading collisions
+    # This is pytest clashing with Django Channels and does not happen during in live testing
+    # Restart the test until it succeeds or fails from a relevant error
+    except (django.db.utils.OperationalError, sqlite3.OperationalError):
+        await communicator_teardown(communicators)
+        await database_teardown()
+        await test_ban()
+
     finally:
         await communicator_teardown(communicators)
         await database_teardown()
-
