@@ -148,7 +148,7 @@ async def test_kick():
 
         # Add kicked users back to room occupants and reset Communicators
         await communicator_teardown(communicators)
-        # Anonymous users are deleted when their OBConsumer disconnects, so make an identical one
+        # Anonymous users are deleted when they disconnect, so make an identical replacement
         anon_0 = await async_save(
             OBUser,
             id=anon_0.id,
@@ -190,7 +190,6 @@ async def test_kick():
             "   limited_admin_0\n"
             "Let this be a lesson to you all."
         )
-
         assert await communicators["unlimited_admin_0"].receive() == message
         assert await communicators["unlimited_admin_0"].receive() == sender_response
         assert (
@@ -237,7 +236,7 @@ async def test_kick():
 
         # Add kicked users back to room occupants and reset Communicators
         await communicator_teardown(communicators)
-        # Anonymous users are deleted when their OBConsumer disconnects, so make an identical one
+        # Anonymous users are deleted when they disconnect, so make an identical replacement
         anon_0 = await async_save(
             OBUser,
             id=anon_0.id,
