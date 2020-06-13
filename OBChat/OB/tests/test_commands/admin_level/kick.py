@@ -5,7 +5,9 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-import django, sqlite3
+import sqlite3
+
+import django
 
 from pytest import mark
 

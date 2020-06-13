@@ -5,9 +5,12 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
+import sqlite3
+
+import django
+
 from pytest import mark
 
-from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import OBUser, Room
 from OB.utilities.test import communicator_setup, communicator_teardown, database_setup, \
