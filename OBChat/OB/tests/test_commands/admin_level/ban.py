@@ -366,7 +366,7 @@ async def test_ban():
     # Occasionally test_ban() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
     # Restart the test until it succeeds or fails from a relevant error
-    # except (django.db.utils.OperationalError, sqlite3.OperationalError):
+    except (django.db.utils.OperationalError, sqlite3.OperationalError):
         await communicator_teardown(communicators)
         await database_teardown()
         await test_ban()
