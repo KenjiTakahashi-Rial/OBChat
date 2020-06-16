@@ -8,8 +8,6 @@ See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
-# TODO: Change all handle_command() calls to be messages sent through the Communicator
-
 from pytest import mark
 
 from OB.tests.test_commands.admin_level import ban, kick
