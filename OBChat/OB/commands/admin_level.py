@@ -4,9 +4,9 @@ OB.utilities.command.get_privilege()).
 """
 
 from OB.constants import Privilege
-from OB.models import Admin, Ban, OBUser
+from OB.models import Ban, OBUser
 from OB.utilities.command import async_get_privilege
-from OB.utilities.database import async_get_owner, async_model_list, async_save, async_try_get
+from OB.utilities.database import async_delete, async_get_owner, async_model_list, async_save, async_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
 async def kick(args, sender, room):
@@ -223,4 +223,65 @@ async def lift_ban(args, sender, room):
         room (Room): The Room the command was sent from.
     """
 
-    # TODO: Implement this
+    # Remove duplicates
+    args = list(dict.fromkeys(args))
+
+    error_message = ""
+
+    # Check for initial errors
+    if not sender.is_authenticated or sender.is_anon:
+        error_message = (
+            "You are far from one who can lift bans. Log in and prove yourself an admin."
+        )
+    elif await async_get_privilege(sender, room) < Privilege.Admin:
+        error_message = (
+            "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be"
+            " an admin and perhaps you may obtain this power if you are worthy."
+        )
+    elif not args:
+        error_message = "Usage: /lift <user1> <user2> ..."
+
+    # Send error message back to the issuing user
+    if error_message:
+        await send_system_room_message(error_message, room, sender)
+        return
+
+    valid_lifts = []
+    error_message = []
+
+    for username in args:
+        arg_user_object = await async_try_get(OBUser, username=username)
+
+        if arg_user_object:
+            ban_object = await async_try_get(Ban, user=arg_user_object, room=room)
+            issuer_privilege = await async_get_privilege(ban_object.issuer, room)
+            sender_privilege = await async_get_privilege(sender, room)
+        else:
+            ban_object = None
+
+        # Check for per-argument errors
+        if not arg_user_object or not ban_object:
+            error_messages += [
+                f"No user named {username} has been banned from this room. How can "
+                "one lift that which has not been banned?"
+            ]
+        elif issuer_privilege >= sender_privilege and ban_object.issuer != sender:
+            error_messages += [
+                f"{username} was banned by {ban_object.issuer}. You cannot lift a ban issued by a "
+                "user of equal or higher privilege than yourself. If you really want to lift this "
+                "ban you can /elevate this lift request to a higher authority."
+            ]
+        else:
+            valid_lifts += [ban_object]
+
+    send_to_sender = error_messages + [("\n" if error_messages else "") + "Ban lifted:"]
+
+    for lifted_ban in valid_lifts:
+        # Delete the ban from the database
+        await async_delete(lifted_ban)
+
+    if valid_lifts:
+        send_to_sender += ["Fully reformed and ready to integrate into society."]
+        await send_system_room_message("\n".join(send_to_sender), room, sender)
+    elif error_messages:
+        await send_system_room_message("\n".join(error_messages), room, sender)
