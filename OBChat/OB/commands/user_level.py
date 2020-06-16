@@ -4,8 +4,7 @@ Any user may perform these commands.
 
 from OB.constants import GroupTypes
 from OB.models import Admin, OBUser, Room
-from OB.utilities.database import async_get_owner, async_len_all, async_model_list, async_save,\
-    async_try_get
+from OB.utilities.database import async_get_owner, async_len_all, async_model_list, async_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
 async def who(args, sender, room):
@@ -15,8 +14,8 @@ async def who(args, sender, room):
         issuing user's current room.
 
     Arguments:
-        args (list[string]): The names of the Rooms to list the occupants of. No argument implies
-            the room parameter as the argument.
+        args (list[string]): The names of the Rooms to list the occupants of (defaults to the
+            sender's current room).
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
     """

@@ -6,7 +6,8 @@ OB.utilities.command.get_privilege()).
 from OB.constants import Privilege
 from OB.models import Ban, OBUser
 from OB.utilities.command import async_get_privilege
-from OB.utilities.database import async_delete, async_get_owner, async_model_list, async_save, async_try_get
+from OB.utilities.database import async_delete, async_get_owner, async_model_list, async_save, \
+    async_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
 async def kick(args, sender, room):
@@ -74,9 +75,8 @@ async def kick(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{username} is an {job_title}, so you can't kick them. Please "
-                "direct all complaints to your local room owner, I'm sure they'll "
-                "love some more paperwork to do..."
+                f"{username} is an {job_title}, so you can't kick them. Feel free to /elevate "
+                "your complaints to someone who has more authority."
             ]
         else:
             valid_kicks += [arg_user_object]
@@ -171,9 +171,8 @@ async def ban(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{username} is an {job_title}, so you can't ban them. Please "
-                "direct all complaints to your local room owner, I'm sure they'll "
-                "love some more paperwork to do..."
+                f"{username} is an {job_title}, so you can't ban them. Feel free to /elevate "
+                "your complaints to someone who has more authority."
             ]
         else:
             valid_bans += [arg_user_object]
@@ -218,7 +217,8 @@ async def lift_ban(args, sender, room):
         being banned. Viewing the user from inside the Room will show they have been banned before.
 
     Arguments:
-        args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.
+        args (list[string]): The usernames of OBUsers whose bans to lift. Should have length 1 or
+            more.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
     """
@@ -268,8 +268,8 @@ async def lift_ban(args, sender, room):
         elif issuer_privilege >= sender_privilege and ban_object.issuer != sender:
             error_messages += [
                 f"{username} was banned by {ban_object.issuer}. You cannot lift a ban issued by a "
-                "user of equal or higher privilege than yourself. If you really want to lift this "
-                "ban you can /elevate this lift request to a higher authority."
+                "user of equal or higher privilege than yourself. If you REALLY want to lift this "
+                "ban you can /elevate to a higher authority."
             ]
         else:
             valid_lifts += [ban_object]
@@ -285,3 +285,18 @@ async def lift_ban(args, sender, room):
         await send_system_room_message("\n".join(send_to_sender), room, sender)
     elif error_messages:
         await send_system_room_message("\n".join(error_messages), room, sender)
+
+async def elevate(args, sender, room):
+    """
+    Description:
+        Requests an action (e.g. /kick, /ban, /lift) be performed by a user with higher privilege.
+        Can request generally to all users with higher privilege or to a specific user.
+
+    Arguments:
+        args (list[string]): The command to elevate, the arguments of that command, and the user to
+            elevate to (defaults to all users of higher privilege)
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
+    """
+
+    # TODO: Implement this
