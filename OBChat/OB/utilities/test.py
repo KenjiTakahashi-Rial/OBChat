@@ -64,11 +64,18 @@ def database_setup():
         display_name="LimitedAdmin1"
     ).save()
 
-    auth_user = OBUser(
-        username="auth_user",
-        email="auth_user@ob.ob",
-        password="auth_user",
-        display_name="AuthUser"
+    auth_user_0 = OBUser(
+        username="auth_user_0",
+        email="auth_user_0@ob.ob",
+        password="auth_user_0",
+        display_name="AuthUser0"
+    ).save()
+
+    OBUser(
+        username="auth_user_1",
+        email="auth_user_1@ob.ob",
+        password="auth_user_1",
+        display_name="AuthUser1"
     ).save()
 
     anon_0 = OBUser(
@@ -101,7 +108,7 @@ def database_setup():
             unlimited_admin_1,
             limited_admin_0,
             limited_admin_1,
-            auth_user,
+            auth_user_0,
             anon_0
         ]
     )

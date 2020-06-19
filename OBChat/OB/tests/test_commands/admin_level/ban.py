@@ -41,7 +41,7 @@ async def test_ban():
         # Get database objects
         unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
         limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
-        auth_user = await async_get(OBUser, username="auth_user")
+        auth_user_0 = await async_get(OBUser, username="auth_user_0")
         anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
         room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
         occupants = await async_model_list(room_0.occupants)
@@ -65,9 +65,9 @@ async def test_ban():
             "That's a little outside your pay-grade. Only admins may ban users. "
             "Try to /apply to be an admin."
         )
-        await communicators["auth_user"].send(message)
-        assert await communicators["auth_user"].receive() == message
-        assert await communicators["auth_user"].receive() == correct_response
+        await communicators["auth_user_0"].send(message)
+        assert await communicators["auth_user_0"].receive() == message
+        assert await communicators["auth_user_0"].receive() == correct_response
 
         # Test no arguments error
         message = "/b"
@@ -77,8 +77,8 @@ async def test_ban():
         assert await communicators["limited_admin_0"].receive() == correct_response
 
         # Test absent target error
-        message = "/b auth_user_1"
-        correct_response = "Nobody named auth_user_1 in this room. Are you seeing things?"
+        message = "/b auth_user_0_1"
+        correct_response = "Nobody named auth_user_0_1 in this room. Are you seeing things?"
         await communicators["limited_admin_0"].send(message)
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == correct_response
@@ -120,16 +120,16 @@ async def test_ban():
         assert await communicators["limited_admin_0"].receive() == correct_response
 
         # Test limited admin banning authenticated user
-        message = "/b auth_user"
+        message = "/b auth_user_0"
         await communicators["limited_admin_0"].send(message)
         sender_response = (
             "Banned:\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been banned:\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["limited_admin_0"].receive() == message
@@ -143,13 +143,13 @@ async def test_ban():
             await communicators[f"{ANON_PREFIX}0"].receive() ==
             others_response
         )
-        assert (await communicators["auth_user"].receive())["refresh"]
-        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
-        assert auth_user not in await async_model_list(room_0.occupants)
-        ban = await async_get(Ban, user=auth_user)
+        assert (await communicators["auth_user_0"].receive())["refresh"]
+        assert (await communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        assert auth_user_0 not in await async_model_list(room_0.occupants)
+        ban = await async_get(Ban, user=auth_user_0)
         try:
             # This should time-out because the user is banned, so they cannot connect
-            await communicators["auth_user"].connect()
+            await communicators["auth_user_0"].connect()
             assert False
         except asyncio.TimeoutError:
             pass
@@ -205,7 +205,7 @@ async def test_ban():
             await communicators["unlimited_admin_0"].receive() ==
             await communicators["unlimited_admin_1"].receive() ==
             await communicators["limited_admin_1"].receive() ==
-            await communicators["auth_user"].receive() ==
+            await communicators["auth_user_0"].receive() ==
             await communicators[f"{ANON_PREFIX}0"].receive() ==
             others_response
         )
@@ -237,16 +237,16 @@ async def test_ban():
         communicators = await communicator_setup(room_0)
 
         # Test unlimited admin banning authenticated user
-        message = "/b auth_user"
+        message = "/b auth_user_0"
         await communicators["unlimited_admin_0"].send(message)
         sender_response = (
             "Banned:\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been banned:\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["unlimited_admin_0"].receive() == message
@@ -259,13 +259,13 @@ async def test_ban():
             await communicators[f"{ANON_PREFIX}0"].receive() ==
             others_response
         )
-        assert (await communicators["auth_user"].receive())["refresh"]
-        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
-        assert auth_user not in await async_model_list(room_0.occupants)
-        ban = await async_get(Ban, user=auth_user)
+        assert (await communicators["auth_user_0"].receive())["refresh"]
+        assert (await communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        assert auth_user_0 not in await async_model_list(room_0.occupants)
+        ban = await async_get(Ban, user=auth_user_0)
         try:
             # This should time-out because the user is banned, so they cannot connect
-            await communicators["auth_user"].connect()
+            await communicators["auth_user_0"].connect()
             assert False
         except asyncio.TimeoutError:
             pass
@@ -286,13 +286,13 @@ async def test_ban():
 
         # Test owner banning multiple users
         # TODO: Testing banning anonymous users is causing database lock
-        message = f"/b unlimited_admin_0 limited_admin_0 auth_user" #, {ANON_PREFIX}0",
+        message = f"/b unlimited_admin_0 limited_admin_0 auth_user_0" #, {ANON_PREFIX}0",
         await communicators["owner"].send(message)
         sender_response = (
             "Banned:\n"
             "   unlimited_admin_0\n"
             "   limited_admin_0\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             # f"   {ANON_PREFIX}0"
             "That'll show them."
         )
@@ -300,7 +300,7 @@ async def test_ban():
             "One or more users have been banned:\n"
             "   unlimited_admin_0\n"
             "   limited_admin_0\n"
-            "   auth_user\n"
+            "   auth_user_0\n"
             # f"   {ANON_PREFIX}0\n"
             "Let this be a lesson to you all."
         )
@@ -314,7 +314,7 @@ async def test_ban():
         )
         assert (await communicators["unlimited_admin_0"].receive())["refresh"]
         assert (await communicators["limited_admin_0"].receive())["refresh"]
-        assert (await communicators["auth_user"].receive())["refresh"]
+        assert (await communicators["auth_user_0"].receive())["refresh"]
         # assert (await communicators[f"{ANON_PREFIX}0"].receive())["refresh"]
         assert (
             (await communicators["unlimited_admin_0"].receive_output())["type"] == "websocket.close"
@@ -322,17 +322,17 @@ async def test_ban():
         assert (
             (await communicators["limited_admin_0"].receive_output())["type"] == "websocket.close"
         )
-        assert (await communicators["auth_user"].receive_output())["type"] == "websocket.close"
+        assert (await communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
         # assert (
         #     (await communicators[f"{ANON_PREFIX}0"].receive_output())["type"] == "websocket.close"
         # )
         assert unlimited_admin_0 not in await async_model_list(room_0.occupants)
         assert limited_admin_0 not in await async_model_list(room_0.occupants)
-        assert auth_user not in await async_model_list(room_0.occupants)
+        assert auth_user_0 not in await async_model_list(room_0.occupants)
         # assert anon_0 not in await async_model_list(room_0.occupants)
         await async_get(Ban, user=unlimited_admin_0)
         await async_get(Ban, user=limited_admin_0)
-        await async_get(Ban, user=auth_user)
+        await async_get(Ban, user=auth_user_0)
         # await async_get(Ban, user=anon_0)
         try:
             # This should time-out because the user is banned, so they cannot connect
@@ -348,7 +348,7 @@ async def test_ban():
             pass
         try:
             # This should time-out because the user is banned, so they cannot connect
-            await communicators["auth_user"].connect()
+            await communicators["auth_user_0"].connect()
             assert False
         except asyncio.TimeoutError:
             pass

@@ -37,7 +37,7 @@ async def test_who():
         unlimited_admin_1 = await async_get(OBUser, username="unlimited_admin_1")
         limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
         limited_admin_1 = await async_get(OBUser, username="limited_admin_1")
-        auth_user = await async_get(OBUser, username="auth_user")
+        auth_user_0 = await async_get(OBUser, username="auth_user_0")
         anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
         room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
 
@@ -69,7 +69,7 @@ async def test_who():
             f"    {unlimited_admin_1} [admin]",
             f"    {limited_admin_0} [admin]",
             f"    {limited_admin_1} [admin]",
-            f"    {auth_user}",
+            f"    {auth_user_0}",
             f"    {anon_0}\n"
         ])
         await communicators["owner"].send(message)
