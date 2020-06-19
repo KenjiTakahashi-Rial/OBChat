@@ -62,23 +62,28 @@ def async_get(model, **kwargs):
     return model.objects.get(**kwargs)
 
 @database_sync_to_async
-def async_save(model, **kwargs):
+def async_save(model_or_object, **kwargs):
     """
     Description:
         Allows an asynchronous function to save a new database object.
 
     Arguments:
-        model (Class): A database model class (see OB.models.py).
+        model_or_object: A database model class or a database object (see OB.models.py).
+            If there are no kwargs, then it is assumed that this is an object, not a model.
         kwargs: Class variable values to assign to the new database object.
 
     Return values:
-        The newly created database object.
+        The newly created database object or the existing database object that was just saved.
     """
 
-    if model is OBUser:
+    if not kwargs:
+        model_or_object.save()
+        return model_or_object
+
+    if model_or_object is OBUser:
         new_database_object = OBUser.objects.create_user(**kwargs)
     else:
-        new_database_object = model(**kwargs)
+        new_database_object = model_or_object(**kwargs)
 
     new_database_object.save()
     return new_database_object
