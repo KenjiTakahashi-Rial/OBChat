@@ -6,6 +6,13 @@ when using pytest.
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
+
+To enable pytest assertion rewriting (detailed logs for why assertions failed), ensure that the
+module is included in the package's __init__.py (see __init__.py in any of the test packages).
+
+See the pytest documentation on assertion and assertion rewriting for more information.
+https://docs.pytest.org/en/stable/assert.html
+https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 """
 
 from pytest import mark
