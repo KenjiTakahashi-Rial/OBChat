@@ -99,9 +99,8 @@ async def test_kick():
         # Test limited admin kicking unlimited admin error
         message = "/k unlimited_admin_0"
         correct_response = (
-            "unlimited_admin_0 is an unlimited admin, so you can't kick them. Please direct all "
-            "complaints to your local room owner, I'm sure they'll love some more paperwork to "
-            "do..."
+            "unlimited_admin_0 is an unlimited admin, so you can't kick them. Feel free to "
+            "/elevate your complaints to someone who has more authority."
         )
         await communicators["limited_admin_0"].send(message)
         assert await communicators["limited_admin_0"].receive() == message
@@ -110,9 +109,8 @@ async def test_kick():
         # Test limited admin kicking limited admin error
         message = "/k limited_admin_1"
         correct_response = (
-            "limited_admin_1 is an admin just like you, so you can't kick them. Please direct all "
-            "complaints to your local room owner, I'm sure they'll love some more paperwork to "
-            "do..."
+            "limited_admin_1 is an admin just like you, so you can't kick them. Feel free to "
+            "/elevate your complaints to someone who has more authority."
         )
         await communicators["limited_admin_0"].send(message)
         assert await communicators["limited_admin_0"].receive() == message
@@ -169,9 +167,8 @@ async def test_kick():
         # Test unlimited admin kicking unlimited admin error
         message = "/k unlimited_admin_1"
         correct_response = (
-            "unlimited_admin_1 is an unlimited admin just like you, so you can't kick them. Please"
-            " direct all complaints to your local room owner, I'm sure they'll love some more "
-            "paperwork to do..."
+            "unlimited_admin_1 is an unlimited admin just like you, so you can't kick them. Feel "
+            "free to /elevate your complaints to someone who has more authority."
         )
         await communicators["unlimited_admin_0"].send(message)
         assert await communicators["unlimited_admin_0"].receive() == message
