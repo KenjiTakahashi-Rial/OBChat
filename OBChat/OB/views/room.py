@@ -129,21 +129,21 @@ def room(request, room_name):
         if room_object:
             websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
 
-            ban_object = try_get(
+            ban = try_get(
                 Ban,
                 user=request.user if request.user.is_authenticated else None,
                 room=room_object
             )
             messages_timestrings = []
 
-            if not ban_object:
+            if not ban:
                 # Get the messages
                 message_query = Q(recipient=None)
                 if request.user.is_authenticated:
                     message_query |= Q(recipient=(request.user))
-                message_objects = Message.objects.filter(message_query)
+                messages = Message.objects.filter(message_query)
 
-                for message in message_objects:
+                for message in messages:
                     messages_timestrings += [(message, get_datetime_string(message.timestamp))]
 
             template = "OB/room.html"
@@ -151,7 +151,7 @@ def room(request, room_name):
                 "room": room_object,
                 "websocket_url_json": websocket_url_json,
                 "messages": messages_timestrings,
-                "ban": ban_object
+                "ban": ban
             }
         else:
             # Return the room does not exist page

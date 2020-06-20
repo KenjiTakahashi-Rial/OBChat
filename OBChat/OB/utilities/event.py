@@ -77,11 +77,11 @@ async def send_system_room_message(message_text, room, recipient=None):
     """
 
     # Save message to database
-    system_user_object = await async_get(OBUser, username=SYSTEM_USERNAME)
-    new_message_object = await async_save(
+    system_user = await async_get(OBUser, username=SYSTEM_USERNAME)
+    new_message = await async_save(
         Message,
         message=message_text,
-        sender=system_user_object,
+        sender=system_user,
         recipient=recipient,
         room=room
     )
@@ -90,7 +90,7 @@ async def send_system_room_message(message_text, room, recipient=None):
         "text": message_text,
         "sender_name": SYSTEM_USERNAME,
         "has_recipient": bool(recipient),
-        "timestamp": get_datetime_string(new_message_object.timestamp)
+        "timestamp": get_datetime_string(new_message.timestamp)
     })
 
     # Send the message
@@ -112,7 +112,7 @@ async def send_private_message(message_text, sender, recipient):
         name=get_group_name(GroupTypes.Private, sender.id, recipient.id)
     )
 
-    # Create the database_object if it doesn't exist
+    # Create the database object if it doesn't exist
     if not private_message_room:
         private_message_room = await async_save(
             Room,
@@ -122,7 +122,7 @@ async def send_private_message(message_text, sender, recipient):
 
 
     # Save message to database
-    new_message_object = await async_save(
+    new_message = await async_save(
         Message,
         message=message_text,
         sender=sender,
@@ -133,7 +133,7 @@ async def send_private_message(message_text, sender, recipient):
     message_json = json.dumps({
         "text": message_text,
         "sender_name": sender.display_name or sender.username,
-        "timestamp": get_datetime_string(new_message_object.timestamp)
+        "timestamp": get_datetime_string(new_message.timestamp)
     })
 
     # Send message to room group

@@ -50,20 +50,20 @@ async def kick(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = await async_try_get(OBUser, username=username)
+        arg_user = await async_try_get(OBUser, username=username)
 
-        if arg_user_object:
-            arg_privilege = await async_get_privilege(arg_user_object, room)
+        if arg_user:
+            arg_privilege = await async_get_privilege(arg_user, room)
             sender_privilege = await async_get_privilege(sender, room)
 
         # Check for per-argument errors
-        if not arg_user_object or arg_user_object not in await async_model_list(room.occupants):
+        if not arg_user or arg_user not in await async_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
-        elif arg_user_object == sender:
+        elif arg_user == sender:
             error_messages += [
                 f"You can't kick yourself. Just leave the room. Or put yourself on time-out."
             ]
-        elif arg_user_object == await async_get_owner(room):
+        elif arg_user == await async_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_privilege >= sender_privilege:
             job_title = "admin"
@@ -75,11 +75,11 @@ async def kick(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{arg_user_object} is an {job_title}, so you can't kick them. Feel free to "
+                f"{arg_user} is an {job_title}, so you can't kick them. Feel free to "
                 "/elevate your complaints to someone who has more authority."
             ]
         else:
-            valid_kicks += [arg_user_object]
+            valid_kicks += [arg_user]
 
     send_to_sender = error_messages + [("\n" if error_messages else "") + "Kicked:"]
     send_to_others = ["One or more users have been kicked:"]
@@ -146,20 +146,20 @@ async def ban(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = await async_try_get(OBUser, username=username)
+        arg_user = await async_try_get(OBUser, username=username)
 
-        if arg_user_object:
-            arg_privilege = await async_get_privilege(arg_user_object, room)
+        if arg_user:
+            arg_privilege = await async_get_privilege(arg_user, room)
             sender_privilege = await async_get_privilege(sender, room)
 
         # Check for per-argument errors
-        if not arg_user_object or arg_user_object not in await async_model_list(room.occupants):
+        if not arg_user or arg_user not in await async_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
-        elif arg_user_object == sender:
+        elif arg_user == sender:
             error_messages += [
                 f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
             ]
-        elif arg_user_object == await async_get_owner(room):
+        elif arg_user == await async_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_privilege >= sender_privilege:
             job_title = "admin"
@@ -171,11 +171,11 @@ async def ban(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{arg_user_object} is an {job_title}, so you can't ban them. Feel free to "
+                f"{arg_user} is an {job_title}, so you can't ban them. Feel free to "
                 "/elevate your complaints to someone who has more authority."
             ]
         else:
-            valid_bans += [arg_user_object]
+            valid_bans += [arg_user]
 
     send_to_sender = error_messages + [("\n" if error_messages else "") + "Banned:"]
     send_to_others = ["One or more users have been banned:"]
@@ -250,30 +250,30 @@ async def lift_ban(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = await async_try_get(OBUser, username=username)
+        arg_user = await async_try_get(OBUser, username=username)
 
-        if arg_user_object:
-            ban_object = await async_try_get(Ban, user=arg_user_object, room=room)
-            issuer_object = await async_try_get(OBUser, ban_issued=ban_object)
-            issuer_privilege = await async_get_privilege(issuer_object, room)
+        if arg_user:
+            arg_ban = await async_try_get(Ban, user=arg_user, room=room)
+            issuer = await async_try_get(OBUser, ban_issued=arg_ban)
+            issuer_privilege = await async_get_privilege(issuer, room)
             sender_privilege = await async_get_privilege(sender, room)
         else:
-            ban_object = None
+            arg_ban = None
 
         # Check for per-argument errors
-        if not arg_user_object or not ban_object:
+        if not arg_user or not arg_ban:
             error_messages += [
                 f"No user named {username} has been banned from this room. How can "
                 "one lift that which has not been banned?"
             ]
-        elif issuer_privilege >= sender_privilege and issuer_object != sender:
+        elif issuer_privilege >= sender_privilege and issuer != sender:
             error_messages += [
-                f"{username} was banned by {issuer_object}. You cannot lift a ban issued by a "
+                f"{username} was banned by {issuer}. You cannot lift a ban issued by a "
                 "user of equal or higher privilege than yourself. If you REALLY want to lift this "
                 "ban you can /elevate to a higher authority."
             ]
         else:
-            valid_lifts += [(ban_object, arg_user_object)]
+            valid_lifts += [(arg_ban, arg_user)]
 
     send_to_sender = error_messages + [("\n" if error_messages else "") + "Ban lifted:"]
 

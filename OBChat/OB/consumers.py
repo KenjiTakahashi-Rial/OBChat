@@ -98,8 +98,8 @@ class OBConsumer(AsyncWebsocketConsumer):
         )
 
         # Add to the occupants list for this room
-        room_object = await async_get(Room, group_type=group_type, name=room_name)
-        await async_add(room_object.occupants, self.user)
+        room = await async_get(Room, group_type=group_type, name=room_name)
+        await async_add(room.occupants, self.user)
 
         await self.accept()
 
@@ -181,7 +181,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         recipient = self.user if is_command(message_text) else None
 
         # Save message to database
-        new_message_object = await async_save(
+        new_message = await async_save(
             Message,
             message=message_text,
             sender=self.user if not self.user.is_anon else None,
@@ -195,7 +195,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             "text": message_text,
             "sender_name": self.user.display_name or self.user.username,
             "has_recipient": bool(recipient),
-            "timestamp": get_datetime_string(new_message_object.timestamp)
+            "timestamp": get_datetime_string(new_message.timestamp)
         })
 
         # Send message to room group

@@ -81,12 +81,12 @@ def async_save(model_or_object, **kwargs):
         return model_or_object
 
     if model_or_object is OBUser:
-        new_database_object = OBUser.objects.create_user(**kwargs)
+        new_object = OBUser.objects.create_user(**kwargs)
     else:
-        new_database_object = model_or_object(**kwargs)
+        new_object = model_or_object(**kwargs)
 
-    new_database_object.save()
-    return new_database_object
+    new_object.save()
+    return new_object
 
 @database_sync_to_async
 def async_delete(delete_object):

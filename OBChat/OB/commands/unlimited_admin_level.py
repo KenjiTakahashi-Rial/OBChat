@@ -38,33 +38,33 @@ async def hire(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = try_get(OBUser, username=username)
-        arg_admin_object = try_get(Admin, user=arg_user_object)
+        arg_user = try_get(OBUser, username=username)
+        arg_admin = try_get(Admin, user=arg_user)
 
         # Check for per-argument errors
-        if not arg_user_object:
+        if not arg_user:
             error_messages += (
                 f"\"{username}\" does not exist. Your imaginary friend needs an account before "
                 "they can be an admin."
             )
-        elif arg_user_object == sender:
+        elif arg_user == sender:
             error_messages += (
                 f"You can't hire yourself. I don't care how good your letter of recommendation is."
             )
-        elif arg_user_object == room.owner:
+        elif arg_user == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
         elif not sender.is_authenticated:
             error_messages += (
                 f"\"{username}\" hasn't signed up yet. they cannot be trusted with the immense "
                 "responsibility that is adminship."
             )
-        elif arg_admin_object:
+        elif arg_admin:
             error_messages += (
                 f"{username} already works here. I can't believe you forgot. Did you mean "
                 "/promote?"
             )
         else:
-            valid_hires += arg_user_object
+            valid_hires += arg_user
 
     send_to_sender = error_messages
     send_to_others = []
@@ -121,32 +121,32 @@ async def fire(args, sender, room):
     error_messages = []
 
     for username in args:
-        arg_user_object = try_get(OBUser, username=username)
-        arg_admin_object = try_get(Admin, user=arg_user_object)
+        arg_user = try_get(OBUser, username=username)
+        arg_admin = try_get(Admin, user=arg_user)
 
         # Check for per-argument errors
-        if not arg_user_object:
+        if not arg_user:
             error_messages += (
                 "\"{username}\" does not exist. You can't fire a ghost... can you?"
             )
-        elif arg_user_object == sender:
+        elif arg_user == sender:
             error_messages += (
                 "You can't fire yourself. I don't care how bad your performance reviews are."
             )
-        elif arg_user_object == room.owner:
+        elif arg_user == room.owner:
             error_messages += f"That's the owner. You know, your BOSS. Nice try."
-        elif not arg_admin_object:
+        elif not arg_admin:
             error_messages += (
                 f"\"{username}\" is just a regular ol' user, so you can't fire them. You can /ban "
                 "them if you want."
             )
-        elif sender != room.owner and not arg_admin_object.is_limited:
+        elif sender != room.owner and not arg_admin.is_limited:
             error_messages += (
                 f"\"{username}\" is an unlimited admin, so you can't fire them. Please direct all "
                 "complaints to your local room owner, I'm sure they'll love some more paperwork to"
                 " do...")
         else:
-            valid_fires += (arg_user_object, arg_admin_object)
+            valid_fires += (arg_user, arg_admin)
 
     # Remove admin(s) and notify all parties that a user was fired
     send_to_sender = error_messages
