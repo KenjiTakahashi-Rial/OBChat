@@ -13,6 +13,7 @@ import django
 
 from pytest import mark
 
+from OB.communicators import OBCommunicator
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Ban, OBUser, Room
 from OB.utilities.test import communicator_setup, communicator_teardown, database_setup, \
@@ -87,7 +88,7 @@ async def test_lift_ban():
         assert await communicators["limited_admin_0"].receive() == correct_response
 
         # Create test ban
-        ban = await async_save(
+        await async_save(
             Ban,
             user=auth_user_1,
             room=room_0,
@@ -105,22 +106,64 @@ async def test_lift_ban():
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == correct_response
 
-        # Change test ban issuer
-        ban.issuer = limited_admin_0
-        await async_save(ban)
+        # Test unlimited admin lifting owner-issued ban error
+        message = "/l auth_user_1"
+        await communicators["unlimited_admin_0"].send(message)
+        assert await communicators["unlimited_admin_0"].receive() == message
+        assert await communicators["unlimited_admin_0"].receive() == correct_response
 
-        # Test limited admin lifting ban
+        # Test owner lifting ban
         message = "/l auth_user_1"
         correct_response = (
             "Ban lifted:\n"
             f"   {auth_user_1}\n"
             "Fully reformed and ready to integrate into society."
         )
+        await communicators["owner"].send(message)
+        assert await communicators["owner"].receive() == message
+        assert await communicators["owner"].receive() == correct_response
+        communicators["auth_user_1"] = await OBCommunicator(
+            auth_user_1,
+            GroupTypes.Room,
+            room_0.name
+        ).connect()
+        await communicators["auth_user_1"].disconnect()
+
+        # Create test ban
+        await async_save(
+            Ban,
+            user=auth_user_1,
+            room=room_0,
+            issuer=unlimited_admin_0
+        )
+
+        # Test limited admin lifting unlimited-admin-issued ban error
+        message = "/l auth_user_1"
+        correct_response = (
+            f"auth_user_1 was banned by {unlimited_admin_0}. You cannot lift a ban issued by a "
+            "user of equal or higher privilege than yourself. If you REALLY want to lift this ban "
+            "you can /elevate to a higher authority."
+        )
         await communicators["limited_admin_0"].send(message)
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == correct_response
 
-        # TODO: Finish implementing this
+        # Test unlimited admin lifting unlimited-admin-issued ban error
+        message = "/l auth_user_1"
+        await communicators["unlimited_admin_1"].send(message)
+        assert await communicators["unlimited_admin_1"].receive() == message
+        assert await communicators["unlimited_admin_1"].receive() == correct_response
+
+        # Test unlimited admin lifting ban
+        message = "/l auth_user_1"
+        correct_response = (
+            "Ban lifted:\n"
+            f"   {auth_user_1}\n"
+            "Fully reformed and ready to integrate into society."
+        )
+        await communicators["unlimited_admin_0"].send(message)
+        assert await communicators["unlimited_admin_0"].receive() == message
+        assert await communicators["unlimited_admin_0"].receive() == correct_response
 
     # Occasionally test_ban() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
