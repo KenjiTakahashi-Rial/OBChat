@@ -86,6 +86,40 @@ async def test_lift_ban():
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == correct_response
 
+        # Create test ban
+        ban = await async_save(
+            Ban,
+            user=auth_user_1,
+            room=room_0,
+            issuer=owner
+        )
+
+        # Test limited admin lifting owner-issued ban error
+        message = "/l auth_user_1"
+        correct_response = (
+            f"auth_user_1 was banned by {owner}. You cannot lift a ban issued by a user of equal "
+            "or higher privilege than yourself. If you REALLY want to lift this ban you can "
+            "/elevate to a higher authority."
+        )
+        await communicators["limited_admin_0"].send(message)
+        assert await communicators["limited_admin_0"].receive() == message
+        assert await communicators["limited_admin_0"].receive() == correct_response
+
+        # Change test ban issuer
+        ban.issuer = limited_admin_0
+        await async_save(ban)
+
+        # Test limited admin lifting ban
+        message = "/l auth_user_1"
+        correct_response = (
+            "Ban lifted:\n"
+            f"   {auth_user_1}\n"
+            "Fully reformed and ready to integrate into society."
+        )
+        await communicators["limited_admin_0"].send(message)
+        assert await communicators["limited_admin_0"].receive() == message
+        assert await communicators["limited_admin_0"].receive() == correct_response
+
     # Occasionally test_ban() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
     # Restart the test until it succeeds or fails from a relevant error

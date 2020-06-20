@@ -254,7 +254,8 @@ async def lift_ban(args, sender, room):
 
         if arg_user_object:
             ban_object = await async_try_get(Ban, user=arg_user_object, room=room)
-            issuer_privilege = await async_get_privilege(ban_object.issuer, room)
+            issuer_object = await async_try_get(OBUser, ban_issued=ban_object)
+            issuer_privilege = await async_get_privilege(issuer_object, room)
             sender_privilege = await async_get_privilege(sender, room)
         else:
             ban_object = None
@@ -265,20 +266,22 @@ async def lift_ban(args, sender, room):
                 f"No user named {username} has been banned from this room. How can "
                 "one lift that which has not been banned?"
             ]
-        elif issuer_privilege >= sender_privilege and ban_object.issuer != sender:
+        elif issuer_privilege >= sender_privilege and issuer_object != sender:
             error_messages += [
-                f"{username} was banned by {ban_object.issuer}. You cannot lift a ban issued by a "
+                f"{username} was banned by {issuer_object}. You cannot lift a ban issued by a "
                 "user of equal or higher privilege than yourself. If you REALLY want to lift this "
                 "ban you can /elevate to a higher authority."
             ]
         else:
-            valid_lifts += [ban_object]
+            valid_lifts += [(ban_object, arg_user_object)]
 
     send_to_sender = error_messages + [("\n" if error_messages else "") + "Ban lifted:"]
 
-    for lifted_ban in valid_lifts:
+    for lifted_ban, lifted_user in valid_lifts:
         # Delete the ban from the database
         await async_delete(lifted_ban)
+
+        send_to_sender += [f"   {lifted_user}"]
 
     if valid_lifts:
         send_to_sender += ["Fully reformed and ready to integrate into society."]
