@@ -120,6 +120,8 @@ async def test_lift_ban():
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == correct_response
 
+        # TODO: Finish implementing this
+
     # Occasionally test_ban() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
     # Restart the test until it succeeds or fails from a relevant error
