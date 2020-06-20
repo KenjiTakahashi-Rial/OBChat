@@ -247,7 +247,7 @@ async def lift_ban(args, sender, room):
         return
 
     valid_lifts = []
-    error_message = []
+    error_messages = []
 
     for username in args:
         arg_user_object = await async_try_get(OBUser, username=username)

@@ -35,7 +35,56 @@ async def test_lift_ban():
     communicators = None
 
     try:
-        pass
+        # Database setup
+        await database_setup()
+
+        # Get database objects
+        owner = await async_get(OBUser, username="owner")
+        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
+        auth_user_0 = await async_get(OBUser, username="auth_user_0")
+        auth_user_1 = await async_get(OBUser, username="auth_user_1")
+        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
+        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
+
+        # Communicator setup
+        communicators = await communicator_setup(room_0)
+
+        # Test unauthenticated user lifting error
+        message = "/lift"
+        correct_response = (
+            "You are far from one who can lift bans. Log in and prove yourself an admin."
+        )
+        await communicators[f"{ANON_PREFIX}0"].send(message)
+        assert await communicators[f"{ANON_PREFIX}0"].receive() == message
+        assert await communicators[f"{ANON_PREFIX}0"].receive() == correct_response
+
+        # Test authenticated user lifting error
+        message = "/l"
+        correct_response = (
+            "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be"
+            " an admin and perhaps you may obtain this power if you are worthy."
+        )
+        await communicators["auth_user_0"].send(message)
+        assert await communicators["auth_user_0"].receive() == message
+        assert await communicators["auth_user_0"].receive() == correct_response
+
+        # Test no arguments error
+        message = "/l"
+        correct_response = "Usage: /lift <user1> <user2> ..."
+        await communicators["limited_admin_0"].send(message)
+        assert await communicators["limited_admin_0"].receive() == message
+        assert await communicators["limited_admin_0"].receive() == correct_response
+
+        # Test absent target error
+        message = "/l auth_user_0_1"
+        correct_response = (
+            "No user named auth_user_0_1 has been banned from this room. How can one lift that "
+            "which has not been banned?"
+        )
+        await communicators["limited_admin_0"].send(message)
+        assert await communicators["limited_admin_0"].receive() == message
+        assert await communicators["limited_admin_0"].receive() == correct_response
 
     # Occasionally test_ban() will crash because of a database lock from threading collisions
     # This is pytest clashing with Django Channels and does not happen during in live testing
