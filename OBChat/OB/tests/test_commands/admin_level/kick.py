@@ -37,7 +37,9 @@ async def test_kick():
 
         # Get database objects
         unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
+        unlimited_admin_1 = await async_get(OBUser, username="unlimited_admin_1")
         limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
+        limited_admin_1 = await async_get(OBUser, username="limited_admin_1")
         auth_user_0 = await async_get(OBUser, username="auth_user_0")
         anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
         room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
@@ -99,7 +101,7 @@ async def test_kick():
         # Test limited admin kicking unlimited admin error
         message = "/k unlimited_admin_0"
         correct_response = (
-            "unlimited_admin_0 is an unlimited admin, so you can't kick them. Feel free to "
+            f"{unlimited_admin_0} is an unlimited admin, so you can't kick them. Feel free to "
             "/elevate your complaints to someone who has more authority."
         )
         await communicators["limited_admin_0"].send(message)
@@ -109,7 +111,7 @@ async def test_kick():
         # Test limited admin kicking limited admin error
         message = "/k limited_admin_1"
         correct_response = (
-            "limited_admin_1 is an admin just like you, so you can't kick them. Feel free to "
+            f"{limited_admin_1} is an admin just like you, so you can't kick them. Feel free to "
             "/elevate your complaints to someone who has more authority."
         )
         await communicators["limited_admin_0"].send(message)
@@ -121,12 +123,12 @@ async def test_kick():
         await communicators["limited_admin_0"].send(message)
         sender_response = (
             "Kicked:\n"
-            "   auth_user_0\n"
+            f"   {auth_user_0}\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            "   auth_user_0\n"
+            f"   {auth_user_0}\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["limited_admin_0"].receive() == message
@@ -167,8 +169,8 @@ async def test_kick():
         # Test unlimited admin kicking unlimited admin error
         message = "/k unlimited_admin_1"
         correct_response = (
-            "unlimited_admin_1 is an unlimited admin just like you, so you can't kick them. Feel "
-            "free to /elevate your complaints to someone who has more authority."
+            f"{unlimited_admin_1} is an unlimited admin just like you, so you can't kick them. "
+            "Feel free to /elevate your complaints to someone who has more authority."
         )
         await communicators["unlimited_admin_0"].send(message)
         assert await communicators["unlimited_admin_0"].receive() == message
@@ -179,12 +181,12 @@ async def test_kick():
         await communicators["unlimited_admin_0"].send(message)
         sender_response = (
             "Kicked:\n"
-            "   limited_admin_0\n"
+            f"   {limited_admin_0}\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            "   limited_admin_0\n"
+            f"   {limited_admin_0}\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["unlimited_admin_0"].receive() == message
@@ -209,12 +211,12 @@ async def test_kick():
         await communicators["unlimited_admin_0"].send(message)
         sender_response = (
             "Kicked:\n"
-            "   auth_user_0\n"
+            f"   {auth_user_0}\n"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            "   auth_user_0\n"
+            f"   {auth_user_0}\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["unlimited_admin_0"].receive() == message
@@ -250,18 +252,18 @@ async def test_kick():
         await communicators["owner"].send(message)
         sender_response = (
             "Kicked:\n"
-            "   unlimited_admin_0\n"
-            "   limited_admin_0\n"
-            "   auth_user_0\n"
-            # f"   {ANON_PREFIX}0"
+            f"   {unlimited_admin_0}\n"
+            f"   {limited_admin_0}\n"
+            f"   {auth_user_0}\n"
+            # f"   {anon_0}"
             "That'll show them."
         )
         others_response = (
             "One or more users have been kicked:\n"
-            "   unlimited_admin_0\n"
-            "   limited_admin_0\n"
-            "   auth_user_0\n"
-            # f"   {ANON_PREFIX}0\n"
+            f"   {unlimited_admin_0}\n"
+            f"   {limited_admin_0}\n"
+            f"   {auth_user_0}\n"
+            # f"   {anon_0}\n"
             "Let this be a lesson to you all."
         )
         assert await communicators["owner"].receive() == message

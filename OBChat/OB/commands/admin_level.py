@@ -75,8 +75,8 @@ async def kick(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{username} is an {job_title}, so you can't kick them. Feel free to /elevate "
-                "your complaints to someone who has more authority."
+                f"{arg_user_object} is an {job_title}, so you can't kick them. Feel free to "
+                "/elevate your complaints to someone who has more authority."
             ]
         else:
             valid_kicks += [arg_user_object]
@@ -94,8 +94,8 @@ async def kick(args, sender, room):
         await send_room_event(room.id, kick_event)
 
         # Notify others that a user was kicked
-        send_to_sender += [f"   {kicked_user.username}"]
-        send_to_others += [f"   {kicked_user.username}"]
+        send_to_sender += [f"   {kicked_user}"]
+        send_to_others += [f"   {kicked_user}"]
 
     if valid_kicks:
         send_to_sender += ["That'll show them."]
@@ -171,8 +171,8 @@ async def ban(args, sender, room):
                 job_title = "unlimited " + job_title
 
             error_messages += [
-                f"{username} is an {job_title}, so you can't ban them. Feel free to /elevate "
-                "your complaints to someone who has more authority."
+                f"{arg_user_object} is an {job_title}, so you can't ban them. Feel free to "
+                "/elevate your complaints to someone who has more authority."
             ]
         else:
             valid_bans += [arg_user_object]
@@ -198,8 +198,8 @@ async def ban(args, sender, room):
         await send_room_event(room.id, kick_event)
 
         # Notify others that a user was banned
-        send_to_sender += [f"   {banned_user.username}"]
-        send_to_others += [f"   {banned_user.username}"]
+        send_to_sender += [f"   {banned_user}"]
+        send_to_others += [f"   {banned_user}"]
 
     if valid_bans:
         send_to_sender += ["That'll show them."]

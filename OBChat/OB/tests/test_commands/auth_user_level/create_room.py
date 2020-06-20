@@ -64,7 +64,7 @@ async def test_create_room():
 
         # Test existing room error
         message = "/r room_0"
-        correct_response = "Someone beat you to it. room_0 already exists."
+        correct_response = f"Someone beat you to it. {room_0} already exists."
         await communicators["owner"].send(message)
         assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
