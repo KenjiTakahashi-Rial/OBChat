@@ -44,18 +44,18 @@ class OBUser(AbstractUser):
         return display_string
 
     def __repr__(self):
-        return (
-            "\nOBUser {\n"
-            f"   id: {self.id}\n"
-            f"   username: {self.username}\n"
-            f"   display_name: {self.display_name}\n"
-            f"   first_name: {self.first_name}\n"
-            f"   last_name: {self.last_name}\n"
-            f"   birthday: {self.birthday}\n"
-            f"   last_login: {self.last_login}\n"
-            f"   date_joined: {self.date_joined}\n"
+        return "\n".join([
+            "\nOBUser {",
+            f"   id: {self.id}",
+            f"   username: {self.username}",
+            f"   display_name: {self.display_name}",
+            f"   first_name: {self.first_name}",
+            f"   last_name: {self.last_name}",
+            f"   birthday: {self.birthday}",
+            f"   last_login: {self.last_login}",
+            f"   date_joined: {self.date_joined}",
             "}\n"
-        )
+        ])
 
 class Room(Model):
     group_type = IntegerField(
@@ -107,17 +107,17 @@ class Room(Model):
         return display_string
 
     def __repr__(self):
-        return (
-            "\nRoom {\n"
-            f"   group_type: {self.group_type}\n"
-            f"   name: {self.name}\n"
-            f"   display_name: {self.display_name}\n"
-            f"   owner: {self.owner}\n"
-            f"   timestamp: {self.timestamp}\n"
-            f"   is_suspended: {self.is_suspended}\n"
-            f"   occupants: {self.occupants}\n"
+        return "\n".join([
+            "\nRoom {",
+            f"   group_type: {self.group_type}",
+            f"   name: {self.name}",
+            f"   display_name: {self.display_name}",
+            f"   owner: {self.owner}",
+            f"   timestamp: {self.timestamp}",
+            f"   is_suspended: {self.is_suspended}",
+            f"   occupants: {self.occupants}",
             "}\n"
-        )
+        ])
 
 class Admin(Model):
     user = ForeignKey(
@@ -157,15 +157,15 @@ class Admin(Model):
         return display_string
 
     def __repr__(self):
-        return (
-            "\nAdmin {\n"
-            f"   user: {self.user}\n"
-            f"   room: {self.room}\n"
-            f"   issuer: {self.issuer}\n"
-            f"   is_limited: {self.is_limited}\n"
-            f"   is_revoked: {self.is_revoked}\n"
+        return "\n".join([
+            "\nAdmin {",
+            f"   user: {self.user}",
+            f"   room: {self.room}",
+            f"   issuer: {self.issuer}",
+            f"   is_limited: {self.is_limited}",
+            f"   is_revoked: {self.is_revoked}",
             "}\n"
-        )
+        ])
 
 class Ban(Model):
     user = ForeignKey(
@@ -208,15 +208,15 @@ class Ban(Model):
         return display_string
 
     def __repr__(self):
-        return (
-            "\nBan {\n"
-            f"   user: {self.user}\n"
-            f"   room: {self.room}\n"
-            f"   issuer: {self.issuer}\n"
-            f"   timestamp: {self.timestamp}\n"
-            f"   is_lifted: {self.is_lifted}\n"
+        return "\n".join([
+            "\nBan {",
+            f"   user: {self.user}",
+            f"   room: {self.room}",
+            f"   issuer: {self.issuer}",
+            f"   timestamp: {self.timestamp}",
+            f"   is_lifted: {self.is_lifted}",
             "}\n"
-        )
+        ])
 
 class Message(Model):
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
@@ -261,14 +261,14 @@ class Message(Model):
         return display_string
 
     def __repr__(self):
-        return (
-            "\nMessage {\n"
-            f"   message: {self.message}\n"
-            f"   sender: {self.sender}\n"
-            f"   anon_username: {self.anon_username}\n"
-            f"   room: {self.room}\n"
-            f"   timestamp: {self.timestamp}\n"
-            f"   is_edited: {self.is_edited}\n"
-            f"   is_deleted: {self.is_deleted}\n"
+        return "\n".join([
+            "\nMessage {",
+            f"   message: {self.message}",
+            f"   sender: {self.sender}",
+            f"   anon_username: {self.anon_username}",
+            f"   room: {self.room}",
+            f"   timestamp: {self.timestamp}",
+            f"   is_edited: {self.is_edited}",
+            f"   is_deleted: {self.is_deleted}",
             "}\n"
-        )
+        ])

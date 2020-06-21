@@ -121,16 +121,16 @@ async def test_kick():
         # Test limited admin kicking authenticated user
         message = "/k auth_user_0"
         await communicators["limited_admin_0"].send(message)
-        sender_response = (
-            "Kicked:\n"
-            f"   {auth_user_0}\n"
+        sender_response = "\n".join([
+            "Kicked:",
+            f"   {auth_user_0}",
             "That'll show them."
-        )
-        others_response = (
-            "One or more users have been kicked:\n"
-            f"   {auth_user_0}\n"
+        ])
+        others_response = "\n".join([
+            "One or more users have been kicked:",
+            f"   {auth_user_0}",
             "Let this be a lesson to you all."
-        )
+        ])
         assert await communicators["limited_admin_0"].receive() == message
         assert await communicators["limited_admin_0"].receive() == sender_response
         assert (
@@ -179,16 +179,16 @@ async def test_kick():
         # Test unlimited admin kicking limited admin
         message = "/k limited_admin_0"
         await communicators["unlimited_admin_0"].send(message)
-        sender_response = (
-            "Kicked:\n"
-            f"   {limited_admin_0}\n"
+        sender_response = "\n".join([
+            "Kicked:",
+            f"   {limited_admin_0}",
             "That'll show them."
-        )
-        others_response = (
-            "One or more users have been kicked:\n"
-            f"   {limited_admin_0}\n"
+        ])
+        others_response = "\n".join([
+            "One or more users have been kicked:",
+            f"   {limited_admin_0}",
             "Let this be a lesson to you all."
-        )
+        ])
         assert await communicators["unlimited_admin_0"].receive() == message
         assert await communicators["unlimited_admin_0"].receive() == sender_response
         assert (
@@ -209,16 +209,16 @@ async def test_kick():
         # Test unlimited admin kicking authenticated user
         message = "/k auth_user_0"
         await communicators["unlimited_admin_0"].send(message)
-        sender_response = (
-            "Kicked:\n"
-            f"   {auth_user_0}\n"
+        sender_response = "\n".join([
+            "Kicked:",
+            f"   {auth_user_0}",
             "That'll show them."
-        )
-        others_response = (
-            "One or more users have been kicked:\n"
-            f"   {auth_user_0}\n"
+        ])
+        others_response = "\n".join([
+            "One or more users have been kicked:",
+            f"   {auth_user_0}",
             "Let this be a lesson to you all."
-        )
+        ])
         assert await communicators["unlimited_admin_0"].receive() == message
         assert await communicators["unlimited_admin_0"].receive() == sender_response
         assert (
@@ -250,22 +250,22 @@ async def test_kick():
         # TODO: Testing kicking anonymous users is causing database lock
         message = f"/k unlimited_admin_0 limited_admin_0 auth_user_0" #, {ANON_PREFIX}0",
         await communicators["owner"].send(message)
-        sender_response = (
-            "Kicked:\n"
-            f"   {unlimited_admin_0}\n"
-            f"   {limited_admin_0}\n"
-            f"   {auth_user_0}\n"
-            # f"   {anon_0}"
+        sender_response = "\n".join([
+            "Kicked:",
+            f"   {unlimited_admin_0}",
+            f"   {limited_admin_0}",
+            f"   {auth_user_0}",
+            # f"   {anon_0}",
             "That'll show them."
-        )
-        others_response = (
-            "One or more users have been kicked:\n"
-            f"   {unlimited_admin_0}\n"
-            f"   {limited_admin_0}\n"
-            f"   {auth_user_0}\n"
-            # f"   {anon_0}\n"
+        ])
+        others_response = "\n".join([
+            "One or more users have been kicked:",
+            f"   {unlimited_admin_0}",
+            f"   {limited_admin_0}",
+            f"   {auth_user_0}",
+            # f"   {anon_0}",
             "Let this be a lesson to you all."
-        )
+        ])
         assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == sender_response
         assert (

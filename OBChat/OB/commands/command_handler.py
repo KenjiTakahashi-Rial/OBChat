@@ -24,18 +24,20 @@ COMMANDS = {
     "/delete": delete_room, "/d": delete_room
 }
 
-VALID_COMMANDS = ("Valid commands:\n"
-                  "    * /room - Create a new room\n"
-                  "    * /who <room1> <room2> ... - See who is in a room. Default: current room\n"
-                  "    * /private /<user> <message> - Send a private message\n"
-                  "    * /hire <user1> <user2> ... - Make user(s) admins of your current room\n"
-                  "    * /fire <user1> <user2> ... - Revoke admin privileges for user(s)\n"
-                  "    * /kick <user1> <user2> ... - Kick user(s) from your current room\n"
-                  "    * /ban <user1> <user2> ... - Ban user(s) from your current room\n"
-                  "    * /lift <user1> <user2> ... - Lift ban on user(s) from your current room\n"
-                  "    * /delete <room1> <room2> ... - Delete a room. Default: current room\n"
-                  "Type backslash with only the first letter of a command if you're in a hurry.\n"
-                  "To use backslash without a command: //")
+VALID_COMMANDS = "\n".join([
+    "Valid commands:",
+    "    * /room - Create a new room",
+    "    * /who <room1> <room2> ... - See who is in a room. Default: current room",
+    "    * /private /<user> <message> - Send a private message",
+    "    * /hire <user1> <user2> ... - Make user(s) admins of your current room",
+    "    * /fire <user1> <user2> ... - Revoke admin privileges for user(s)",
+    "    * /kick <user1> <user2> ... - Kick user(s) from your current room",
+    "    * /ban <user1> <user2> ... - Ban user(s) from your current room",
+    "    * /lift <user1> <user2> ... - Lift ban on user(s) from your current room",
+    "    * /delete <room1> <room2> ... - Delete a room. Default: current room",
+    "Type backslash with only the first letter of a command if you're in a hurry.",
+    "To use backslash without a command: //"
+])
 
 async def handle_command(command, sender, room):
     """

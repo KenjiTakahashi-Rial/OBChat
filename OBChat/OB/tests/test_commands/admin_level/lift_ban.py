@@ -114,11 +114,11 @@ async def test_lift_ban():
 
         # Test owner lifting ban
         message = "/l auth_user_1"
-        correct_response = (
-            "Ban lifted:\n"
-            f"   {auth_user_1}\n"
+        correct_response = "\n".join([
+            "Ban lifted:",
+            f"   {auth_user_1}",
             "Fully reformed and ready to integrate into society."
-        )
+        ])
         await communicators["owner"].send(message)
         assert await communicators["owner"].receive() == message
         assert await communicators["owner"].receive() == correct_response
@@ -156,11 +156,11 @@ async def test_lift_ban():
 
         # Test unlimited admin lifting ban
         message = "/l auth_user_1"
-        correct_response = (
-            "Ban lifted:\n"
-            f"   {auth_user_1}\n"
+        correct_response = "\n".join([
+            "Ban lifted:",
+            f"   {auth_user_1}",
             "Fully reformed and ready to integrate into society."
-        )
+        ])
         await communicators["unlimited_admin_0"].send(message)
         assert await communicators["unlimited_admin_0"].receive() == message
         assert await communicators["unlimited_admin_0"].receive() == correct_response

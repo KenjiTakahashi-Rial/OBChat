@@ -85,11 +85,11 @@ class WhoTest(BaseCommandTest):
 
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
-        correct_response = (
-            f"{correct_response}\n"
-            f"{empty_room} is all empty!\n"
+        correct_response = "\n".join([
+            f"{correct_response}",
+            f"{empty_room} is all empty!",
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
-        )
+        ])
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
