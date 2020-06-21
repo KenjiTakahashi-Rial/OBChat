@@ -51,8 +51,6 @@ class OBCommunicator(WebsocketCommunicator):
         """
         Description:
             Connects the OBCommunicator and tests that it connected without errors
-        Arguments:
-            self (OBCommunicator)
         """
 
         is_connected, subprotocol = await super().connect()
@@ -68,7 +66,6 @@ class OBCommunicator(WebsocketCommunicator):
             Sends a message in JSON format that OBConsumer uses.
 
         Arguments:
-            self (OBCommunicator)
             message_text (string): The desired text to be sent.
         """
 
@@ -83,9 +80,6 @@ class OBCommunicator(WebsocketCommunicator):
             signal is returned as a dict.
             If the frame received contains neither text nor a refresh signal, the method attempts
             to receive another frame.
-
-        Arguments:
-            self (OBCommunicator)
 
         Return Values:
             If text is received, the decoded text is returned.

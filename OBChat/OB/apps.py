@@ -16,9 +16,6 @@ class OBConfig(AppConfig):
             Clean up occupants and anon OBUsers in the database. The OBConsumer normally handles
             this, but cannot if the server is stopped abruptly.
             This method runs one time when the Django app starts.
-
-        Arguments:
-            self (OBConfig): The OBConfig class.
         """
 
         # pylint: disable=import-outside-toplevel

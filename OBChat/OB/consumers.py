@@ -26,9 +26,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Defines the instance variables for this consumer's session, user, and room.
             The session and user are unique to each OBConsumer.
             The room is not unique.
-
-        Arguments:
-            self (OBConsumer)
         """
 
         self.session = None
@@ -47,9 +44,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Set the data for a consumer before it accepts an incoming WebSocket.
             Add the OBConsumer's user reference to the OBConsumer's room reference's list of
             occupants.
-
-        Arguments:
-            self (OBConsumer)
         """
 
         # Set the session
@@ -113,7 +107,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Called automatically when a WebSocket connection is disconnected by the client.
 
         Arguments:
-            self (OBConsumer)
             code: A disconnect code to indicate disconnect conditions
         """
 
@@ -143,7 +136,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Forcibly closes a WebSocket from the server.
 
         Arguments:
-            self (OBConsumer)
             code: A close code to indicate close conditions
         """
 
@@ -164,7 +156,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Finally, if the message is a command, then handle it (see is_command()).
 
         Arguments:
-            self (OBConsumer)
             text_data (string): A JSON string containing the message text. Constructed in the
                 JavaScript of room.html.
             bytes_data: Not used yet, but will contain images or other message contents which
@@ -215,7 +206,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             This is called last in the consumer messaging process.
 
         Arguments:
-            self (OBConsumer)
             text_data (string): A JSON string containing the message text.
             bytes_data: Not used yet, but will contain images or other message contents which
                 cannot be represented by text.
@@ -235,7 +225,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Send the message JSON to the client associated with this consumer.
 
         Arguments:
-            self (OBConsumer)
             event (dict): Contains the message JSON
         """
 
@@ -249,7 +238,6 @@ class OBConsumer(AsyncWebsocketConsumer):
             Perform actions depending on if the user associated with this consumer is specified.
 
         Arguments:
-            self (OBConsumer)
             event (dict): Contains the target user's ID
         """
 
