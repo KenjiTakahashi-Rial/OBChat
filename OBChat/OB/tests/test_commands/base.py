@@ -16,28 +16,32 @@ from OB.models import Admin, Ban, Message, OBUser, Room
 from OB.utilities.database import async_model_list
 
 class BaseCommandTest:
-    def __init__(self):
+    def __init__(self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0):
         """
         Description:
             Declares the instance variables that be used for testing, includes communicators and
             database objects.
+        Arguments:
+            unlimited_admins (int): The number unlimited admins that will be needed to test.
+            limited_admins (int): The number limited admins that will be needed to test.
+            auth_users (int): The number authenticated users that will be needed to test.
+            anon_users (int): The number anonymous users that will be needed to test.
         """
 
         self.owner = OBUser()
         self.room = Room()
-        self.unlimited_admins = []
-        self.limited_admins = []
-        self.auth_users = []
-        self.anon_users = []
+        self.unlimited_admins = [None for i in range(unlimited_admins)]
+        self.limited_admins = [None for i in range(limited_admins)]
+        self.auth_users = [None for i in range(auth_users)]
+        self.anon_users = [None for i in range(anon_users)]
         self.communicators = {}
 
     @database_sync_to_async
-    def database_setup(self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0):
+    def database_setup(self):
         """
         Description:
             Sets up database objects required to test the commands.
-        Arguments:
-            **kwargs (int): The number of a type of user to create and add to the room.
+            Creates users based on the number of users specified from __init__().
         """
 
         OBUser(
@@ -54,70 +58,62 @@ class BaseCommandTest:
         ).save()
 
         self.room = Room(
-            name="empty_room",
-            display_name="EmptyRoom",
+            name="room",
+            display_name="Room",
             owner=self.owner
         ).save()
 
         self.room.occupants.add(self.owner)
 
-        for i in range(unlimited_admins):
-            self.unlimited_admins += [
-                OBUser.objects.create_user(
-                    username=f"unlimited_admin_{i}",
-                    email=f"unlimited_admin_{i}@ob.ob",
-                    password=f"unlimited_admin_{i}",
-                    display_name=f"UnlimitedAdmin{i}"
-                )
-            ]
+        for i in range(len(self.unlimited_admins)):
+            self.unlimited_admins[i] = OBUser.objects.create_user(
+                username=f"unlimited_admin_{i}",
+                email=f"unlimited_admin_{i}@ob.ob",
+                password=f"unlimited_admin_{i}",
+                display_name=f"UnlimitedAdmin{i}"
+            ).save()
 
             Admin(
                 user=self.unlimited_admins[i],
                 room=self.room,
                 issuer=self.owner,
                 is_limited=False
-            )
+            ).save()
 
             self.room.occupants.add(self.unlimited_admins[i])
 
-        for i in range(limited_admins):
-            self.limited_admins += [
-                OBUser.objects.create_user(
-                    username=f"limited_admin_{i}",
-                    email=f"limited_admin_{i}@ob.ob",
-                    password=f"limited_admin_{i}",
-                    display_name=f"LimitedAdmin{i}"
-                )
-            ]
+        for i in range(len(self.limited_admins)):
+            self.limited_admins[i] = OBUser.objects.create_user(
+                username=f"limited_admin_{i}",
+                email=f"limited_admin_{i}@ob.ob",
+                password=f"limited_admin_{i}",
+                display_name=f"LimitedAdmin{i}"
+            ).save()
 
             Admin(
                 user=self.limited_admins[i],
                 room=self.room,
                 issuer=self.owner,
                 is_limited=True
-            )
+            ).save()
 
             self.room.occupants.add(self.limited_admins[i])
 
-        for i in range(auth_users):
-            self.auth_users += [
-                OBUser.objects.create_user(
-                    username=f"auth_user_{i}",
-                    email=f"auth_user_{i}@ob.ob",
-                    password=f"auth_user_{i}",
-                    display_name=f"AuthUser{i}"
-                )
-            ]
+        for i in range(len(self.auth_users)):
+            self.auth_users[i] = OBUser.objects.create_user(
+                username=f"auth_user_{i}",
+                email=f"auth_user_{i}@ob.ob",
+                password=f"auth_user_{i}",
+                display_name=f"AuthUser{i}"
+            ).save()
 
             self.room.occupants.add(self.auth_users[i])
 
-        for i in range(anon_users):
-            self.anon_users += [
-                OBUser.objects.create_user(
-                    username=f"{ANON_PREFIX}{i}",
-                    is_anon=True
-                )
-            ]
+        for i in range(len(self.anon_users)):
+            self.anon_users[i] = OBUser.objects.create_user(
+                username=f"{ANON_PREFIX}{i}",
+                is_anon=True
+            ).save()
 
             self.room.occupants.add(self.anon_users[i])
 
