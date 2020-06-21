@@ -1,5 +1,5 @@
 """
-The BaseCommandTest superclass.
+The BaseCommandTest superclass for testing command functions.
 """
 
 import sqlite3

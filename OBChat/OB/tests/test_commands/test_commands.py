@@ -19,7 +19,8 @@ from pytest import mark
 
 from OB.tests.test_commands.admin_level import ban, kick, lift_ban
 from OB.tests.test_commands.auth_user_level import create_room
-from OB.tests.test_commands.user_level import private, who
+from OB.tests.test_commands.user_level.private import PrivateTest
+from OB.tests.test_commands.user_level.who import WhoTest
 
 @mark.asyncio
 @mark.django_db()
@@ -29,7 +30,7 @@ async def test_who():
         Tests the /who command function.
     """
 
-    who_test = who.WhoTest()
+    who_test = WhoTest()
     await who_test.run()
 
 @mark.asyncio
@@ -40,7 +41,8 @@ async def test_private():
         Tests the /private command function.
     """
 
-    await private.test_private()
+    private_test = PrivateTest()
+    await private_test.run()
 
 @mark.asyncio
 @mark.django_db()
