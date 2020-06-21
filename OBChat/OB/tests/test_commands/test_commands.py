@@ -29,7 +29,8 @@ async def test_who():
         Tests the /who command function.
     """
 
-    await who.test_who()
+    who_test = who.WhoTest()
+    await who_test.run()
 
 @mark.asyncio
 @mark.django_db()

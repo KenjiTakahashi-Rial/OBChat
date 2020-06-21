@@ -1,5 +1,5 @@
 """
-Tests the /who command function (see OB.commands.user_level.who()).
+Class to test the /who command function (see OB.commands.user_level.who()).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -7,98 +7,89 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.constants import ANON_PREFIX, GroupTypes
-from OB.models import OBUser, Room
-from OB.utilities.test import communicator_setup, communicator_teardown, database_setup, \
-    database_teardown
-from OB.utilities.database import async_get
+from OB.models import Room
+from OB.tests.test_commands.base import BaseCommandTest
+from OB.utilities.database import async_save
 
-@mark.asyncio
-@mark.django_db()
-async def test_who():
-    """
-    Description:
-        Tests the /who command (see OB.commands.user_level.who()).
-        Wrapped in a try block to prevent following tests from failing their database setup if this
-        test fails before cleaning up the database.
-        Normally, the built-in pytest teardown_function() accounts for this, but it is not used
-        for testing commands (see database_teardown()).
-    """
+class WhoTest(BaseCommandTest):
+    def __init__(self):
+        """
+        Description:
+            Declares the instance variables that be used for testing, includes communicators and
+            database objects.
+        """
 
-    communicators = None
+        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
 
-    try:
-        # Database setup
-        await database_setup()
-
-        # Get database objects
-        owner = await async_get(OBUser, username="owner")
-        unlimited_admin_0 = await async_get(OBUser, username="unlimited_admin_0")
-        unlimited_admin_1 = await async_get(OBUser, username="unlimited_admin_1")
-        limited_admin_0 = await async_get(OBUser, username="limited_admin_0")
-        limited_admin_1 = await async_get(OBUser, username="limited_admin_1")
-        auth_user_0 = await async_get(OBUser, username="auth_user_0")
-        anon_0 = await async_get(OBUser, username=f"{ANON_PREFIX}0")
-        room_0 = await async_get(Room, group_type=GroupTypes.Room, name="room_0")
-
-        # Communicator setup
-        communicators = await communicator_setup(room_0)
+    @mark.asyncio
+    @mark.django_db()
+    async def tests(self):
+        """
+        Description:
+            Tests the /who command (see OB.commands.user_level.who()).
+        """
 
         # Test nonexistent room error
         message = "/who nonexistent_room"
         correct_response = (
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
         )
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
+
+        # Create empty room
+        empty_room = await async_save(
+            Room,
+            name="empty_room",
+            display_name="EmptyRoom",
+            owner=self.communicators["owner"].scope["user"]
+        )
 
         # Test empty room error
         message = "/w empty_room"
-        correct_response = "empty_room is all empty!"
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
+        correct_response = f"{empty_room} is all empty!"
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
 
         # Test current room with no argument
         message = "/w"
         correct_response = "\n".join([
-            "Users in room_0:",
-            f"    {owner} [owner] [you]",
-            f"    {unlimited_admin_0} [admin]",
-            f"    {unlimited_admin_1} [admin]",
-            f"    {limited_admin_0} [admin]",
-            f"    {limited_admin_1} [admin]",
-            f"    {auth_user_0}",
-            f"    {anon_0}\n"
+            f"Users in {self.room}:",
+            f"    {self.owner} [owner] [you]",
+            f"    {self.unlimited_admins[0]} [admin]",
+            f"    {self.unlimited_admins[1]} [admin]",
+            f"    {self.limited_admins[0]} [admin]",
+            f"    {self.limited_admins[1]} [admin]",
+            f"    {self.auth_users[0]}",
+            f"    {self.auth_users[1]}",
+            f"    {self.anon_users[0]}",
+            f"    {self.anon_users[1]}\n"
         ])
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
 
         # Test current room with explicit argument
-        message = "/w room_0"
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
+        message = "/w room"
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
 
         # Test duplicate room arguments
-        message = "/w room_0 room_0 room_0"
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
+        message = "/w room room room"
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
 
         # Test multiple arguments
-        message = "/w room_0 empty_room nonexistent_room"
+        message = "/w room empty_room nonexistent_room"
         correct_response = (
             f"{correct_response}\n"
-            "empty_room is all empty!\n"
+            f"{empty_room} is all empty!\n"
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
         )
-        await communicators["owner"].send(message)
-        assert await communicators["owner"].receive() == message
-        assert await communicators["owner"].receive() == correct_response
-
-    finally:
-        await communicator_teardown(communicators)
-        await database_teardown()
+        await self.communicators["owner"].send(message)
+        assert await self.communicators["owner"].receive() == message
+        assert await self.communicators["owner"].receive() == correct_response
