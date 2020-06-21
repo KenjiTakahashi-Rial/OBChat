@@ -40,10 +40,10 @@ async def who(args, sender, room):
             continue
 
         if await async_len_all(arg_room.occupants) == 0:
-            return_strings += [f"{room_name} is all empty!"]
+            return_strings += [f"{arg_room} is all empty!"]
             continue
 
-        return_strings += [f"Users in {room_name}:"]
+        return_strings += [f"Users in {arg_room}:"]
         who_string = ""
 
         for occupant in await async_model_list(arg_room.occupants):
