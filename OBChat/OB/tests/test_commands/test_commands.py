@@ -17,7 +17,8 @@ https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 
 from pytest import mark
 
-from OB.tests.test_commands.admin_level import ban, kick, lift_ban
+from OB.tests.test_commands.admin_level import ban, lift_ban
+from OB.tests.test_commands.admin_level.kick import KickTest
 from OB.tests.test_commands.auth_user_level.room import RoomTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
@@ -63,7 +64,8 @@ async def test_kick():
         Tests the /kick command function.
     """
 
-    await kick.test_kick()
+    kick_test = KickTest()
+    await kick_test.run()
 
 @mark.asyncio
 @mark.django_db()
