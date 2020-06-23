@@ -18,7 +18,7 @@ https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 from pytest import mark
 
 from OB.tests.test_commands.admin_level import ban, kick, lift_ban
-from OB.tests.test_commands.auth_user_level import create_room
+from OB.tests.test_commands.auth_user_level.room import RoomTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
 
@@ -52,7 +52,8 @@ async def test_create_room():
         Tests the /room command function.
     """
 
-    await create_room.test_create_room()
+    room_test = RoomTest()
+    await room_test.run()
 
 @mark.asyncio
 @mark.django_db()
