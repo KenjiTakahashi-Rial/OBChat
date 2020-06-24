@@ -86,8 +86,8 @@ class BanTest(BaseCommandTest):
         # Test limited admin banning unlimited admin error
         message = "/b unlimited_admin_0"
         correct_response = (
-            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't ban them. Feel free to "
-            "/elevate your complaints to someone who has more authority."
+            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't ban them. Feel free "
+            "to /elevate your complaints to someone who has more authority."
         )
         await self.communicators["limited_admin_0"].send(message)
         assert await self.communicators["limited_admin_0"].receive() == message
@@ -96,8 +96,8 @@ class BanTest(BaseCommandTest):
         # Test limited admin banning limited admin error
         message = "/b limited_admin_1"
         correct_response = (
-            f"{self.limited_admins[1]} is an admin just like you, so you can't ban them. Feel free to "
-            "/elevate your complaints to someone who has more authority."
+            f"{self.limited_admins[1]} is an admin just like you, so you can't ban them. Feel "
+            "free to /elevate your complaints to someone who has more authority."
         )
         await self.communicators["limited_admin_0"].send(message)
         assert await self.communicators["limited_admin_0"].receive() == message
@@ -128,7 +128,9 @@ class BanTest(BaseCommandTest):
             others_response
         )
         assert (await self.communicators["auth_user_0"].receive())["refresh"]
-        assert (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        assert (
+            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        )
         assert self.auth_users[0] not in await async_model_list(self.room.occupants)
         ban = await async_get(Ban, user=self.auth_users[0])
         try:
@@ -167,8 +169,8 @@ class BanTest(BaseCommandTest):
         # Test unlimited admin banning unlimited admin error
         message = "/b unlimited_admin_1"
         correct_response = (
-            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't ban them. "
-            "Feel free to /elevate your complaints to someone who has more authority."
+            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't ban "
+            "them. Feel free to /elevate your complaints to someone who has more authority."
         )
         await self.communicators["unlimited_admin_0"].send(message)
         assert await self.communicators["unlimited_admin_0"].receive() == message
@@ -200,7 +202,8 @@ class BanTest(BaseCommandTest):
         )
         assert (await self.communicators["limited_admin_0"].receive())["refresh"]
         assert (
-            (await self.communicators["limited_admin_0"].receive_output())["type"] == "websocket.close"
+            (await self.communicators["limited_admin_0"].receive_output())["type"]
+            == "websocket.close"
         )
         assert self.limited_admins[0] not in await async_model_list(self.room.occupants)
         ban = await async_get(Ban, user=self.limited_admins[0])
@@ -254,7 +257,9 @@ class BanTest(BaseCommandTest):
             others_response
         )
         assert (await self.communicators["auth_user_0"].receive())["refresh"]
-        assert (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        assert (
+            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        )
         assert self.auth_users[0] not in await async_model_list(self.room.occupants)
         ban = await async_get(Ban, user=self.auth_users[0])
         try:
@@ -316,14 +321,19 @@ class BanTest(BaseCommandTest):
         assert (await self.communicators["auth_user_0"].receive())["refresh"]
         # assert (await self.communicators[f"{ANON_PREFIX}0"].receive())["refresh"]
         assert (
-            (await self.communicators["unlimited_admin_0"].receive_output())["type"] == "websocket.close"
+            (await self.communicators["unlimited_admin_0"].receive_output())["type"]
+            == "websocket.close"
         )
         assert (
-            (await self.communicators["limited_admin_0"].receive_output())["type"] == "websocket.close"
+            (await self.communicators["limited_admin_0"].receive_output())["type"]
+            == "websocket.close"
         )
-        assert (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        assert (
+            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
+        )
         # assert (
-        #     (await self.communicators[f"{ANON_PREFIX}0"].receive_output())["type"] == "websocket.close"
+        #     (await self.communicators[f"{ANON_PREFIX}0"].receive_output())["type"]
+        #     == "websocket.close"
         # )
         assert self.unlimited_admins[0] not in await async_model_list(self.room.occupants)
         assert self.limited_admins[0] not in await async_model_list(self.room.occupants)
