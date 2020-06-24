@@ -295,3 +295,65 @@ class KickTest(BaseCommandTest):
         assert self.limited_admins[0] not in await async_model_list(self.room.occupants)
         assert self.auth_users[0] not in await async_model_list(self.room.occupants)
         # assert anon_0 not in await async_model_list(room_0.occupants)
+
+    def test_success(self, sender, targets):
+        """
+        Description:
+            Tests a successful kick through the /kick command.
+        Arguments:
+            sender (OBUser): The users to send the /kick command.
+            targets (list[OBUser]): The OBUsers to try to kick.
+        """
+
+        # Prepare the message and responses
+        message = "/k"
+        sender_response = "Kicked:"
+        others_reseonse = "One or more users have been kicked:"
+
+        for user in targets:
+            message += f" {user}"
+            sender_response += f"   {user}\n"
+            others_response += f"   {user}\n"
+
+        sender_response += "That'll show them."
+        others_response += "Let this be a lesson to you all."
+
+
+        # Send the command message
+        await self.communicators[f"{sender.username}"].send(message)
+
+        # Test sender response
+        assert await self.communicators[f"{sender.username}"].receive() == message
+        assert await self.communicators[f"{sender.username}"].receive() == sender_response
+
+        # Test others response
+        for user in self.room.occupants:
+            if user not in targets:
+                assert await self.communicators[f"{user.username}"].receive() == others_response
+
+        # Test kicks
+        for user in targets:
+            assert (await self.communicators[f"{user.username}"].receive())["refresh"]
+            assert (
+                await self.communicators[f"{user.username}"].receive_output()["type"]
+                == "websocket.close"
+            )
+            assert user not in self.room.occupants
+
+        # Add kicked users back to room occupants and reset Communicators
+        await self.communicator_teardown()
+        # Anonymous users are deleted when they disconnect, so make an identical replacement
+        for i in range(len(self.anon_users)):
+            if await async_try_get(OBUser, id=self.anon_users[i].id):
+                self.anon_users[i] = await async_save(
+                    OBUser,
+                    id=self.anon_users[i].id,
+                    username=self.anon_users[i].username,
+                    is_anon=True
+                )
+        await async_add_occupants(self.room, self.anon_users)
+        await async_add_occupants(self.room, self.auth_users)
+        await async_add_occupants(self.room, self.limited_admins)
+        await async_add_occupants(self.room, self.unlimited_admins)
+        await async_add_occupants(self.room, [self.owner])
+        await self.communicator_setup()
