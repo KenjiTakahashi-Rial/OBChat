@@ -18,6 +18,7 @@ https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 from pytest import mark
 
 from OB.tests.test_commands.admin_level import ban, lift_ban
+from OB.tests.test_commands.admin_level.ban import BanTest
 from OB.tests.test_commands.admin_level.kick import KickTest
 from OB.tests.test_commands.auth_user_level.room import RoomTest
 from OB.tests.test_commands.user_level.private import PrivateTest
@@ -75,7 +76,8 @@ async def test_ban():
         Tests the /ban command function.
     """
 
-    await ban.test_ban()
+    ban_test = BanTest()
+    await ban_test.run()
 
 @mark.asyncio
 @mark.django_db()
