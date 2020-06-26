@@ -2,9 +2,9 @@
 Handles when a command is issued from a user and redirects to the appropriate command function.
 """
 
-from OB.commands.admin_level import kick, ban, lift_ban
-from OB.commands.auth_user_level import create_room
-from OB.commands.owner_level import delete_room
+from OB.commands.admin_level import kick, ban, lift
+from OB.commands.auth_user_level import create
+from OB.commands.owner_level import delete
 from OB.commands.unlimited_admin_level import hire, fire
 from OB.commands.user_level import who, private
 from OB.utilities.event import send_system_room_message
@@ -13,20 +13,20 @@ from OB.utilities.event import send_system_room_message
 # Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
-    "/room": create_room,   "/r": create_room,
+    "/create": create,      "/c": create,
     "/who": who,            "/w": who,
     "/private": private,    "/p": private,
     "/hire": hire,          "/h": hire,
     "/fire": fire,          "/f": fire,
     "/kick": kick,          "/k": kick,
     "/ban": ban,            "/b": ban,
-    "/lift": lift_ban,      "/l": lift_ban,
-    "/delete": delete_room, "/d": delete_room
+    "/lift": lift,          "/l": lift,
+    "/delete": delete,      "/d": delete
 }
 
 VALID_COMMANDS = "\n".join([
     "Valid commands:",
-    "    * /room - Create a new room",
+    "    * /create - Create a new room",
     "    * /who <room1> <room2> ... - See who is in a room. Default: current room",
     "    * /private /<user> <message> - Send a private message",
     "    * /hire <user1> <user2> ... - Make user(s) admins of your current room",

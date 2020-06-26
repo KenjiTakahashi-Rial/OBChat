@@ -8,7 +8,7 @@ from OB.models import Room
 from OB.utilities.database import async_save, async_try_get
 from OB.utilities.event import send_system_room_message
 
-async def create_room(args, sender, room):
+async def create(args, sender, room):
     """
     Description:
         Create a new chat room from a commandline instead of through the website GUI.
@@ -23,7 +23,7 @@ async def create_room(args, sender, room):
 
     # Check for errors
     if not args:
-        error_message = "Usage: /room <name>"
+        error_message = "Usage: /create <name>"
     else:
         existing_room = await async_try_get(
             Room,

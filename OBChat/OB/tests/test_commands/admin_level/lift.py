@@ -28,7 +28,7 @@ class LiftTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /lift command (see OB.commands.user_level.lift_ban()).
+            Tests the /lift command (see OB.commands.user_level.lift()).
         """
 
         # Test unauthenticated user lifting error

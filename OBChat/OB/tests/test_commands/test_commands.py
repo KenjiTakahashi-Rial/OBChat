@@ -19,8 +19,8 @@ from pytest import mark
 
 from OB.tests.test_commands.admin_level.ban import BanTest
 from OB.tests.test_commands.admin_level.kick import KickTest
-from OB.tests.test_commands.admin_level.lift_ban import LiftTest
-from OB.tests.test_commands.auth_user_level.room import RoomTest
+from OB.tests.test_commands.admin_level.lift import LiftTest
+from OB.tests.test_commands.auth_user_level.create import CreateTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
 
@@ -48,14 +48,14 @@ async def test_private():
 
 @mark.asyncio
 @mark.django_db()
-async def test_create_room():
+async def test_create():
     """
     Description:
-        Tests the /room command function.
+        Tests the /create command function.
     """
 
-    room_test = RoomTest()
-    await room_test.run()
+    create_test = CreateTest()
+    await create_test.run()
 
 @mark.asyncio
 @mark.django_db()
@@ -81,7 +81,7 @@ async def test_ban():
 
 @mark.asyncio
 @mark.django_db()
-async def test_lift_ban():
+async def test_lift():
     """
     Description:
         Tests the /lift command function.

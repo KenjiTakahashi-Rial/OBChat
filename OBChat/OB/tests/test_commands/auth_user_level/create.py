@@ -1,5 +1,5 @@
 """
-Class to test the /room command function (see OB.commands.auth_user_level.create_room()).
+Class to test the /create command function (see OB.commands.auth_user_level.create()).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -13,7 +13,7 @@ from OB.models import Room
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 
-class RoomTest(BaseCommandTest):
+class CreateTest(BaseCommandTest):
     def __init__(self):
         """
         Description:
@@ -28,39 +28,39 @@ class RoomTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /room command (see OB.commands.user_level.create_room()).
+            Tests the /create command (see OB.commands.user_level.create()).
         """
 
         # Test no arguments error
-        message = "/room"
-        correct_response = "Usage: /room <name>"
+        message = "/create"
+        correct_response = "Usage: /create <name>"
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
 
         # Test unauthenticated user error
-        message = "/r anon_room"
+        message = "/c anon_room"
         correct_response = "Identify yourself! Must log in to create a room."
         await self.communicators[f"{ANON_PREFIX}0"].send(message)
         assert await self.communicators[f"{ANON_PREFIX}0"].receive() == message
         assert await self.communicators[f"{ANON_PREFIX}0"].receive() == correct_response
 
         # Test multiple arguments error
-        message = "/r room 1"
+        message = "/c room 1"
         correct_response = "Room name cannot contain spaces."
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
 
         # Test existing room error
-        message = "/r room"
+        message = "/c room"
         correct_response = f"Someone beat you to it. {self.room} already exists."
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
 
         # Test room creation
-        message = "/r room_1"
+        message = "/c room_1"
         correct_response = "Sold! Check out your new room: room_1"
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message

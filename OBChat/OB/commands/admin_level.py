@@ -110,7 +110,7 @@ async def ban(args, sender, room):
     """
     Description:
         Remove one or more OBConsumers from the group a Room is associated with and do not allow
-        them to rejoin the group. Bans may be lifted (see lift_ban()).
+        them to rejoin the group. Bans may be lifted (see lift()).
 
     Arguments:
         args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
@@ -210,7 +210,7 @@ async def ban(args, sender, room):
     elif error_messages:
         await send_system_room_message("\n".join(error_messages), room, sender)
 
-async def lift_ban(args, sender, room):
+async def lift(args, sender, room):
     """
     Description:
         Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after

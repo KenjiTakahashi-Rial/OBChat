@@ -4,7 +4,7 @@ A user must be the owner of the room to perform these commands.
 
 from OB.utilities.event import send_system_room_message
 
-async def delete_room(args, sender, room):
+async def delete(args, sender, room):
     """
     Description:
         Deletes an existing Room database object. All Admin, Ban, and Message objects will be
