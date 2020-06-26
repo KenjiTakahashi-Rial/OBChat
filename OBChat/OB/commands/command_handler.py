@@ -13,15 +13,15 @@ from OB.utilities.event import send_system_room_message
 # Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
-    "/create": create,      "/c": create,
-    "/who": who,            "/w": who,
-    "/private": private,    "/p": private,
-    "/hire": hire,          "/h": hire,
-    "/fire": fire,          "/f": fire,
-    "/kick": kick,          "/k": kick,
     "/ban": ban,            "/b": ban,
+    "/create": create,      "/c": create,
+    "/delete": delete,      "/d": delete,
+    "/fire": fire,          "/f": fire,
+    "/hire": hire,          "/h": hire,
+    "/kick": kick,          "/k": kick,
     "/lift": lift,          "/l": lift,
-    "/delete": delete,      "/d": delete
+    "/private": private,    "/p": private,
+    "/who": who,            "/w": who,
 }
 
 VALID_COMMANDS = "\n".join([
