@@ -17,9 +17,9 @@ https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 
 from pytest import mark
 
-from OB.tests.test_commands.admin_level import ban, lift_ban
 from OB.tests.test_commands.admin_level.ban import BanTest
 from OB.tests.test_commands.admin_level.kick import KickTest
+from OB.tests.test_commands.admin_level.lift_ban import LiftTest
 from OB.tests.test_commands.auth_user_level.room import RoomTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
@@ -87,4 +87,5 @@ async def test_lift_ban():
         Tests the /lift command function.
     """
 
-    await lift_ban.test_lift_ban()
+    lift_test = LiftTest()
+    await lift_test.run()
