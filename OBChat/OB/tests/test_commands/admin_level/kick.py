@@ -147,8 +147,8 @@ class KickTest(BaseCommandTest):
         Description:
             Tests a successful kick through the /kick command.
         Arguments:
-            sender (OBUser): The users to send the /kick command.
-            targets (list[OBUser]): The OBUsers to try to kick.
+            sender (OBUser): The user to send the /kick command.
+            targets (list[OBUser]): The users to try to kick.
         """
 
         # Prepare the message and responses
@@ -166,24 +166,23 @@ class KickTest(BaseCommandTest):
 
 
         # Send the command message
-        await self.communicators[f"{sender.username}"].send(message)
+        await self.communicators[sender.username].send(message)
 
         # Test sender response
-        assert await self.communicators[f"{sender.username}"].receive() == message
-        assert await self.communicators[f"{sender.username}"].receive() == sender_response
+        assert await self.communicators[sender.username].receive() == message
+        assert await self.communicators[sender.username].receive() == sender_response
 
         # Test others response
-        occupants = await async_model_list(self.room.occupants)
-
+        occupants = await async_model_list(self.room.occupant
         for user in occupants:
             if user not in targets:
-                assert await self.communicators[f"{user.username}"].receive() == others_response
+                assert await self.communicators[user.username].receive() == others_response
 
         # Test kicks
         for user in targets:
-            assert (await self.communicators[f"{user.username}"].receive())["refresh"]
+            assert (await self.communicators[user.username].receive())["refresh"]
             assert (
-                (await self.communicators[f"{user.username}"].receive_output())["type"]
+                (await self.communicators[user.username].receive_output())["type"]
                 == "websocket.close"
             )
             assert user not in occupants
