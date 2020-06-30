@@ -173,7 +173,7 @@ class KickTest(BaseCommandTest):
         assert await self.communicators[sender.username].receive() == sender_response
 
         # Test others response
-        occupants = await async_model_list(self.room.occupant
+        occupants = await async_model_list(self.room.occupants)
         for user in occupants:
             if user not in targets:
                 assert await self.communicators[user.username].receive() == others_response
