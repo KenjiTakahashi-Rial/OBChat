@@ -328,42 +328,81 @@ class BanTest(BaseCommandTest):
             (await self.communicators["limited_admin_0"].receive_output())["type"]
             == "websocket.close"
         )
-        assert (
-            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
-        )
-        # assert (
-        #     (await self.communicators[f"{ANON_PREFIX}0"].receive_output())["type"]
-        #     == "websocket.close"
-        # )
-        assert self.unlimited_admins[0] not in await async_model_list(self.room.occupants)
-        assert self.limited_admins[0] not in await async_model_list(self.room.occupants)
-        assert self.auth_users[0] not in await async_model_list(self.room.occupants)
-        # assert anon_0 not in await async_model_list(self.room.occupants)
-        await async_get(Ban, user=self.unlimited_admins[0])
-        await async_get(Ban, user=self.limited_admins[0])
-        await async_get(Ban, user=self.auth_users[0])
-        # await async_get(Ban, user=anon_0)
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["unlimited_admin_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["limited_admin_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["auth_user_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-        # try:
-        #     # This should time-out because the user is banned, so they cannot connect
-        #     await self.communicators["anon_0"].connect()
-        #     assert False
-        # except asyncio.TimeoutError:
-        #     pass
+
+    @mark.asyncio
+    @mark.django_db()
+    async def test_success(self, sender, targets):
+        """
+        Description:
+            Tests a successful ban through the /ban command.
+        Arguments:
+            sender (OBUser): The user to send the /ban command.
+            targets (list[OBUser]): The users to try to ban.
+        """
+
+        # Prepare the message and responses
+        message = "/b"
+        sender_response = "Banned:\n"
+        others_response = "One or more users have been banned:\n"
+
+        for user in targets:
+            message += f" {user.username}"
+            sender_response += f"   {user}\n"
+            others_response += f"   {user}\n"
+
+        sender_response += "That'll show them."
+        others_response += "Let this be a lesson to you all."
+
+
+        # Send the command message
+        await self.communicators[sender.username].send(message)
+
+        # Test sender response
+        assert await self.communicators[sender.username].receive() == message
+        assert await self.communicators[sender.username].receive() == sender_response
+
+        # Test others response
+        occupants = await async_model_list(self.room.occupants)
+
+        for user in occupants:
+            if user not in targets:
+                assert await self.communicators[user.username].receive() == others_response
+
+        for user in targets:
+            # Test auto-kick
+            assert (await self.communicators[user.username].receive())["refresh"]
+            assert (
+                (await self.communicators[user.username].receive_output())["type"]
+                == "websocket.close"
+            )
+            assert user not in occupants
+
+            # Test ban
+            ban = await async_get(Ban, user=user)
+            try:
+                # This should time-out because the user is banned, so they cannot connect
+                await self.communicators[user.username].connect()
+                assert False
+            except asyncio.TimeoutError:
+                pass
+
+            # Remove ban
+            await async_delete(ban)
+
+        # Add banned users back to room occupants and reset Communicators
+        await self.communicator_teardown()
+        # Anonymous users are deleted when they disconnect, so make an identical replacement
+        for i in range(len(self.anon_users)):
+            if await async_try_get(OBUser, id=self.anon_users[i].id):
+                self.anon_users[i] = await async_save(
+                    OBUser,
+                    id=self.anon_users[i].id,
+                    username=self.anon_users[i].username,
+                    is_anon=True
+                )
+        await async_add_occupants(self.room, self.anon_users)
+        await async_add_occupants(self.room, self.auth_users)
+        await async_add_occupants(self.room, self.limited_admins)
+        await async_add_occupants(self.room, self.unlimited_admins)
+        await async_add_occupants(self.room, [self.owner])
+        await self.communicator_setup()
