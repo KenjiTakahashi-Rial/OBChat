@@ -290,43 +290,9 @@ class BanTest(BaseCommandTest):
 
         # Test owner banning multiple users
         # TODO: Testing banning anonymous users is causing database lock
-        message = f"/b unlimited_admin_0 limited_admin_0 auth_user_0" #, {ANON_PREFIX}0",
-        await self.communicators["owner"].send(message)
-        sender_response = "\n".join([
-            "Banned:",
-            f"   {self.unlimited_admins[0]}",
-            f"   {self.limited_admins[0]}",
-            f"   {self.auth_users[0]}",
-            # f"   {anon_0}"
-            "That'll show them."
-        ])
-        others_response = "\n".join([
-            "One or more users have been banned:",
-            f"   {self.unlimited_admins[0]}",
-            f"   {self.limited_admins[0]}",
-            f"   {self.auth_users[0]}",
-            # f"   {anon_0}",
-            "Let this be a lesson to you all."
-        ])
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == sender_response
-        assert (
-            await self.communicators["owner"].receive() ==
-            await self.communicators["unlimited_admin_1"].receive() ==
-            await self.communicators["limited_admin_1"].receive() ==
-            others_response
-        )
-        assert (await self.communicators["unlimited_admin_0"].receive())["refresh"]
-        assert (await self.communicators["limited_admin_0"].receive())["refresh"]
-        assert (await self.communicators["auth_user_0"].receive())["refresh"]
-        # assert (await self.communicators[f"{ANON_PREFIX}0"].receive())["refresh"]
-        assert (
-            (await self.communicators["unlimited_admin_0"].receive_output())["type"]
-            == "websocket.close"
-        )
-        assert (
-            (await self.communicators["limited_admin_0"].receive_output())["type"]
-            == "websocket.close"
+        await self.test_success(
+            self.owner,
+            [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]]
         )
 
     @mark.asyncio
