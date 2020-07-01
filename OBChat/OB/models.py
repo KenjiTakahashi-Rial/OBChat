@@ -268,9 +268,9 @@ class Message(Model):
 
     def __repr__(self):
         recipients = []
-        for recipient in self.recipients:
+        for user in self.recipients:
             recipients += [
-                f"    {recipient}"
+                f"    {user}"
             ]
         recipients = "\n".join(recipients) if recipients else None
 
