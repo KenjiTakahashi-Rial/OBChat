@@ -57,7 +57,7 @@ async def send_room_message(message_json, room_id, recipients=None):
     event = {
         "type": "room_message",
         "message_json": message_json,
-        "recipients": recipients
+        "recipient_ids": [user.id for user in recipients] if recipients else [-1]
     }
 
     await send_room_event(room_id, event)

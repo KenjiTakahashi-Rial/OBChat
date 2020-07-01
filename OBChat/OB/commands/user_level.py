@@ -63,7 +63,7 @@ async def who(args, sender, room):
             return_strings += [who_string]
 
     # Send user lists back to the sender
-    await send_system_room_message("\n".join(return_strings), room, sender)
+    await send_system_room_message("\n".join(return_strings), room, [sender])
 
 async def private(args, sender, room):
     """
@@ -99,7 +99,7 @@ async def private(args, sender, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room, sender)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     # Reconstruct message from args

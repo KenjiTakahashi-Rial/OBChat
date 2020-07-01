@@ -78,7 +78,9 @@ async def hire(args, sender, room):
 
         await send_system_room_message(
             f"With great power comes great responsibility. You were promoted to admin in "
-            "\"{room.name}\"!", room
+            "\"{room.name}\"!",
+            room,
+            [hired_user]
         )
 
         send_to_sender += (
@@ -87,7 +89,7 @@ async def hire(args, sender, room):
         send_to_others += f"{hired_user.username} was promoted to admin. Drinks on them!"
 
     if send_to_sender:
-        await send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room, [sender])
     if send_to_others:
         await send_system_room_message("\n".join(send_to_others), room)
 
@@ -163,6 +165,6 @@ async def fire(args, sender, room):
         send_to_others += f"{fired_user[0].username} was fired! Those budget cuts are killer."
 
     if send_to_sender:
-        await send_system_room_message("\n".join(send_to_sender), room)
+        await send_system_room_message("\n".join(send_to_sender), room, [sender])
     if send_to_others:
         await send_system_room_message("\n".join(send_to_others), room)

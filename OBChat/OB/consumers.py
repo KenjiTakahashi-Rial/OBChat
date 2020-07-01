@@ -179,7 +179,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         )
 
         # Add sender as the only recipient if message is a command
-        await async_add(new_message.recipients, self.user if is_command(message_text) else None))
+        await async_add(new_message.recipients, self.user if is_command(message_text) else None)
         recipients = await async_model_list(new_message.recipients)
 
         # Encode the message data and metadata
@@ -229,7 +229,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             event (dict): Contains the message JSON
         """
 
-        if not event["recipients"] or self.user in event["recipients"]:
+        if any(id < 0 for id in event["recipient_ids"]) or self.user.id in event["recipient_ids"]:
             await self.send(text_data=event["message_json"])
 
     async def kick(self, event):

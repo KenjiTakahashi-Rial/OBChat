@@ -43,7 +43,7 @@ async def kick(args, sender, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room, sender)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     valid_kicks = []
@@ -99,12 +99,12 @@ async def kick(args, sender, room):
 
     if valid_kicks:
         send_to_sender += ["That'll show them."]
-        await send_system_room_message("\n".join(send_to_sender), room, sender)
+        await send_system_room_message("\n".join(send_to_sender), room, [sender])
 
         send_to_others += ["Let this be a lesson to you all."]
         await send_system_room_message("\n".join(send_to_others), room)
     elif error_messages:
-        await send_system_room_message("\n".join(error_messages), room, sender)
+        await send_system_room_message("\n".join(error_messages), room, [sender])
 
 async def ban(args, sender, room):
     """
@@ -139,7 +139,7 @@ async def ban(args, sender, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room, sender)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     valid_bans = []
@@ -203,12 +203,12 @@ async def ban(args, sender, room):
 
     if valid_bans:
         send_to_sender += ["That'll show them."]
-        await send_system_room_message("\n".join(send_to_sender), room, sender)
+        await send_system_room_message("\n".join(send_to_sender), room, [sender])
 
         send_to_others += ["Let this be a lesson to you all."]
         await send_system_room_message("\n".join(send_to_others), room)
     elif error_messages:
-        await send_system_room_message("\n".join(error_messages), room, sender)
+        await send_system_room_message("\n".join(error_messages), room, [sender])
 
 async def lift(args, sender, room):
     """
@@ -243,7 +243,7 @@ async def lift(args, sender, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room, sender)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     valid_lifts = []
@@ -285,9 +285,9 @@ async def lift(args, sender, room):
 
     if valid_lifts:
         send_to_sender += ["Fully reformed and ready to integrate into society."]
-        await send_system_room_message("\n".join(send_to_sender), room, sender)
+        await send_system_room_message("\n".join(send_to_sender), room, [sender])
     elif error_messages:
-        await send_system_room_message("\n".join(error_messages), room, sender)
+        await send_system_room_message("\n".join(error_messages), room, [sender])
 
 async def elevate(args, sender, room):
     """

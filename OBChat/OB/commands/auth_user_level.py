@@ -3,9 +3,10 @@ A user must have be authenticated to perform these commands (see OB.models.Admin
 OB.utilities.command.get_privilege()).
 """
 
-from OB.constants import GroupTypes
-from OB.models import Room
-from OB.utilities.database import async_save, async_try_get
+from OB.constants import GroupTypes, Privilege
+from OB.models import Admin, Room
+from OB.utilities.command import async_get_privilege
+from OB.utilities.database import async_model_list, async_save, async_try_get
 from OB.utilities.event import send_system_room_message
 
 async def create(args, sender, room):
@@ -40,7 +41,7 @@ async def create(args, sender, room):
 
     # Send error message back to issuing user
     if error_message:
-        await send_system_room_message(error_message, room, sender)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     display_name = args[0] if not args[0].islower() else None
@@ -55,17 +56,18 @@ async def create(args, sender, room):
 
     # Send success message back to issueing user
     success_message = f"Sold! Check out your new room: {created_room}"
-    await send_system_room_message(success_message, room, sender)
+    await send_system_room_message(success_message, room, [sender])
 
 async def apply(args, sender, room):
     """
     Description:
-        ...
+        Sends a request for a user to be hired as an admin or promoted to unlimited admin.
+        The request is visible by all users with hiring privileges of the room.
+        Optionally includes a message.
 
     Arguments:
-        args (list[string]): The desired name of the new room.
+        args (list[string]): An optional message to the users with hiring privileges.
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
     """
 
-    # TODO: Implement this
