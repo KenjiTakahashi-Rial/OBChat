@@ -45,16 +45,16 @@ class OBUser(AbstractUser):
 
     def __repr__(self):
         return "\n".join([
-            "\nOBUser {",
-            f"   id: {self.id}",
-            f"   username: {self.username}",
-            f"   display_name: {self.display_name}",
-            f"   first_name: {self.first_name}",
-            f"   last_name: {self.last_name}",
-            f"   birthday: {self.birthday}",
-            f"   last_login: {self.last_login}",
-            f"   date_joined: {self.date_joined}",
-            "}\n"
+            f"OBUser {{",
+            f"    id: {self.id}",
+            f"    username: {self.username}",
+            f"    display_name: {self.display_name}",
+            f"    first_name: {self.first_name}",
+            f"    last_name: {self.last_name}",
+            f"    birthday: {self.birthday}",
+            f"    last_login: {self.last_login}",
+            f"    date_joined: {self.date_joined}",
+            f"}}"
         ])
 
 class Room(Model):
@@ -107,16 +107,25 @@ class Room(Model):
         return display_string
 
     def __repr__(self):
+        occupants = []
+        for user in self.occupants:
+            occupants += [
+                f"    {user}"
+            ]
+        occupants = "\n".join(occupants) if occupants else None
+
         return "\n".join([
-            "\nRoom {",
-            f"   group_type: {self.group_type}",
-            f"   name: {self.name}",
-            f"   display_name: {self.display_name}",
-            f"   owner: {self.owner}",
-            f"   timestamp: {self.timestamp}",
-            f"   is_suspended: {self.is_suspended}",
-            f"   occupants: {self.occupants}",
-            "}\n"
+            f"Room {{",
+            f"    group_type: {self.group_type}",
+            f"    name: {self.name}",
+            f"    display_name: {self.display_name}",
+            f"    owner: {self.owner}",
+            f"    timestamp: {self.timestamp}",
+            f"    is_suspended: {self.is_suspended}",
+            f"    occupants: {{",
+            f"    {occupants}",
+            f"    }}",
+            f"}}"
         ])
 
 class Admin(Model):
@@ -157,13 +166,12 @@ class Admin(Model):
 
     def __repr__(self):
         return "\n".join([
-            "\nAdmin {",
-            f"   user: {self.user}",
-            f"   room: {self.room}",
-            f"   issuer: {self.issuer}",
-            f"   is_limited: {self.is_limited}",
-            f"   is_revoked: {self.is_revoked}",
-            "}\n"
+            f"Admin {{",
+            f"    user: {self.user}",
+            f"    room: {self.room}",
+            f"    issuer: {self.issuer}",
+            f"    is_limited: {self.is_limited}",
+            f"}}"
         ])
 
 class Ban(Model):
@@ -208,13 +216,13 @@ class Ban(Model):
 
     def __repr__(self):
         return "\n".join([
-            "\nBan {",
-            f"   user: {self.user}",
-            f"   room: {self.room}",
-            f"   issuer: {self.issuer}",
-            f"   timestamp: {self.timestamp}",
-            f"   is_lifted: {self.is_lifted}",
-            "}\n"
+            f"Ban {{",
+            f"    user: {self.user}",
+            f"    room: {self.room}",
+            f"    issuer: {self.issuer}",
+            f"    timestamp: {self.timestamp}",
+            f"    is_lifted: {self.is_lifted}",
+            f"}}"
         ])
 
 class Message(Model):
