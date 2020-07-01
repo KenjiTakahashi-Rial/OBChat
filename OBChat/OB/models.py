@@ -137,7 +137,6 @@ class Admin(Model):
         default=-1
     )
     is_limited = BooleanField(default=True)
-    is_revoked = BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
