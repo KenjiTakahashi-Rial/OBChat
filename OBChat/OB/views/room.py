@@ -138,9 +138,9 @@ def room(request, room_name):
 
             if not ban:
                 # Get the messages
-                message_query = Q(recipient=None)
+                message_query = Q(recipients=None)
                 if request.user.is_authenticated:
-                    message_query |= Q(recipient=(request.user))
+                    message_query |= Q(recipients=(request.user))
                 messages = Message.objects.filter(message_query)
 
                 for message in messages:

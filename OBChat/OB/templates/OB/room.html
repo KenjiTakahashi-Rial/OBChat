@@ -121,7 +121,7 @@ A chatroom for users to talk
                       <div class="col-1"></div>
                       <div class="col">
                         <div style="display: table-cell;">
-                          {% if message.recipient %}
+                          {% if message.recipients %}
                             <pre>{{ message.message }}</pre>
                           {% else %}
                             <p>{{ message.message }}</p>

@@ -169,28 +169,29 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Decode the JSON
         message_text = json.loads(text_data)["message_text"]
 
-        recipient = self.user if is_command(message_text) else None
-
         # Save message to database
         new_message = await async_save(
             Message,
             message=message_text,
             sender=self.user if not self.user.is_anon else None,
-            recipient=recipient,
             room=self.room,
             anon_username=self.user.username if self.user.is_anon else None
         )
+
+        # Add sender as the only recipient if message is a command
+        await async_add(new_message.recipients, self.user if is_command(message_text) else None))
+        recipients = await async_model_list(new_message.recipients)
 
         # Encode the message data and metadata
         message_json = json.dumps({
             "text": message_text,
             "sender_name": self.user.display_name or self.user.username,
-            "has_recipient": bool(recipient),
+            "has_recipient": bool(recipients),
             "timestamp": get_datetime_string(new_message.timestamp)
         })
 
         # Send message to room group
-        await send_room_message(message_json, self.room.id, recipient)
+        await send_room_message(message_json, self.room.id, recipients)
 
         if is_command(message_text):
             # Handle command
@@ -228,7 +229,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             event (dict): Contains the message JSON
         """
 
-        if event["recipient_id"] < 0 or event["recipient_id"] == self.user.id:
+        if not event["recipients"] or self.user in event["recipients"]:
             await self.send(text_data=event["message_json"])
 
     async def kick(self, event):

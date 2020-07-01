@@ -9,7 +9,7 @@ from channels.layers import get_channel_layer
 
 from OB.constants import SYSTEM_USERNAME, GroupTypes
 from OB.models import Message, OBUser, Room
-from OB.utilities.database import async_get, async_save, async_try_get
+from OB.utilities.database import async_add, async_get, async_save, async_try_get
 from OB.utilities.format import get_datetime_string, get_group_name
 
 async def send_event(event, group_name):
@@ -41,7 +41,7 @@ async def send_room_event(room_id, event):
 
     await send_event(event, get_group_name(GroupTypes.Room, room_id))
 
-async def send_room_message(message_json, room_id, recipient=None):
+async def send_room_message(message_json, room_id, recipients=None):
     """
     Description:
         Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
@@ -50,19 +50,19 @@ async def send_room_message(message_json, room_id, recipient=None):
     Arguments:
         message_json (string): A JSON containing the message text and any metadata to be displayed.
         room_id (int): The id of the room to send the message to.
-        recipient (OBUser): The only user who will see the response.
-            If None, all occupants of the Room will see the response.
+        recipients (list[OBUser] or None): The only users who will see the response. If None, all
+            occupants of the room will see the response.
     """
 
     event = {
         "type": "room_message",
         "message_json": message_json,
-        "recipient_id": -1 if not recipient else recipient.id
+        "recipients": recipients
     }
 
     await send_room_event(room_id, event)
 
-async def send_system_room_message(message_text, room, recipient=None):
+async def send_system_room_message(message_text, room, recipients=None):
     """
     Description:
         Sends a message from the server to a specified room's group (see send_room_message()) with
@@ -72,8 +72,8 @@ async def send_system_room_message(message_text, room, recipient=None):
     Arguments:
         message_text (string): The message to send from the server.
         room (Room): The database object of the room to send this message to.
-        recipient (OBUser): The user who initiated the command and will see the response.
-            If None, all occupants of the Room will see the response.
+        recipients (list[OBUser] or None): The only users who will see the response. If None, all
+            occupants of the room will see the response.
     """
 
     # Save message to database
@@ -82,19 +82,24 @@ async def send_system_room_message(message_text, room, recipient=None):
         Message,
         message=message_text,
         sender=system_user,
-        recipient=recipient,
         room=room
     )
+
+    if recipients:
+        for user in recipients:
+            await async_add(new_message.recipients, user)
+    else:
+        await async_add(new_message.recipients, None)
 
     message_json = json.dumps({
         "text": message_text,
         "sender_name": SYSTEM_USERNAME,
-        "has_recipient": bool(recipient),
+        "has_recipient": bool(recipients),
         "timestamp": get_datetime_string(new_message.timestamp)
     })
 
     # Send the message
-    await send_room_message(message_json, room.id, recipient)
+    await send_room_message(message_json, room.id, recipients)
 
 async def send_private_message(message_text, sender, recipient):
     """
