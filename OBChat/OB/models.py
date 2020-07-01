@@ -225,11 +225,10 @@ class Message(Model):
         on_delete=CASCADE,
         null=True
     )
-    recipient = ForeignKey(
+    recipients = ManyToManyField(
         OBUser,
         related_name="message_received",
         default=None,
-        on_delete=CASCADE,
         null=True
     )
     anon_username = CharField(
@@ -260,14 +259,24 @@ class Message(Model):
         return display_string
 
     def __repr__(self):
+        recipients = []
+        for recipient in self.recipients:
+            recipients += [
+                f"    {recipient}"
+            ]
+        recipients = "\n".join(recipients) if recipients else None
+
         return "\n".join([
-            "\nMessage {",
-            f"   message: {self.message}",
-            f"   sender: {self.sender}",
-            f"   anon_username: {self.anon_username}",
-            f"   room: {self.room}",
-            f"   timestamp: {self.timestamp}",
-            f"   is_edited: {self.is_edited}",
-            f"   is_deleted: {self.is_deleted}",
-            "}\n"
+            f"Message {{",
+            f"    message: {self.message}",
+            f"    sender: {self.sender}",
+            f"    recipients: {{",
+            f"    {recipients}",
+            f"    }}"
+            f"    anon_username: {self.anon_username}",
+            f"    room: {self.room}",
+            f"    timestamp: {self.timestamp}",
+            f"    is_edited: {self.is_edited}",
+            f"    is_deleted: {self.is_deleted}",
+            f"}}"
         ])
