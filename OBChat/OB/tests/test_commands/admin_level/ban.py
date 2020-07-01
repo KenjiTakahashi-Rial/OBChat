@@ -105,59 +105,10 @@ class BanTest(BaseCommandTest):
 
         # Test limited admin banning authenticated user
         message = "/b auth_user_0"
-        await self.communicators["limited_admin_0"].send(message)
-        sender_response = "\n".join([
-            "Banned:",
-            f"   {self.auth_users[0]}",
-            "That'll show them."
-        ])
-        others_response = "\n".join([
-            "One or more users have been banned:",
-            f"   {self.auth_users[0]}",
-            "Let this be a lesson to you all."
-        ])
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == sender_response
-        assert (
-            await self.communicators["owner"].receive() ==
-            await self.communicators["unlimited_admin_0"].receive() ==
-            await self.communicators["unlimited_admin_1"].receive() ==
-            await self.communicators["limited_admin_0"].receive() ==
-            await self.communicators["limited_admin_1"].receive() ==
-            await self.communicators[f"{ANON_PREFIX}0"].receive() ==
-            others_response
+        await self.test_success(
+            self.limited_admins[0],
+            [self.auth_users[0]]
         )
-        assert (await self.communicators["auth_user_0"].receive())["refresh"]
-        assert (
-            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
-        )
-        assert self.auth_users[0] not in await async_model_list(self.room.occupants)
-        ban = await async_get(Ban, user=self.auth_users[0])
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["auth_user_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-
-        # Unban banned user, add banned user back to room occupants and reset Communicators
-        await async_delete(ban)
-        await self.communicator_teardown()
-        # Anonymous users are deleted when they disconnect, so make an identical replacement
-        for i in range(len(self.anon_users)):
-            if await async_try_get(OBUser, id=self.anon_users[i].id):
-                self.anon_users[i] = await async_save(
-                    OBUser,
-                    id=self.anon_users[i].id,
-                    username=self.anon_users[i].username,
-                    is_anon=True
-                )
-        await async_add_occupants(self.room, self.anon_users)
-        await async_add_occupants(self.room, self.auth_users)
-        await async_add_occupants(self.room, self.limited_admins)
-        await async_add_occupants(self.room, self.unlimited_admins)
-        await async_add_occupants(self.room, [self.owner])
-        await self.communicator_setup()
 
         # Test unlimited admin banning owner error
         message = "/b owner"
@@ -177,116 +128,16 @@ class BanTest(BaseCommandTest):
         assert await self.communicators["unlimited_admin_0"].receive() == correct_response
 
         # Test unlimited admin banning limited admin
-        message = "/b limited_admin_0"
-        await self.communicators["unlimited_admin_0"].send(message)
-        sender_response = "\n".join([
-            "Banned:",
-            f"   {self.limited_admins[0]}",
-            "That'll show them."
-        ])
-        others_response = "\n".join([
-            "One or more users have been banned:",
-            f"   {self.limited_admins[0]}",
-            "Let this be a lesson to you all."
-        ])
-        assert await self.communicators["unlimited_admin_0"].receive() == message
-        assert await self.communicators["unlimited_admin_0"].receive() == sender_response
-        assert (
-            await self.communicators["owner"].receive() ==
-            await self.communicators["unlimited_admin_0"].receive() ==
-            await self.communicators["unlimited_admin_1"].receive() ==
-            await self.communicators["limited_admin_1"].receive() ==
-            await self.communicators["auth_user_0"].receive() ==
-            await self.communicators[f"{ANON_PREFIX}0"].receive() ==
-            others_response
+        await self.test_success(
+            self.unlimited_admins[0],
+            [self.limited_admins[0]]
         )
-        assert (await self.communicators["limited_admin_0"].receive())["refresh"]
-        assert (
-            (await self.communicators["limited_admin_0"].receive_output())["type"]
-            == "websocket.close"
-        )
-        assert self.limited_admins[0] not in await async_model_list(self.room.occupants)
-        ban = await async_get(Ban, user=self.limited_admins[0])
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["limited_admin_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-
-        # Unban banned user, add banned user back to room occupants and reset Communicators
-        await async_delete(ban)
-        await self.communicator_teardown()
-        # Anonymous users are deleted when they disconnect, so make an identical replacement
-        for i in range(len(self.anon_users)):
-            if await async_try_get(OBUser, id=self.anon_users[i].id):
-                self.anon_users[i] = await async_save(
-                    OBUser,
-                    id=self.anon_users[i].id,
-                    username=self.anon_users[i].username,
-                    is_anon=True
-                )
-        await async_add_occupants(self.room, self.anon_users)
-        await async_add_occupants(self.room, self.auth_users)
-        await async_add_occupants(self.room, self.limited_admins)
-        await async_add_occupants(self.room, self.unlimited_admins)
-        await async_add_occupants(self.room, [self.owner])
-        await self.communicator_setup()
 
         # Test unlimited admin banning authenticated user
-        message = "/b auth_user_0"
-        await self.communicators["unlimited_admin_0"].send(message)
-        sender_response = "\n".join([
-            "Banned:",
-            f"   {self.auth_users[0]}",
-            "That'll show them."
-        ])
-        others_response = "\n".join([
-            "One or more users have been banned:",
-            f"   {self.auth_users[0]}",
-            "Let this be a lesson to you all."
-        ])
-        assert await self.communicators["unlimited_admin_0"].receive() == message
-        assert await self.communicators["unlimited_admin_0"].receive() == sender_response
-        assert (
-            await self.communicators["owner"].receive() ==
-            await self.communicators["unlimited_admin_0"].receive() ==
-            await self.communicators["unlimited_admin_1"].receive() ==
-            await self.communicators["limited_admin_1"].receive() ==
-            await self.communicators[f"{ANON_PREFIX}0"].receive() ==
-            others_response
+        await self.test_success(
+            self.unlimited_admins[0],
+            [self.auth_users[0]]
         )
-        assert (await self.communicators["auth_user_0"].receive())["refresh"]
-        assert (
-            (await self.communicators["auth_user_0"].receive_output())["type"] == "websocket.close"
-        )
-        assert self.auth_users[0] not in await async_model_list(self.room.occupants)
-        ban = await async_get(Ban, user=self.auth_users[0])
-        try:
-            # This should time-out because the user is banned, so they cannot connect
-            await self.communicators["auth_user_0"].connect()
-            assert False
-        except asyncio.TimeoutError:
-            pass
-
-        # Unban banned user, add banned user back to room occupants and reset Communicators
-        await async_delete(ban)
-        await self.communicator_teardown()
-        # Anonymous users are deleted when they disconnect, so make an identical replacement
-        for i in range(len(self.anon_users)):
-            if await async_try_get(OBUser, id=self.anon_users[i].id):
-                self.anon_users[i] = await async_save(
-                    OBUser,
-                    id=self.anon_users[i].id,
-                    username=self.anon_users[i].username,
-                    is_anon=True
-                )
-        await async_add_occupants(self.room, self.anon_users)
-        await async_add_occupants(self.room, self.auth_users)
-        await async_add_occupants(self.room, self.limited_admins)
-        await async_add_occupants(self.room, self.unlimited_admins)
-        await async_add_occupants(self.room, [self.owner])
-        await self.communicator_setup()
 
         # Test owner banning multiple users
         # TODO: Testing banning anonymous users is causing database lock
