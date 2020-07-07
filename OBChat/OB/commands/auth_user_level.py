@@ -71,3 +71,39 @@ async def apply(args, sender, room):
         room (Room): The Room the command was sent from.
     """
 
+    error_message = ""
+    sender_privilege = await async_get_privilege(sender, room)
+
+    # Check for errors
+    if not sender.is_authenticated or sender.is_anon:
+        error_message = (
+            "You can't get hired looking like that! Clean yourself up and make an account first."
+        )
+    elif sender_privilege >= Privilege.UnlimitedAdmin:
+        error_message = "You're already a big shot! There's nothing left to apply to."
+
+    # Send error message back to issuing user
+    if error_message:
+        await send_system_room_message(error_message, room, [sender])
+        return
+
+    # Send the application message to all users with hiring privileges
+    user_suffix = " [admin]" if sender_privilege == Privilege.Admin else ""
+    position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
+    application_message = " ".join(args) if args else None
+
+    application_message = "\n".join([
+        "Application Received",
+        f"   User: {sender}{user_suffix}",
+        f"   Position: {position_prefix}Admin",
+        f"   Message: {application_message}"
+    ])
+
+    if sender_privilege == Privilege.Admin:
+        admins = await async_try_get(Admin, room=room, is_limited=False)
+    else:
+        admins = await async_try_get(Admin, room=room)
+
+    recipients = [admin.user for admin in admins]
+
+    await send_system_room_message(application_message, room, recipients)
