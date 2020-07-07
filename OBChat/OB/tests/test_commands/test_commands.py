@@ -20,6 +20,7 @@ from pytest import mark
 from OB.tests.test_commands.admin_level.ban import BanTest
 from OB.tests.test_commands.admin_level.kick import KickTest
 from OB.tests.test_commands.admin_level.lift import LiftTest
+from OB.tests.test_commands.auth_user_level.apply import ApplyTest
 from OB.tests.test_commands.auth_user_level.create import CreateTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
@@ -64,6 +65,17 @@ async def test_create():
 
     create_test = CreateTest()
     await create_test.run()
+
+@mark.asyncio
+@mark.django_db()
+async def test_apply():
+    """
+    Description:
+        Tests the /apply command function.
+    """
+
+    apply_test = ApplyTest()
+    await apply_test.run()
 
 ###################################################################################################
 # Admin Level                                                                                     #

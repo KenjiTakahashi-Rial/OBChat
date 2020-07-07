@@ -56,16 +56,32 @@ def async_get(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A single database object whose class variable values match the kwargs
+        A single database object whose class variable values match the kwargs.
     """
 
     return model.objects.get(**kwargs)
 
 @database_sync_to_async
+def async_filter(model, **kwargs):
+    """
+    Description:
+        Allows an asynchronous function to filter database objects.
+
+    Arguments:
+        model (Class): A database model class (see OB.models.py).
+        kwargs: Class variable values to use for the database query.
+
+    Return values:
+        A list of database objects whose class variable values match the kwargs.
+    """
+
+    return [obj for obj in model.objects.filter(**kwargs)]
+
+@database_sync_to_async
 def async_save(model_or_object, **kwargs):
     """
     Description:
-        Allows an asynchronous function to save a new database object.
+        Allows an asynchronous function to save a new or existing database object.
 
     Arguments:
         model_or_object: A database model class or a database object (see OB.models.py).
@@ -167,10 +183,10 @@ def async_model_list(model):
     # Justification: These comprehensions are necessary to make a list of database objects. If
     #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     try:
-        return [user for user in model.objects.all()]
+        return [obj for obj in model.objects.all()]
     except AttributeError:
         # ManyRelatedManager types do not have an objects attribute
-        return [user for user in model.all()]
+        return [obj for obj in model.all()]
 
 @database_sync_to_async
 def async_get_owner(room):

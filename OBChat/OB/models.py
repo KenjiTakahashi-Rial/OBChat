@@ -132,7 +132,8 @@ class Admin(Model):
     user = ForeignKey(
         OBUser,
         on_delete=CASCADE,
-        default=-1
+        default=-1,
+        related_name="adminship"
     )
     room = ForeignKey(
         Room,
