@@ -3,7 +3,7 @@ Handles when a command is issued from a user and redirects to the appropriate co
 """
 
 from OB.commands.admin_level import kick, ban, lift
-from OB.commands.auth_user_level import create
+from OB.commands.auth_user_level import apply, create
 from OB.commands.owner_level import delete
 from OB.commands.unlimited_admin_level import hire, fire
 from OB.commands.user_level import who, private
@@ -13,6 +13,7 @@ from OB.utilities.event import send_system_room_message
 # Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
+    "/apply": apply,        "/a": apply,
     "/ban": ban,            "/b": ban,
     "/create": create,      "/c": create,
     "/delete": delete,      "/d": delete,

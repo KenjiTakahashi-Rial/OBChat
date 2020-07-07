@@ -4,9 +4,9 @@ OB.utilities.command.get_privilege()).
 """
 
 from OB.constants import GroupTypes, Privilege
-from OB.models import Admin, Room
+from OB.models import Admin, OBUser, Room
 from OB.utilities.command import async_get_privilege
-from OB.utilities.database import async_model_list, async_save, async_try_get
+from OB.utilities.database import async_filter, async_get, async_save, async_try_get
 from OB.utilities.event import send_system_room_message
 
 async def create(args, sender, room):
@@ -87,23 +87,32 @@ async def apply(args, sender, room):
         await send_system_room_message(error_message, room, [sender])
         return
 
-    # Send the application message to all users with hiring privileges
+    # Construct the application and receipt
     user_suffix = " [admin]" if sender_privilege == Privilege.Admin else ""
     position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
     application_message = " ".join(args) if args else None
 
-    application_message = "\n".join([
-        "Application Received",
+    application = "\n".join([
+        f"Application Received",
         f"   User: {sender}{user_suffix}",
         f"   Position: {position_prefix}Admin",
-        f"   Message: {application_message}"
+        f"   Message: {application_message}",
+        f"To hire this user, use /hire."
     ])
 
+    receipt = (
+        "Your application was received. Hopefully the response doesn't start with: \"After careful"
+        " consideration...\""
+    )
+
+    # Gather recipients
     if sender_privilege == Privilege.Admin:
-        admins = await async_try_get(Admin, room=room, is_limited=False)
+        recipients = [room.owner]
     else:
-        admins = await async_try_get(Admin, room=room)
+        recipients = []
+        for adminship in await async_filter(Admin, room=room, is_limited=False):
+            recipients += [await async_get(OBUser, adminship=adminship)]
 
-    recipients = [admin.user for admin in admins]
-
-    await send_system_room_message(application_message, room, recipients)
+    # Send the application and receipt
+    await send_system_room_message(application, room, recipients)
+    await send_system_room_message(receipt, room, [sender])
