@@ -24,6 +24,10 @@ from OB.tests.test_commands.auth_user_level.create import CreateTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
 
+###################################################################################################
+# User Level                                                                                      #
+###################################################################################################
+
 @mark.asyncio
 @mark.django_db()
 async def test_who():
@@ -46,6 +50,10 @@ async def test_private():
     private_test = PrivateTest()
     await private_test.run()
 
+###################################################################################################
+# Authenticated User Level                                                                        #
+###################################################################################################
+
 @mark.asyncio
 @mark.django_db()
 async def test_create():
@@ -56,6 +64,10 @@ async def test_create():
 
     create_test = CreateTest()
     await create_test.run()
+
+###################################################################################################
+# Admin Level                                                                                     #
+###################################################################################################
 
 @mark.asyncio
 @mark.django_db()
