@@ -95,9 +95,9 @@ class LiftTest(BaseCommandTest):
         # Test owner lifting ban
         message = "/l auth_user_1"
         correct_response = "\n".join([
-            "Ban lifted:",
+            f"Ban lifted:",
             f"   {self.auth_users[1]}",
-            "Fully reformed and ready to integrate into society."
+            f"Fully reformed and ready to integrate into society."
         ])
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
@@ -137,9 +137,9 @@ class LiftTest(BaseCommandTest):
         # Test unlimited admin lifting ban
         message = "/l auth_user_1"
         correct_response = "\n".join([
-            "Ban lifted:",
+            f"Ban lifted:",
             f"   {self.auth_users[1]}",
-            "Fully reformed and ready to integrate into society."
+            f"Fully reformed and ready to integrate into society."
         ])
         await self.communicators["unlimited_admin_0"].send(message)
         assert await self.communicators["unlimited_admin_0"].receive() == message
