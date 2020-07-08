@@ -83,7 +83,7 @@ class ApplyTest(BaseCommandTest):
             f"Application Received",
             f"   User: {sender}{user_suffix}",
             f"   Position: {position_prefix}Admin",
-            f"   Message: {message}"
+            f"   Message: {message}",
             f"To hire this user, use /hire."
         ])
 
