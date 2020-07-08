@@ -7,8 +7,6 @@ https://channels.readthedocs.io/en/latest/topics/testing.html
 
 import json
 
-import asyncio
-
 from types import SimpleNamespace
 
 from channels.routing import URLRouter
@@ -74,7 +72,7 @@ class OBCommunicator(WebsocketCommunicator):
         message_json = json.dumps({"message_text": message_text})
         await self.send_to(text_data=message_json)
 
-    async def receive(self, should_receive=True):
+    async def receive(self):
         """
         Description:
             Decodes a JSON message received by this OBCommunicator and returns the message text.
@@ -83,29 +81,16 @@ class OBCommunicator(WebsocketCommunicator):
             If the frame received contains neither text nor a refresh signal, the method attempts
             to receive another frame.
 
-        Arguments:
-            should_receive (bool): Indicates whether there should be something to receive. If
-                False, ensures that a message is not received, otherwise raising an exception.
-
         Return Values:
             If text is received, the decoded text is returned.
             If a refresh signal is received, the refresh signal as a dict is returned.
-            If the should_receive parameter is False, returns None.
         """
 
-        if should_receive:
-            while True:
-                receipt = json.loads(await self.receive_from())
+        while True:
+            receipt = json.loads(await self.receive_from())
 
-                # Return either the text or
-                if "text" in receipt:
-                    return receipt["text"]
+            if "text" in receipt:
+                return receipt["text"]
 
-                if "refresh" in receipt:
-                    return receipt
-        else:
-            try:
-                await self.receive_from()
-                assert False
-            except asyncio.TimeoutError:
-                return False
+            if "refresh" in receipt:
+                return receipt
