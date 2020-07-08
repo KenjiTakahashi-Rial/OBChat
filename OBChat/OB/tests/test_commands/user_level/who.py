@@ -34,9 +34,7 @@ class WhoTest(BaseCommandTest):
         correct_response = (
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
         )
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
         # Create empty room
         empty_room = await async_save(
@@ -49,9 +47,7 @@ class WhoTest(BaseCommandTest):
         # Test empty room error
         message = "/w empty_room"
         correct_response = f"{empty_room} is all empty!"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
         # Test current room with no argument
         message = "/w"
@@ -67,21 +63,15 @@ class WhoTest(BaseCommandTest):
             f"    {self.anon_users[0]}",
             f"    {self.anon_users[1]}\n"
         ])
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
         # Test current room with explicit argument
         message = "/w room"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
         # Test duplicate room arguments
         message = "/w room room room"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
@@ -90,9 +80,7 @@ class WhoTest(BaseCommandTest):
             f"{empty_room} is all empty!",
             f"nonexistent_room doesn't exist, so that probably means nobody is in there."
         ])
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test(self.owner, message, correct_response)
 
     @mark.asyncio
     @mark.django_db()
