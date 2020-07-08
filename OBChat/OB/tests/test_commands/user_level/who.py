@@ -93,3 +93,33 @@ class WhoTest(BaseCommandTest):
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
+
+    @mark.asyncio
+    @mark.django_db()
+    async def test(self, sender, message, response):
+        """
+        Description:
+            Tests a user sending a message and tests that only the sender receives a response.
+
+        Arguments:
+            sender (OBUser): The user who sends the message and the only user who should receive a
+                a response.
+            response (string): The response that the sender should receive.
+        """
+
+        await self.communicators[sender.username].send(message)
+
+        all_users = (
+            self.anon_users +
+            self.auth_users +
+            self.limited_admins +
+            self.unlimited_admins +
+            [self.owner]
+        )
+
+        for user in all_users:
+            if user == sender:
+                assert await self.communicators[user.username].receive() == message
+                assert await self.communicators[user.username].receive() == response
+            else:
+                assert not self.communicators[user.username].receive(False)
