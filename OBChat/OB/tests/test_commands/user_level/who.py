@@ -122,4 +122,4 @@ class WhoTest(BaseCommandTest):
                 assert await self.communicators[user.username].receive() == message
                 assert await self.communicators[user.username].receive() == response
             else:
-                assert not self.communicators[user.username].receive(False)
+                assert await self.communicators[user.username].receive_nothing()
