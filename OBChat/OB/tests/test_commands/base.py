@@ -211,3 +211,34 @@ class BaseCommandTest:
             # Channels.
             await self.communicator_teardown()
             await self.database_teardown()
+
+    @mark.asyncio
+    @mark.django_db()
+    async def test_isolated(self, sender, message, response):
+        """
+        Description:
+            Tests that a command is isolated; that the command and response are only seen by the
+            sender.
+
+        Arguments:
+            sender (OBUser): The user who sends the message and the only user who should receive a
+                a response.
+            response (string): The response that the sender should receive.
+        """
+
+        await self.communicators[sender.username].send(message)
+
+        all_users = (
+            self.anon_users +
+            self.auth_users +
+            self.limited_admins +
+            self.unlimited_admins +
+            [self.owner]
+        )
+
+        for user in all_users:
+            if user == sender:
+                assert await self.communicators[user.username].receive() == message
+                assert await self.communicators[user.username].receive() == response
+            else:
+                assert await self.communicators[user.username].receive_nothing()
