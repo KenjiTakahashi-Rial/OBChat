@@ -34,7 +34,7 @@ class WhoTest(BaseCommandTest):
         correct_response = (
             "nonexistent_room doesn't exist, so that probably means nobody is in there."
         )
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Create empty room
         empty_room = await async_save(
@@ -47,7 +47,7 @@ class WhoTest(BaseCommandTest):
         # Test empty room error
         message = "/w empty_room"
         correct_response = f"{empty_room} is all empty!"
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test current room with no argument
         message = "/w"
@@ -63,15 +63,15 @@ class WhoTest(BaseCommandTest):
             f"    {self.anon_users[0]}",
             f"    {self.anon_users[1]}\n"
         ])
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test current room with explicit argument
         message = "/w room"
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test duplicate room arguments
         message = "/w room room room"
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
@@ -80,14 +80,14 @@ class WhoTest(BaseCommandTest):
             f"{empty_room} is all empty!",
             f"nonexistent_room doesn't exist, so that probably means nobody is in there."
         ])
-        await self.test(self.owner, message, correct_response)
+        await self.test_isolated(self.owner, message, correct_response)
 
     @mark.asyncio
     @mark.django_db()
-    async def test(self, sender, message, response):
+    async def test_isolated(self, sender, message, response):
         """
         Description:
-            Tests a user sending a message and tests that only the sender receives a response.
+            Tests that a command is isolated; the command and response are only seen by the sender.
 
         Arguments:
             sender (OBUser): The user who sends the message and the only user who should receive a
