@@ -7,7 +7,7 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.constants import ANON_PREFIX, Privilege
+from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.command import async_get_privilege
@@ -36,20 +36,14 @@ class ApplyTest(BaseCommandTest):
         correct_response = (
             "You can't get hired looking like that! Clean yourself up and make an account first."
         )
-        await self.communicators[f"{ANON_PREFIX}0"].send(message)
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == message
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == correct_response
+        await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test unlimited admin error
         correct_response = "You're already a big shot! There's nothing left to apply to."
-        await self.communicators["unlimited_admin_0"].send(message)
-        assert await self.communicators["unlimited_admin_0"].receive() == message
-        assert await self.communicators["unlimited_admin_0"].receive() == correct_response
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner error
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test authenticated user
         await self.test_success(self.auth_users[0])
