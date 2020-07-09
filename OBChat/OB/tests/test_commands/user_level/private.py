@@ -35,16 +35,12 @@ class PrivateTest(BaseCommandTest):
         # Test no arguments error
         message = "/private"
         correct_response = "Usage: /private /<user> <message>"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test missing "/" error
         message = "/p no_slash"
         correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test nonexistent recipient error
         message = "/p /nonexistent_user"
@@ -52,16 +48,12 @@ class PrivateTest(BaseCommandTest):
             "nonexistent_user doesn't exist. Your private message will broadcasted into space "
             "instead."
         )
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test empty message error
         message = "/p /unlimited_admin_0"
         correct_response = "No message specified. Did you give up at just the username?"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test private room auto-creation
         message = "/p /owner What's it like to own room_0?"
