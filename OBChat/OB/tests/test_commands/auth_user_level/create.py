@@ -34,30 +34,22 @@ class CreateTest(BaseCommandTest):
         # Test no arguments error
         message = "/create"
         correct_response = "Usage: /create <name>"
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test unauthenticated user error
         message = "/c anon_room"
         correct_response = "Identify yourself! Must log in to create a room."
-        await self.communicators[f"{ANON_PREFIX}0"].send(message)
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == message
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == correct_response
+        await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test multiple arguments error
         message = "/c room 1"
         correct_response = "Room name cannot contain spaces."
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test existing room error
         message = "/c room"
         correct_response = f"Someone beat you to it. {self.room} already exists."
-        await self.communicators["owner"].send(message)
-        assert await self.communicators["owner"].receive() == message
-        assert await self.communicators["owner"].receive() == correct_response
+        await self.test_isolated(self.owner, message, correct_response)
 
         # Test room creation
         message = "/c room_1"
