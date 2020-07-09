@@ -9,7 +9,6 @@ import asyncio
 
 from pytest import mark
 
-from OB.constants import ANON_PREFIX
 from OB.models import Ban, OBUser
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_add_occupants, async_delete, async_get, async_model_list, \
@@ -31,77 +30,8 @@ class BanTest(BaseCommandTest):
         """
         Description:
             Tests the /ban command (see OB.commands.user_level.ban()).
+            Tests errors last just in case previous tests fail and the test must run again.
         """
-
-        # Test unauthenticated user banning error
-        message = "/ban"
-        correct_response = (
-            "You're not even logged in! Try making an account first, then we can talk about "
-            "banning people."
-        )
-        await self.communicators[f"{ANON_PREFIX}0"].send(message)
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == message
-        assert await self.communicators[f"{ANON_PREFIX}0"].receive() == correct_response
-
-        # Test authenticated user banning error
-        message = "/b"
-        correct_response = (
-            "That's a little outside your pay-grade. Only admins may ban users. "
-            "Try to /apply to be an admin."
-        )
-        await self.communicators["auth_user_0"].send(message)
-        assert await self.communicators["auth_user_0"].receive() == message
-        assert await self.communicators["auth_user_0"].receive() == correct_response
-
-        # Test no arguments error
-        message = "/b"
-        correct_response = "Usage: /ban <user1> <user2> ..."
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
-
-        # Test absent target error
-        message = "/b auth_user_0_1"
-        correct_response = "Nobody named auth_user_0_1 in this room. Are you seeing things?"
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
-
-        # Test self target error
-        message = "/b limited_admin_0"
-        correct_response = (
-            "You can't ban yourself. Just leave the room. Or put yourself on time-out."
-        )
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
-
-        # Test limited admin banning owner error
-        message = "/b owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
-
-        # Test limited admin banning unlimited admin error
-        message = "/b unlimited_admin_0"
-        correct_response = (
-            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't ban them. Feel free "
-            "to /elevate your complaints to someone who has more authority."
-        )
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
-
-        # Test limited admin banning limited admin error
-        message = "/b limited_admin_1"
-        correct_response = (
-            f"{self.limited_admins[1]} is an admin just like you, so you can't ban them. Feel "
-            "free to /elevate your complaints to someone who has more authority."
-        )
-        await self.communicators["limited_admin_0"].send(message)
-        assert await self.communicators["limited_admin_0"].receive() == message
-        assert await self.communicators["limited_admin_0"].receive() == correct_response
 
         # Test limited admin banning authenticated user
         message = "/b auth_user_0"
@@ -109,23 +39,6 @@ class BanTest(BaseCommandTest):
             self.limited_admins[0],
             [self.auth_users[0]]
         )
-
-        # Test unlimited admin banning owner error
-        message = "/b owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
-        await self.communicators["unlimited_admin_0"].send(message)
-        assert await self.communicators["unlimited_admin_0"].receive() == message
-        assert await self.communicators["unlimited_admin_0"].receive() == correct_response
-
-        # Test unlimited admin banning unlimited admin error
-        message = "/b unlimited_admin_1"
-        correct_response = (
-            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't ban "
-            "them. Feel free to /elevate your complaints to someone who has more authority."
-        )
-        await self.communicators["unlimited_admin_0"].send(message)
-        assert await self.communicators["unlimited_admin_0"].receive() == message
-        assert await self.communicators["unlimited_admin_0"].receive() == correct_response
 
         # Test unlimited admin banning limited admin
         await self.test_success(
@@ -145,6 +58,73 @@ class BanTest(BaseCommandTest):
             self.owner,
             [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]]
         )
+
+        # Test unauthenticated user banning error
+        message = "/ban"
+        correct_response = (
+            "You're not even logged in! Try making an account first, then we can talk about "
+            "banning people."
+        )
+        await self.test_isolated(self.anon_users[0], message, correct_response)
+
+        # Test authenticated user banning error
+        message = "/b"
+        correct_response = (
+            "That's a little outside your pay-grade. Only admins may ban users. "
+            "Try to /apply to be an admin."
+        )
+        await self.test_isolated(self.auth_users[0], message, correct_response)
+
+        # Test no arguments error
+        message = "/b"
+        correct_response = "Usage: /ban <user1> <user2> ..."
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test absent target error
+        message = "/b auth_user_0_1"
+        correct_response = "Nobody named auth_user_0_1 in this room. Are you seeing things?"
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test self target error
+        message = "/b limited_admin_0"
+        correct_response = (
+            "You can't ban yourself. Just leave the room. Or put yourself on time-out."
+        )
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test limited admin banning owner error
+        message = "/b owner"
+        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test limited admin banning unlimited admin error
+        message = "/b unlimited_admin_0"
+        correct_response = (
+            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't ban them. Feel free "
+            "to /elevate your complaints to someone who has more authority."
+        )
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test limited admin banning limited admin error
+        message = "/b limited_admin_1"
+        correct_response = (
+            f"{self.limited_admins[1]} is an admin just like you, so you can't ban them. Feel "
+            "free to /elevate your complaints to someone who has more authority."
+        )
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test unlimited admin banning owner error
+        message = "/b owner"
+        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test unlimited admin banning unlimited admin error
+        message = "/b unlimited_admin_1"
+        correct_response = (
+            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't ban "
+            "them. Feel free to /elevate your complaints to someone who has more authority."
+        )
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
     @mark.asyncio
     @mark.django_db()
