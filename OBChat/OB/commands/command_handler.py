@@ -5,7 +5,8 @@ Handles when a command is issued from a user and redirects to the appropriate co
 from OB.commands.admin_level.ban import ban
 from OB.commands.admin_level.lift import lift
 from OB.commands.admin_level.kick import kick
-from OB.commands.auth_user_level import apply, create
+from OB.commands.auth_user_level.apply import apply
+from OB.commands.auth_user_level.create import create
 from OB.commands.owner_level import delete
 from OB.commands.unlimited_admin_level import hire, fire
 from OB.commands.user_level import who, private
