@@ -22,6 +22,9 @@ from OB.tests.test_commands.admin_level.kick import KickTest
 from OB.tests.test_commands.admin_level.lift import LiftTest
 from OB.tests.test_commands.auth_user_level.apply import ApplyTest
 from OB.tests.test_commands.auth_user_level.create import CreateTest
+from OB.tests.test_commands.owner_level.delete import DeleteTest
+from OB.tests.test_commands.unlimited_admin_level.fire import FireTest
+from OB.tests.test_commands.unlimited_admin_level.hire import HireTest
 from OB.tests.test_commands.user_level.private import PrivateTest
 from OB.tests.test_commands.user_level.who import WhoTest
 
@@ -113,3 +116,44 @@ async def test_lift():
 
     lift_test = LiftTest()
     await lift_test.run()
+
+###################################################################################################
+# Unlimited Admin Level                                                                           #
+###################################################################################################
+
+@mark.asyncio
+@mark.django_db()
+async def test_hire():
+    """
+    Description:
+        Tests the /hire command function.
+    """
+
+    hire_test = HireTest()
+    await hire_test.run()
+
+@mark.asyncio
+@mark.django_db()
+async def test_fire():
+    """
+    Description:
+        Tests the /fire command function.
+    """
+
+    fire_test = FireTest()
+    await fire_test.run()
+
+###################################################################################################
+# Owner Level                                                                                     #
+###################################################################################################
+
+@mark.asyncio
+@mark.django_db()
+async def test_delete():
+    """
+    Description:
+        Tests the /delete command function.
+    """
+
+    delete_test = DeleteTest()
+    await delete_test.run()
