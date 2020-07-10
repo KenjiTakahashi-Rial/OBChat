@@ -1,5 +1,6 @@
 """
-A user must be the owner of the room to perform these commands.
+A user must be the owner of the room to perform this command (see OB.models.Room &
+OB.constants.Privilege).
 """
 
 from OB.utilities.event import send_system_room_message
