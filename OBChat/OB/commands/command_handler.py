@@ -10,7 +10,8 @@ from OB.commands.auth_user_level.create import create
 from OB.commands.owner_level.delete import delete
 from OB.commands.unlimited_admin_level.hire import hire
 from OB.commands.unlimited_admin_level.fire import fire
-from OB.commands.user_level import who, private
+from OB.commands.user_level.who import who
+from OB.commands.user_level.private import private
 from OB.utilities.event import send_system_room_message
 
 # pylint: disable=bad-whitespace
