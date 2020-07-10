@@ -8,7 +8,8 @@ from OB.commands.admin_level.kick import kick
 from OB.commands.auth_user_level.apply import apply
 from OB.commands.auth_user_level.create import create
 from OB.commands.owner_level.delete import delete
-from OB.commands.unlimited_admin_level import hire, fire
+from OB.commands.unlimited_admin_level.hire import hire
+from OB.commands.unlimited_admin_level.fire import fire
 from OB.commands.user_level import who, private
 from OB.utilities.event import send_system_room_message
 
