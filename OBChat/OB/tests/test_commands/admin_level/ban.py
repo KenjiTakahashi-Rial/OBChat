@@ -1,5 +1,5 @@
 """
-Class to test the /ban command function (see OB.commands.admin_level.ban()).
+Class to test the /ban command function (see OB.commands.admin_level.ban).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -29,7 +29,7 @@ class BanTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /ban command (see OB.commands.user_level.ban()).
+            Tests the /ban command (see OB.commands.user_level.ban).
             Tests errors last just in case previous tests fail and the test must run again.
         """
 

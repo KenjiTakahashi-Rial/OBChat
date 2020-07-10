@@ -1,5 +1,5 @@
 """
-Class to test the /create command function (see OB.commands.auth_user_level.create()).
+Class to test the /create command function (see OB.commands.auth_user_level.create).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -28,7 +28,7 @@ class CreateTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /create command (see OB.commands.user_level.create()).
+            Tests the /create command (see OB.commands.user_level.create).
         """
 
         # Test no arguments error

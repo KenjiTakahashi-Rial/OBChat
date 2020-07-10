@@ -1,5 +1,5 @@
 """
-Class to test the /private command function (see OB.commands.user_level.private()).
+Class to test the /private command function (see OB.commands.user_level.private).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -29,7 +29,7 @@ class PrivateTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /private command (see OB.commands.user_level.private()).
+            Tests the /private command (see OB.commands.user_level.private).
         """
 
         # Test no arguments error

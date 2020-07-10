@@ -1,5 +1,5 @@
 """
-Class to test the /apply command function (see OB.commands.auth_user_level.apply()).
+Class to test the /apply command function (see OB.commands.auth_user_level.apply).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -28,7 +28,7 @@ class ApplyTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /apply command (see OB.commands.user_level.apply()).
+            Tests the /apply command (see OB.commands.user_level.apply).
         """
 
         # Test unauthenticated user error

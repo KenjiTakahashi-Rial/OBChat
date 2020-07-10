@@ -1,5 +1,5 @@
 """
-Class to test the /kick command function (see OB.commands.admin_level.kick()).
+Class to test the /kick command function (see OB.commands.admin_level.kick).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -28,7 +28,7 @@ class KickTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /kick command (see OB.commands.user_level.kick()).
+            Tests the /kick command (see OB.commands.user_level.kick).
             Tests errors last just in case previous tests fail and the test must run again.
         """
 

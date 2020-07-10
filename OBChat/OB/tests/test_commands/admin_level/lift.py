@@ -1,5 +1,5 @@
 """
-Class to test the /lift command function (see OB.commands.admin_level.lift()).
+Class to test the /lift command function (see OB.commands.admin_level.lift).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -28,7 +28,7 @@ class LiftTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /lift command (see OB.commands.user_level.lift()).
+            Tests the /lift command (see OB.commands.user_level.lift).
         """
 
         # Test unauthenticated user lifting error

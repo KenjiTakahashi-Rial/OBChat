@@ -1,5 +1,5 @@
 """
-Class to test the /who command function (see OB.commands.user_level.who()).
+Class to test the /who command function (see OB.commands.user_level.who).
 
 See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
@@ -26,7 +26,7 @@ class WhoTest(BaseCommandTest):
     async def tests(self):
         """
         Description:
-            Tests the /who command (see OB.commands.user_level.who()).
+            Tests the /who command (see OB.commands.user_level.who).
         """
 
         # Test nonexistent room error
