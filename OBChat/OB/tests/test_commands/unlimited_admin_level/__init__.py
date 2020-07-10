@@ -8,4 +8,5 @@ https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
 
 import pytest
 
-# pytest.register_assert_rewrite("")
+pytest.register_assert_rewrite("OB.tests.test_commands.unlimited_admin_level.hire")
+pytest.register_assert_rewrite("OB.tests.test_commands.unlimited_admin_level.fire")
