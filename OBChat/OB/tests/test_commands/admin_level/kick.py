@@ -7,7 +7,6 @@ https://docs.pytest.org/en/latest/contents.html
 
 from pytest import mark
 
-from OB.constants import ANON_PREFIX
 from OB.models import OBUser
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_add_occupants, async_model_list, async_save, \
