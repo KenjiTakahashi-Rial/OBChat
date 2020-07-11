@@ -24,8 +24,8 @@ async def kick(args, sender, room):
     # Remove duplicates
     args = list(dict.fromkeys(args))
 
-    sender_privilege = await async_get_privilege(sender, room)
     error_message = ""
+    sender_privilege = await async_get_privilege(sender, room)
 
     # Check for initial errors
     if not sender.is_authenticated or sender.is_anon:
