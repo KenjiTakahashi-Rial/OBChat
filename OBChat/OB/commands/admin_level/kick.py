@@ -24,6 +24,7 @@ async def kick(args, sender, room):
     # Remove duplicates
     args = list(dict.fromkeys(args))
 
+    sender_privilege = await async_get_privilege(sender, room)
     error_message = ""
 
     # Check for initial errors
@@ -32,7 +33,7 @@ async def kick(args, sender, room):
             "You're not even logged in! Try making an account first, then we can talk about "
             "kicking people."
         )
-    elif await async_get_privilege(sender, room) < Privilege.Admin:
+    elif sender.privilege < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
             "be an admin."
@@ -53,7 +54,6 @@ async def kick(args, sender, room):
 
         if arg_user:
             arg_privilege = await async_get_privilege(arg_user, room)
-            sender_privilege = await async_get_privilege(sender, room)
 
         # Check for per-argument errors
         if not arg_user or arg_user not in await async_model_list(room.occupants):
