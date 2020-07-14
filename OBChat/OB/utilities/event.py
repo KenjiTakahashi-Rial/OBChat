@@ -41,7 +41,7 @@ async def send_room_event(room_id, event):
 
     await send_event(event, get_group_name(GroupTypes.Room, room_id))
 
-async def send_room_message(message_json, room_id, recipients=None):
+async def send_room_message(message_json, room_id, recipients=None, exclusions=None):
     """
     Description:
         Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
@@ -51,18 +51,23 @@ async def send_room_message(message_json, room_id, recipients=None):
         message_json (string): A JSON containing the message text and any metadata to be displayed.
         room_id (int): The id of the room to send the message to.
         recipients (list[OBUser] or None): The only users who will see the response. If None, all
-            occupants of the room will see the response.
+            occupants of the room will see the response. If a user in this list is also in
+            exclusions, they will not receive the message.
+        exclusions (list[OBUser] or None): Users who will not see the response. If None, all
+            recipients will see the response. If a user in this list is also in recipients, they
+            will not receive the message.
     """
 
     event = {
         "type": "room_message",
         "message_json": message_json,
-        "recipient_ids": [user.id for user in recipients] if recipients else [-1]
+        "recipient_ids": [user.id for user in recipients] if recipients else [-1],
+        "exclusion_ids": [user.id for user in exclusions] if exclusions else [-1]
     }
 
     await send_room_event(room_id, event)
 
-async def send_system_room_message(message_text, room, recipients=None):
+async def send_system_room_message(message_text, room, recipients=None, exclusions=None):
     """
     Description:
         Sends a message from the server to a specified room's group (see send_room_message()) with
@@ -73,7 +78,11 @@ async def send_system_room_message(message_text, room, recipients=None):
         message_text (string): The message to send from the server.
         room (Room): The database object of the room to send this message to.
         recipients (list[OBUser] or None): The only users who will see the response. If None, all
-            occupants of the room will see the response.
+            occupants of the room will see the response. If a user in this list is also in
+            exclusions, they will not receive the message.
+        exclusions (list[OBUser] or None): Users who will not see the response. If None, all
+            recipients will see the response. If a user in this list is also in recipients, they
+            will not receive the message.
     """
 
     # Save message to database
@@ -91,15 +100,22 @@ async def send_system_room_message(message_text, room, recipients=None):
     else:
         await async_add(new_message.recipients, None)
 
+    if exclusions:
+        for user in exclusions:
+            await async_add(new_message.exclusions, user)
+    else:
+        await async_add(new_message.exclusions, None)
+
     message_json = json.dumps({
         "text": message_text,
         "sender_name": SYSTEM_USERNAME,
-        "has_recipient": bool(recipients),
+        "has_recipients": bool(recipients),
+        "has_exclusions": bool(exclusions),
         "timestamp": get_datetime_string(new_message.timestamp)
     })
 
     # Send the message
-    await send_room_message(message_json, room.id, recipients)
+    await send_room_message(message_json, room.id, recipients, exclusions)
 
 async def send_private_message(message_text, sender, recipient):
     """

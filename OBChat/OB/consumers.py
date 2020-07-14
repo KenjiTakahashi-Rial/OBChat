@@ -186,7 +186,8 @@ class OBConsumer(AsyncWebsocketConsumer):
         message_json = json.dumps({
             "text": message_text,
             "sender_name": self.user.display_name or self.user.username,
-            "has_recipient": bool(recipients),
+            "has_recipients": bool(recipients),
+            "has_exclusions": False,
             "timestamp": get_datetime_string(new_message.timestamp)
         })
 
@@ -229,7 +230,11 @@ class OBConsumer(AsyncWebsocketConsumer):
             event (dict): Contains the message JSON
         """
 
-        if any(id < 0 for id in event["recipient_ids"]) or self.user.id in event["recipient_ids"]:
+        has_recipients = all(id >= 0 for id in event["recipient_ids"])
+        is_user_recipient = self.user.id in event["recipient_ids"]
+        is_user_excluded = self.user.id in event["exclusion_ids"]
+
+        if not is_user_excluded and (not has_recipients or is_user_recipient):
             await self.send(text_data=event["message_json"])
 
     async def kick(self, event):

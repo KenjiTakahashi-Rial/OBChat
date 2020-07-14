@@ -185,7 +185,7 @@ A chatroom for users to talk
       newMessage.querySelector("#user-icon").alt = "user";
 
       // Change <p> to <pre> if message has a recipient
-      if (message.has_recipient) {
+      if (message.has_recipients) {
         newMessage.querySelector("#message-text").innerHTML = "<pre>" + message.text + "</pre>";
       } else {
         newMessage.querySelector("#message-text").innerHTML = message.text;
