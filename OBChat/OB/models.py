@@ -237,8 +237,12 @@ class Message(Model):
     recipients = ManyToManyField(
         OBUser,
         related_name="message_received",
-        default=None,
-        null=True
+        default=None
+    )
+    exclusions = ManyToManyField(
+        OBUser,
+        related_name="message_excluded",
+        default=None
     )
     anon_username = CharField(
         max_length=ANON_USERNAME_MAX_LENGTH,
@@ -275,12 +279,22 @@ class Message(Model):
             ]
         recipients = "\n".join(recipients) if recipients else None
 
+        exclusions = []
+        for user in self.exclusions:
+            exclusions += [
+                f"    {user}"
+            ]
+        exclusions = "\n".join(exclusions) if exclusions else None
+
         return "\n".join([
             f"Message {{",
             f"    message: {self.message}",
             f"    sender: {self.sender}",
             f"    recipients: {{",
             f"    {recipients}",
+            f"    }}"
+            f"    exclusions: {{",
+            f"    {exclusions}",
             f"    }}"
             f"    anon_username: {self.anon_username}",
             f"    room: {self.room}",
