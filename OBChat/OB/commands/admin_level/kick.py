@@ -33,7 +33,7 @@ async def kick(args, sender, room):
             "You're not even logged in! Try making an account first, then we can talk about "
             "kicking people."
         )
-    elif sender.privilege < Privilege.Admin:
+    elif sender_privilege < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
             "be an admin."
