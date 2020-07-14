@@ -55,28 +55,29 @@ async def hire(args, sender, room):
             ]
         elif arg_user == sender:
             error_messages += [
-                f"You can't hire yourself. I don't care how good your letter of recommendation is."
+                "You can't hire yourself. I don't care how good your letter of recommendation is."
             ]
         elif arg_user == room.owner:
-            error_messages += f"That's the owner. You know, your BOSS. Nice try."
-        elif not sender.is_authenticated:
+            error_messages += ["That's the owner. You know, your BOSS. Nice try."]
+        elif not arg_user.is_authenticated or arg_user.is_anon:
             error_messages += [
                 f"{username} hasn't signed up yet. They cannot be trusted with the immense "
                 "responsibility that is adminship."
             ]
         elif arg_admin:
             if not arg_admin.is_limited:
-                error_message += [
+                error_messages += [
                     f"{username} is already an Unlimited Admin. There's nothing left to /hire them"
                     " for."
                 ]
             elif sender_privilege < Privilege.Owner:
-                error_message += [
-                    f"{username} is already an admin. Only the owner may promote them to Unlimited"
+                error_messages += [
+                    f"{username} is already an Admin. Only the owner may promote them to Unlimited"
                     " Admin."
                 ]
         else:
-            valid_hires += arg_user
+            print("valid hire")
+            valid_hires += [arg_user]
 
     send_to_sender = error_messages
     send_to_others = []
@@ -91,20 +92,22 @@ async def hire(args, sender, room):
             # Make the user an admin
             await async_save(
                 Admin,
-                sender=hired_user,
-                room=room
-            ).save()
+                user=hired_user,
+                room=room,
+                issuer=sender
+            )
             admin_prefix = ""
 
         await send_system_room_message(
-            "With great power comes great responsibility. You were promoted to admin in "
-            f"{room.name}!",
+            f"With great power comes great responsibility. You were promoted to {admin_prefix}"
+            f"admin in {room.name}!",
             room,
             [hired_user]
         )
 
         send_to_sender += (
-            f"Promoted {hired_user.username} to admin in {room.name}. Keep an eye on them."
+            f"Promoted {hired_user.username} to {admin_prefix}admin in {room.name}. Keep an eye on"
+            " them."
         )
         send_to_others += (
             f"{hired_user.username} was promoted to {admin_prefix}Admin. Drinks on them!"
@@ -113,4 +116,4 @@ async def hire(args, sender, room):
     if send_to_sender:
         await send_system_room_message("\n".join(send_to_sender), room, [sender])
     if send_to_others:
-        await send_system_room_message("\n".join(send_to_others), room)
+        await send_system_room_message("\n".join(send_to_others), room, exclusions=[sender])
