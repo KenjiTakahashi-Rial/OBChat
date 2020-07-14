@@ -32,14 +32,14 @@ class HireTest(BaseCommandTest):
         message = "/hire"
         correct_response = (
             "That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to"
-            " /apply to be unlimited."
+            " /apply to be Unlimited."
         )
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test auth user hiring error
         await self.test_isolated(self.auth_users[1], message, correct_response)
 
-        # Test limited admin hiring error
+        # Test limited Admin hiring error
         await self.test_isolated(self.limited_admins[1], message, correct_response)
 
         # Test no arguments error
@@ -73,7 +73,7 @@ class HireTest(BaseCommandTest):
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test hiring unlimited admin error
+        # Test hiring Unlimited Admin error
         message = "/h unlimited_admin_0"
         correct_response = (
             "unlimited_admin_0 is already an Unlimited Admin. There's nothing left to /hire them"
@@ -81,7 +81,7 @@ class HireTest(BaseCommandTest):
         )
         await self.test_isolated(self.owner, message, correct_response)
 
-        # Test unlimited admin limited admin error
+        # Test Unlimited Admin limited Admin error
         message = "/h limited_admin_0"
         correct_response = (
             "limited_admin_0 is already an Admin. Only the owner may promote them to Unlimited "

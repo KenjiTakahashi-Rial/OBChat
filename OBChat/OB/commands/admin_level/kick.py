@@ -1,5 +1,5 @@
 """
-A user must have admin privileges of the room to perform this command (see OB.models.Admin &
+A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
 OB.constants.Privilege).
 """
 
@@ -36,7 +36,7 @@ async def kick(args, sender, room):
     elif sender_privilege < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to "
-            "be an admin."
+            "be an Admin."
         )
     elif not args:
         error_message = "Usage: /kick <user1> <user2> ..."
@@ -65,13 +65,13 @@ async def kick(args, sender, room):
         elif arg_user == await async_get_owner(room):
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
         elif arg_privilege >= sender_privilege:
-            job_title = "admin"
+            job_title = "Admin"
 
             if arg_privilege == sender_privilege:
                 job_title += " just like you"
 
             if arg_privilege == Privilege.UnlimitedAdmin:
-                job_title = "unlimited " + job_title
+                job_title = "Unlimited " + job_title
 
             error_messages += [
                 f"{arg_user} is an {job_title}, so you can't kick them. Feel free to "

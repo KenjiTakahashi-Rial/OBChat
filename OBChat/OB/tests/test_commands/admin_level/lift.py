@@ -34,7 +34,7 @@ class LiftTest(BaseCommandTest):
         # Test unauthenticated user lifting error
         message = "/lift"
         correct_response = (
-            "You are far from one who can lift bans. Log in and prove yourself an admin."
+            "You are far from one who can lift bans. Log in and prove yourself an Admin."
         )
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
@@ -42,7 +42,7 @@ class LiftTest(BaseCommandTest):
         message = "/l"
         correct_response = (
             "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be"
-            " an admin and perhaps you may obtain this power if you are worthy."
+            " an Admin and perhaps you may obtain this power if you are worthy."
         )
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
@@ -67,7 +67,7 @@ class LiftTest(BaseCommandTest):
             issuer=self.owner
         )
 
-        # Test limited admin lifting owner-issued ban error
+        # Test limited Admin lifting owner-issued ban error
         message = "/l auth_user_1"
         correct_response = (
             f"auth_user_1 was banned by {self.owner}. You cannot lift a ban issued by a user of "
@@ -76,7 +76,7 @@ class LiftTest(BaseCommandTest):
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test unlimited admin lifting owner-issued ban error
+        # Test Unlimited Admin lifting owner-issued ban error
         message = "/l auth_user_1"
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
@@ -105,7 +105,7 @@ class LiftTest(BaseCommandTest):
             issuer=self.unlimited_admins[0]
         )
 
-        # Test limited admin lifting unlimited-admin-issued ban error
+        # Test limited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
         correct_response = (
             f"auth_user_1 was banned by {self.unlimited_admins[0]}. You cannot lift a ban issued "
@@ -114,11 +114,11 @@ class LiftTest(BaseCommandTest):
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test unlimited admin lifting unlimited-admin-issued ban error
+        # Test Unlimited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
         await self.test_isolated(self.unlimited_admins[1], message, correct_response)
 
-        # Test unlimited admin lifting ban
+        # Test Unlimited Admin lifting ban
         message = "/l auth_user_1"
         correct_response = "\n".join([
             f"Ban lifted:",

@@ -12,7 +12,7 @@ from OB.utilities.event import send_system_room_message
 async def apply(args, sender, room):
     """
     Description:
-        Sends a request for a user to be hired as an admin or promoted to unlimited admin.
+        Sends a request for a user to be hired as an Admin or promoted to Unlimited Admin.
         The request is visible by all users with hiring privileges of the room.
         Optionally includes a message.
 
@@ -39,7 +39,7 @@ async def apply(args, sender, room):
         return
 
     # Construct the application and receipt
-    user_suffix = " [admin]" if sender_privilege == Privilege.Admin else ""
+    user_suffix = " [Admin]" if sender_privilege == Privilege.Admin else ""
     position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
     application_message = " ".join(args) if args else None
 

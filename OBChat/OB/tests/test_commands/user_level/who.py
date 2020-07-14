@@ -53,11 +53,11 @@ class WhoTest(BaseCommandTest):
         message = "/w"
         correct_response = "\n".join([
             f"Users in {self.room}:",
-            f"    {self.owner} [owner] [you]",
-            f"    {self.unlimited_admins[0]} [admin]",
-            f"    {self.unlimited_admins[1]} [admin]",
-            f"    {self.limited_admins[0]} [admin]",
-            f"    {self.limited_admins[1]} [admin]",
+            f"    {self.owner} [Owner] [you]",
+            f"    {self.unlimited_admins[0]} [Admin]",
+            f"    {self.unlimited_admins[1]} [Admin]",
+            f"    {self.limited_admins[0]} [Admin]",
+            f"    {self.limited_admins[1]} [Admin]",
             f"    {self.auth_users[0]}",
             f"    {self.auth_users[1]}",
             f"    {self.anon_users[0]}",

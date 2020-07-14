@@ -38,7 +38,7 @@ class ApplyTest(BaseCommandTest):
         )
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
-        # Test unlimited admin error
+        # Test Unlimited Admin error
         correct_response = "You're already a big shot! There's nothing left to apply to."
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
@@ -49,7 +49,7 @@ class ApplyTest(BaseCommandTest):
         await self.test_success(self.auth_users[0])
 
         # Test limited admin
-        await self.test_success(self.limited_admins[0], "How do into unlimited admin?")
+        await self.test_success(self.limited_admins[0], "How do into Unlimited Admin?")
 
     @mark.asyncio
     @mark.django_db()
@@ -69,7 +69,7 @@ class ApplyTest(BaseCommandTest):
         await self.communicators[sender.username].send(f"/apply{command}")
 
         # Prepare the responses
-        user_suffix = " [admin]" if sender_privilege == Privilege.Admin else ""
+        user_suffix = " [Admin]" if sender_privilege == Privilege.Admin else ""
         position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
         message = message if message else None
 

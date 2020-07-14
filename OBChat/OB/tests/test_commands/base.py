@@ -22,10 +22,10 @@ class BaseCommandTest:
             Declares the instance variables that be used for testing, includes communicators and
             database objects.
         Arguments:
-            unlimited_admins (int): The number unlimited admins that will be needed to test.
-            limited_admins (int): The number limited admins that will be needed to test.
-            auth_users (int): The number authenticated users that will be needed to test.
-            anon_users (int): The number anonymous users that will be needed to test.
+            unlimited_admins (int): The number of Unlimited Admins that will be needed to test.
+            limited_admins (int): The number of limited admins that will be needed to test.
+            auth_users (int): The number of authenticated users that will be needed to test.
+            anon_users (int): The number of anonymous users that will be needed to test.
         """
 
         self.owner = OBUser()

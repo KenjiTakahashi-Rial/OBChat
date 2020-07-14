@@ -51,9 +51,9 @@ async def who(args, sender, room):
 
             # Tag occupant appropriately
             if occupant == await async_get_owner(arg_room):
-                occupant_string += " [owner]"
+                occupant_string += " [Owner]"
             if await async_try_get(Admin, user=occupant, room=room):
-                occupant_string += " [admin]"
+                occupant_string += " [Admin]"
             if occupant == sender:
                 occupant_string += " [you]"
 

@@ -1,5 +1,5 @@
 """
-A user must have admin privileges of the room to perform this command (see OB.models.Admin &
+A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
 OB.constants.Privilege).
 """
 
@@ -30,12 +30,12 @@ async def lift(args, sender, room):
     # Check for initial errors
     if not sender.is_authenticated or sender.is_anon:
         error_message = (
-            "You are far from one who can lift bans. Log in and prove yourself an admin."
+            "You are far from one who can lift bans. Log in and prove yourself an Admin."
         )
     elif await async_get_privilege(sender, room) < Privilege.Admin:
         error_message = (
             "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be"
-            " an admin and perhaps you may obtain this power if you are worthy."
+            " an Admin and perhaps you may obtain this power if you are worthy."
         )
     elif not args:
         error_message = "Usage: /lift <user1> <user2> ..."

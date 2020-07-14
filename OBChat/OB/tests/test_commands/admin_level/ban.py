@@ -33,20 +33,20 @@ class BanTest(BaseCommandTest):
             Tests errors last just in case previous tests fail and the test must run again.
         """
 
-        # Test limited admin banning authenticated user
+        # Test limited Admin banning authenticated user
         message = "/b auth_user_0"
         await self.test_success(
             self.limited_admins[0],
             [self.auth_users[0]]
         )
 
-        # Test unlimited admin banning limited admin
+        # Test Unlimited Admin banning limited admin
         await self.test_success(
             self.unlimited_admins[0],
             [self.limited_admins[0]]
         )
 
-        # Test unlimited admin banning authenticated user
+        # Test Unlimited Admin banning authenticated user
         await self.test_success(
             self.unlimited_admins[0],
             [self.auth_users[0]]
@@ -71,7 +71,7 @@ class BanTest(BaseCommandTest):
         message = "/b"
         correct_response = (
             "That's a little outside your pay-grade. Only admins may ban users. "
-            "Try to /apply to be an admin."
+            "Try to /apply to be an Admin."
         )
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
@@ -92,36 +92,36 @@ class BanTest(BaseCommandTest):
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin banning owner error
+        # Test limited Admin banning owner error
         message = "/b owner"
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin banning unlimited admin error
+        # Test limited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_0"
         correct_response = (
-            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't ban them. Feel free "
+            f"{self.unlimited_admins[0]} is an Unlimited Admin, so you can't ban them. Feel free "
             "to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin banning limited admin error
+        # Test limited Admin banning limited Admin error
         message = "/b limited_admin_1"
         correct_response = (
-            f"{self.limited_admins[1]} is an admin just like you, so you can't ban them. Feel "
+            f"{self.limited_admins[1]} is an Admin just like you, so you can't ban them. Feel "
             "free to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test unlimited admin banning owner error
+        # Test Unlimited Admin banning owner error
         message = "/b owner"
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test unlimited admin banning unlimited admin error
+        # Test Unlimited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_1"
         correct_response = (
-            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't ban "
+            f"{self.unlimited_admins[1]} is an Unlimited Admin just like you, so you can't ban "
             "them. Feel free to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)

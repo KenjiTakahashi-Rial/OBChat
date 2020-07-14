@@ -158,7 +158,7 @@ class Admin(Model):
         return self
 
     def __str__(self, show_id=False):
-        display_string = f"{self.user}, admin of {self.room.name}"
+        display_string = f"{self.user}, Admin of {self.room.name}"
 
         if show_id:
             display_string += f"[{self.id}]"

@@ -31,16 +31,16 @@ class KickTest(BaseCommandTest):
             Tests errors last just in case previous tests fail and the test must run again.
         """
 
-        # Test limited admin kicking authenticated user
+        # Test limited Admin kicking authenticated user
         await self.test_success(self.limited_admins[0], [self.auth_users[0]])
 
-        # Test unlimited admin kicking limited admin
+        # Test Unlimited Admin kicking limited admin
         await self.test_success(self.unlimited_admins[0], [self.limited_admins[0]])
 
-        # Test unlimited admin kicking authenticated user
+        # Test Unlimited Admin kicking authenticated user
         await self.test_success(self.unlimited_admins[0], [self.auth_users[0]])
 
-        # Test unlimited admin kicking multiple users
+        # Test Unlimited Admin kicking multiple users
         await self.test_success(
             self.unlimited_admins[0],
             [self.limited_admins[0], self.auth_users[0]]
@@ -65,7 +65,7 @@ class KickTest(BaseCommandTest):
         message = "/k"
         correct_response = (
             "That's a little outside your pay-grade. Only admins may kick users. "
-            "Try to /apply to be an admin."
+            "Try to /apply to be an Admin."
         )
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
@@ -86,36 +86,36 @@ class KickTest(BaseCommandTest):
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin kicking owner error
+        # Test limited Admin kicking owner error
         message = "/k owner"
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin kicking unlimited admin error
+        # Test limited Admin kicking Unlimited Admin error
         message = "/k unlimited_admin_0"
         correct_response = (
-            f"{self.unlimited_admins[0]} is an unlimited admin, so you can't kick them. Feel free "
+            f"{self.unlimited_admins[0]} is an Unlimited Admin, so you can't kick them. Feel free "
             "to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test limited admin kicking limited admin error
+        # Test limited Admin kicking limited Admin error
         message = "/k limited_admin_1"
         correct_response = (
-            f"{self.limited_admins[1]} is an admin just like you, so you can't kick them. Feel "
+            f"{self.limited_admins[1]} is an Admin just like you, so you can't kick them. Feel "
             "free to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
-        # Test unlimited admin kicking owner error
+        # Test Unlimited Admin kicking owner error
         message = "/k owner"
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test unlimited admin kicking unlimited admin error
+        # Test Unlimited Admin kicking Unlimited Admin error
         message = "/k unlimited_admin_1"
         correct_response = (
-            f"{self.unlimited_admins[1]} is an unlimited admin just like you, so you can't kick "
+            f"{self.unlimited_admins[1]} is an Unlimited Admin just like you, so you can't kick "
             "them. Feel free to /elevate your complaints to someone who has more authority."
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)

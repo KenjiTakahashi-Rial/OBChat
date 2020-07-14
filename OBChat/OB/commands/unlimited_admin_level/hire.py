@@ -1,5 +1,5 @@
 """
-A user must have unlimited admin privileges of the room to perform this command
+A user must have Unlimited Admin privileges of the room to perform this command
 (see OB.models.Admin & OB.constants.Privilege).
 """
 
@@ -31,7 +31,7 @@ async def hire(args, sender, room):
     if sender_privilege < Privilege.UnlimitedAdmin:
         error_message = (
             "That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to"
-            " /apply to be unlimited."
+            " /apply to be Unlimited."
         )
     elif len(args) == 0:
         error_message = "Usage: /hire <user1> <user2> ..."
@@ -84,7 +84,7 @@ async def hire(args, sender, room):
 
     for hired_user in valid_hires:
         if arg_admin and sender_privilege == Privilege.Owner:
-            # Make the admin unlimited
+            # Make the Admin unlimited
             arg_admin.is_limited = False
             await async_save(arg_admin)
             admin_prefix = "Unlimited "

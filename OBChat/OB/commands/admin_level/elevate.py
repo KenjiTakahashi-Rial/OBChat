@@ -1,5 +1,5 @@
 """
-A user must have admin privileges of the room to perform this command (see OB.models.Admin &
+A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
 OB.constants.Privilege).
 """
 

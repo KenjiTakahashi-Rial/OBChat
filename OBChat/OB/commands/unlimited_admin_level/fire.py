@@ -1,5 +1,5 @@
 """
-A user must have unlimited admin privileges of the room to perform this command
+A user must have Unlimited Admin privileges of the room to perform this command
 (see OB.models.Admin & OB.constants.Privilege).
 """
 
@@ -24,8 +24,8 @@ async def fire(args, sender, room):
     # Check for initial errors
     if await async_get_privilege(sender, room) < Privilege.UnlimitedAdmin:
         error_message = (
-            "That's a little outside your pay-grade. Only unlimited admins may fire admins. Try to"
-            " /apply to be unlimited."
+            "That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to"
+            " /apply to be Unlimited."
         )
     elif len(args) == 0:
         error_message = "Usage: /fire <user1> <user2> ..."
@@ -60,7 +60,7 @@ async def fire(args, sender, room):
             )
         elif sender != room.owner and not arg_admin.is_limited:
             error_messages += (
-                f"\"{username}\" is an unlimited admin, so you can't fire them. Please direct all "
+                f"\"{username}\" is an Unlimited Admin, so you can't fire them. Please direct all "
                 "complaints to your local room owner, I'm sure they'll love some more paperwork to"
                 " do...")
         else:
