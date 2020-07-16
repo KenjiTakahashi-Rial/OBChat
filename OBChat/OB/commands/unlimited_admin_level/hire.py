@@ -3,6 +3,8 @@ A user must have Unlimited Admin privileges of the room to perform this command
 (see OB.models.Admin & OB.constants.Privilege).
 """
 
+import channels
+
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities.command import async_get_privilege
@@ -104,13 +106,13 @@ async def hire(args, sender, room):
             [hired_user]
         )
 
-        send_to_sender += (
+        send_to_sender += [
             f"Promoted {hired_user.username} to {admin_prefix}Admin in {room.name}. Keep an eye on"
             " them."
-        )
-        send_to_others += (
+        ]
+        send_to_others += [
             f"{hired_user.username} was promoted to {admin_prefix}Admin. Drinks on them!"
-        )
+        ]
 
     if send_to_sender:
         await send_system_room_message("\n".join(send_to_sender), room, [sender])

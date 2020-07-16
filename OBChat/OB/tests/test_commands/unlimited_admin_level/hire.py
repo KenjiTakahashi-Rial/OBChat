@@ -92,7 +92,7 @@ class HireTest(BaseCommandTest):
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring authenticated user
-        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+        await self.test_success(self.unlimited_admins[0], [self.auth_users[0]])
 
     @mark.asyncio
     @mark.django_db()
@@ -115,7 +115,10 @@ class HireTest(BaseCommandTest):
         assert await self.communicators[sender.username].receive() == message
 
         for user in targets:
-            admin_prefix = "Unlimited " if await async_try_get(Admin, user=user) else ""
+            if await async_try_get(Admin, user=user, is_limited=False):
+                admin_prefix = "Unlimited "
+            else:
+                admin_prefix = ""
 
             # Test target response
             target_response = (
