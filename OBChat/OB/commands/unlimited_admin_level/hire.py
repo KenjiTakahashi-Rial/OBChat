@@ -76,7 +76,6 @@ async def hire(args, sender, room):
                     " Admin."
                 ]
         else:
-            print("valid hire")
             valid_hires += [arg_user]
 
     send_to_sender = error_messages
