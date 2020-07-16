@@ -8,7 +8,9 @@ https://docs.pytest.org/en/latest/contents.html
 from pytest import mark
 
 from OB.constants import ANON_PREFIX
+from OB.models import Admin
 from OB.tests.test_commands.base import BaseCommandTest
+from OB.utilities.database import async_get, async_model_list, async_try_get
 
 class HireTest(BaseCommandTest):
     def __init__(self):
@@ -81,10 +83,65 @@ class HireTest(BaseCommandTest):
         )
         await self.test_isolated(self.owner, message, correct_response)
 
-        # Test Unlimited Admin limited Admin error
+        # Test Unlimited Admin hiring Limited Admin error
         message = "/h limited_admin_0"
         correct_response = (
             "limited_admin_0 is already an Admin. Only the owner may promote them to Unlimited "
             "Admin."
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test Unlimited Admin hiring authenticated user
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+    @mark.asyncio
+    @mark.django_db()
+    async def test_success(self, sender, targets):
+        """
+        Description:
+            Tests a successful hire through the /hire command.
+        Arguments:
+            sender (OBUser): The user to send the /hire command.
+            targets (list[OBUser]): The users to try to hire.
+        """
+
+        # Prepare the message
+        message = "/h"
+        for user in targets:
+            message += f" {user.username}"
+
+        # Send the command message
+        await self.communicators[sender.username].send(message)
+        assert await self.communicators[sender.username].receive() == message
+
+        for user in targets:
+            admin_prefix = "Unlimited " if await async_try_get(Admin, user=user) else ""
+
+            # Test target response
+            target_response = (
+                f"With great power comes great responsibility. You were promoted to {admin_prefix}"
+                f"Admin in {self.room.name}!"
+            )
+            assert await self.communicators[user.username].receive() == target_response
+
+            # Test sender response
+            sender_response = (
+                f"Promoted {user.username} to {admin_prefix}Admin in {self.room.name}. Keep an "
+                "eye on them."
+            )
+            assert await self.communicators[sender.username].receive() == sender_response
+
+            # Test others response
+            others_response = (
+                f"{user.username} was promoted to {admin_prefix}Admin. Drinks on them!"
+            )
+            occupants = await async_model_list(self.room.occupants)
+            for occupying_user in occupants:
+                if occupying_user != sender and occupying_user not in targets:
+                    assert (
+                        await self.communicators[occupying_user.username].receive()
+                        == others_response
+                    )
+
+            # Test new adminships
+            await async_get(Admin, user=user, is_limited=bool(not admin_prefix))
