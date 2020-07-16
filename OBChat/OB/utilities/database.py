@@ -230,3 +230,17 @@ def async_add_occupants(room, occupants):
     """
 
     add_occupants(room, occupants)
+
+@database_sync_to_async
+def async_repr(repr_object):
+    """
+    Description:
+        Allows an asynchronous function to call __repr__() on a database object.
+        Some database objects have attributes that are other database objects, thus they require
+        an additional database query, which can only be performed synchronously.
+
+    Arguments:
+        room (Room): The room to add users to the occupants of.
+        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+    """
+    return repr_object.__repr__()
