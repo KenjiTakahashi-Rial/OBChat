@@ -99,13 +99,13 @@ async def hire(args, sender, room):
 
         await send_system_room_message(
             f"With great power comes great responsibility. You were promoted to {admin_prefix}"
-            f"admin in {room.name}!",
+            f"Admin in {room.name}!",
             room,
             [hired_user]
         )
 
         send_to_sender += (
-            f"Promoted {hired_user.username} to {admin_prefix}admin in {room.name}. Keep an eye on"
+            f"Promoted {hired_user.username} to {admin_prefix}Admin in {room.name}. Keep an eye on"
             " them."
         )
         send_to_others += (
