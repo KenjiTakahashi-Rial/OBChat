@@ -66,29 +66,28 @@ async def hire(args, sender, room):
                 f"{username} hasn't signed up yet. They cannot be trusted with the immense "
                 "responsibility that is adminship."
             ]
-        elif arg_admin:
-            if not arg_admin.is_limited:
-                error_messages += [
-                    f"{username} is already an Unlimited Admin. There's nothing left to /hire them"
-                    " for."
-                ]
-            elif sender_privilege < Privilege.Owner:
-                error_messages += [
-                    f"{username} is already an Admin. Only the owner may promote them to Unlimited"
-                    " Admin."
-                ]
+        elif arg_admin and not arg_admin.is_limited:
+            error_messages += [
+                f"{username} is already an Unlimited Admin. There's nothing left to /hire them "
+                "for."
+            ]
+        elif arg_admin and sender_privilege < Privilege.Owner:
+            error_messages += [
+                f"{username} is already an Admin. Only the owner may promote them to Unlimited "
+                "Admin."
+            ]
         else:
             valid_hires += [arg_user]
 
-    send_to_sender = error_messages
-    send_to_others = []
+    send_to_sender = error_messages + [("\n" if error_messages else "") + "Hired:"]
+    send_to_targets = ["One or more users have been hired:"]
+    send_to_others = ["One or more users have been hired:"]
 
     for hired_user in valid_hires:
         if arg_admin and sender_privilege == Privilege.Owner:
             # Make the Admin unlimited
             arg_admin.is_limited = False
             await async_save(arg_admin)
-            admin_prefix = "Unlimited "
         else:
             # Make the user an admin
             await async_save(
@@ -97,24 +96,23 @@ async def hire(args, sender, room):
                 room=room,
                 issuer=sender
             )
-            admin_prefix = ""
 
-        await send_system_room_message(
-            f"With great power comes great responsibility. You were promoted to {admin_prefix}"
-            f"Admin in {room.name}!",
-            room,
-            [hired_user]
-        )
+        send_to_sender += [f"    {hired_user}"]
+        send_to_targets += [f"    {hired_user}"]
+        send_to_others += [f"    {hired_user}"]
 
-        send_to_sender += [
-            f"Promoted {hired_user.username} to {admin_prefix}Admin in {room.name}. Keep an eye on"
-            " them."
-        ]
-        send_to_others += [
-            f"{hired_user.username} was promoted to {admin_prefix}Admin. Drinks on them!"
-        ]
-
-    if send_to_sender:
+    if valid_hires:
+        send_to_sender += ["Keep an eye on them."]
         await send_system_room_message("\n".join(send_to_sender), room, [sender])
-    if send_to_others:
-        await send_system_room_message("\n".join(send_to_others), room, exclusions=[sender])
+
+        send_to_targets += ["With great power comes great responsibility."]
+        await send_system_room_message("\n".join(send_to_targets), room, valid_hires)
+
+        send_to_others += ["Drinks on them!"]
+        await send_system_room_message(
+            "\n".join(send_to_others),
+            room,
+            exclusions=([sender] + valid_hires))
+
+    elif error_messages:
+        await send_system_room_message("\n".join(error_messages), room, [sender])

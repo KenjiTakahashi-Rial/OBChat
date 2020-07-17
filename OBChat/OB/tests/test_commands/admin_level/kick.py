@@ -144,7 +144,6 @@ class KickTest(BaseCommandTest):
         sender_response += "That'll show them."
         others_response += "Let this be a lesson to you all."
 
-
         # Send the command message
         await self.communicators[sender.username].send(message)
 
