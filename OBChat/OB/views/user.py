@@ -73,7 +73,6 @@ def user(request, username):
             request.user.first_name = split_name[0]
 
             if len(split_name) > 1:
-                print(split_name)
                 request.user.last_name = " ".join(split_name[1:])
             else:
                 request.user.last_name = ""
