@@ -10,7 +10,8 @@ from pytest import mark
 from OB.constants import ANON_PREFIX
 from OB.models import Admin
 from OB.tests.test_commands.base import BaseCommandTest
-from OB.utilities.database import async_get, async_model_list, async_try_get
+from OB.utilities.database import async_delete, async_get, async_model_list, async_save, \
+    async_try_get
 
 class HireTest(BaseCommandTest):
     def __init__(self):
@@ -94,6 +95,8 @@ class HireTest(BaseCommandTest):
         # Test Unlimited Admin hiring authenticated user
         await self.test_success(self.unlimited_admins[0], [self.auth_users[0]])
 
+        # Test
+
     @mark.asyncio
     @mark.django_db()
     async def test_success(self, sender, targets):
@@ -147,4 +150,13 @@ class HireTest(BaseCommandTest):
                     )
 
             # Test new adminships
-            await async_get(Admin, user=user, is_limited=bool(not admin_prefix))
+            adminship = await async_get(Admin, user=user, is_limited=bool(not admin_prefix))
+
+            # Remove the adminship/promotion
+            if admin_prefix:
+                # Was already an admin, just make limited again
+                adminship.is_limited = True
+                await async_save(adminship)
+            else:
+                # Was not an admin, remove adminship
+                await async_delete(adminship)
