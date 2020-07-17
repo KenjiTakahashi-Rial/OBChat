@@ -42,7 +42,7 @@ class HireTest(BaseCommandTest):
         # Test auth user hiring error
         await self.test_isolated(self.auth_users[1], message, correct_response)
 
-        # Test limited Admin hiring error
+        # Test Limited Admin hiring error
         await self.test_isolated(self.limited_admins[1], message, correct_response)
 
         # Test no arguments error
@@ -57,18 +57,18 @@ class HireTest(BaseCommandTest):
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test hiring self error
+        # Test owner hiring self error
         message = "/h owner"
         correct_response = (
             "You can't hire yourself. I don't care how good your letter of recommendation is."
         )
         await self.test_isolated(self.owner, message, correct_response)
 
-        # Test hiring owner error
+        # Test Unlimited Admin hiring owner error
         correct_response = "That's the owner. You know, your BOSS. Nice try."
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test hiring anonymous user error
+        # Test Unlimited Admin hiring anonymous user error
         message = f"/h {ANON_PREFIX}0"
         correct_response = (
             f"{ANON_PREFIX}0 hasn't signed up yet. They cannot be trusted with the immense "
@@ -76,13 +76,21 @@ class HireTest(BaseCommandTest):
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
-        # Test hiring Unlimited Admin error
+        # Test owner hiring Unlimited Admin error
         message = "/h unlimited_admin_0"
         correct_response = (
             "unlimited_admin_0 is already an Unlimited Admin. There's nothing left to /hire them"
             " for."
         )
         await self.test_isolated(self.owner, message, correct_response)
+
+        # Test Unlimited Admin hiring Unlimited Admin error
+        message = "/h unlimited_admin_1"
+        correct_response = (
+            "unlimited_admin_1 is already an Unlimited Admin. There's nothing left to /hire them"
+            " for."
+        )
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring Limited Admin error
         message = "/h limited_admin_0"
@@ -95,7 +103,11 @@ class HireTest(BaseCommandTest):
         # Test Unlimited Admin hiring authenticated user
         await self.test_success(self.unlimited_admins[0], [self.auth_users[0]])
 
-        # Test
+        # Test Owner hiring authenticated users
+        await self.test_success(self.owner, [self.auth_users[0], self.auth_users[1]])
+
+        # Test Owner hiring Limited Admins
+        await self.test_success(self.owner, [self.limited_admins[0], self.limited_admins[1]])
 
     @mark.asyncio
     @mark.django_db()
@@ -108,55 +120,49 @@ class HireTest(BaseCommandTest):
             targets (list[OBUser]): The users to try to hire.
         """
 
-        # Prepare the message
+        # Prepare the message and responses
         message = "/h"
+        sender_response = "Hired:\n"
+        targets_response = "One or more users have been hired:\n"
+        others_response = "One or more users have been hired:\n"
+
         for user in targets:
             message += f" {user.username}"
+            targets_response += f"    {user}\n"
+            sender_response += f"    {user}\n"
+            others_response += f"    {user}\n"
+
+        sender_response += "Keep an eye on them."
+        targets_response += "With great power comes great responsibility."
+        others_response += "Drinks on them!"
 
         # Send the command message
         await self.communicators[sender.username].send(message)
         assert await self.communicators[sender.username].receive() == message
 
         for user in targets:
-            if await async_try_get(Admin, user=user, is_limited=False):
-                admin_prefix = "Unlimited "
-            else:
-                admin_prefix = ""
+            was_already_admin = bool(await async_try_get(Admin, user=user, is_limited=False))
 
             # Test target response
-            target_response = (
-                f"With great power comes great responsibility. You were promoted to {admin_prefix}"
-                f"Admin in {self.room.name}!"
-            )
-            assert await self.communicators[user.username].receive() == target_response
-
-            # Test sender response
-            sender_response = (
-                f"Promoted {user.username} to {admin_prefix}Admin in {self.room.name}. Keep an "
-                "eye on them."
-            )
-            assert await self.communicators[sender.username].receive() == sender_response
-
-            # Test others response
-            others_response = (
-                f"{user.username} was promoted to {admin_prefix}Admin. Drinks on them!"
-            )
-            occupants = await async_model_list(self.room.occupants)
-            for occupying_user in occupants:
-                if occupying_user != sender and occupying_user not in targets:
-                    assert (
-                        await self.communicators[occupying_user.username].receive()
-                        == others_response
-                    )
+            assert await self.communicators[user.username].receive() == targets_response
 
             # Test new adminships
-            adminship = await async_get(Admin, user=user, is_limited=bool(not admin_prefix))
+            adminship = await async_get(Admin, user=user, is_limited=not was_already_admin)
 
-            # Remove the adminship/promotion
-            if admin_prefix:
-                # Was already an admin, just make limited again
+            # Undo changes
+            if was_already_admin:
+                # Make limited again
                 adminship.is_limited = True
                 await async_save(adminship)
             else:
-                # Was not an admin, remove adminship
+                # Remove adminship
                 await async_delete(adminship)
+
+        # Test sender response
+        assert await self.communicators[sender.username].receive() == sender_response
+
+        # Test others response
+        occupants = await async_model_list(self.room.occupants)
+        for user in occupants:
+            if user not in targets and user != sender:
+                assert await self.communicators[user.username].receive() == others_response
