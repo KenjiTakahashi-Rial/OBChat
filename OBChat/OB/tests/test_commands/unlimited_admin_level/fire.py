@@ -49,3 +49,33 @@ class FireTest(BaseCommandTest):
         message = "/f nobody"
         correct_response = f"nobody does not exist. You can't fire a ghost... can you?"
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test owner firing self
+        message = "/f owner"
+        correct_response = (
+            "You can't fire yourself. I don't care how bad your performance reviews are."
+        )
+        await self.test_isolated(self.owner, message, correct_response)
+
+        # Test Unlimited Admin firing owner error
+        correct_response = ("That's the owner. You know, your BOSS. Nice try.")
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test Unlimited Admin firing non-Admin error
+        message = "/f auth_user_0"
+        correct_response = (
+            "auth_user_0 is just a regular ol' user, so you can't fire them. You can /kick or /ban"
+            " them if you want."
+        )
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test Unlimited Admin firing Unlmiited Admin error
+        message = "/f unlimited_admin_1"
+        correct_response = (
+            "unlimited_admin_1 is an Unlimited Admin, so you can't fire them. Please direct all "
+            "complaints to your local room owner, I'm sure they'll love some more paperwork to "
+            "do..."
+        )
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        

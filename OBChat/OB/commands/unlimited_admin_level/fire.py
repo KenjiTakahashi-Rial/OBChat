@@ -62,7 +62,7 @@ async def fire(args, sender, room):
                 f"{username} is just a regular ol' user, so you can't fire them. You can /kick or "
                 "/ban them if you want."
             ]
-        elif sender != room.owner and not arg_admin.is_limited:
+        elif not arg_admin.is_limited and sender_privilege < Privilege.Owner:
             error_messages += [
                 f"{username} is an Unlimited Admin, so you can't fire them. Please direct all "
                 "complaints to your local room owner, I'm sure they'll love some more paperwork to"
