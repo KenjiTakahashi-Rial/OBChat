@@ -1,8 +1,6 @@
 """
-Class to test the /ban command function (see OB.commands.admin_level.ban).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    BanTest class container module.
 """
 
 import asyncio
@@ -15,6 +13,11 @@ from OB.utilities.database import async_add_occupants, async_delete, async_get, 
     async_save, async_try_get
 
 class BanTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /ban command function (see OB.commands.admin_level.ban).
+    """
+
     def __init__(self):
         """
         Description:

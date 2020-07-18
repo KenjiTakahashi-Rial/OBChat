@@ -1,19 +1,22 @@
 """
-Class to test the /create command function (see OB.commands.auth_user_level.create).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    CreateTest class container module.
 """
 
 from pytest import mark
 
 from OB.communicators import OBCommunicator
-from OB.constants import ANON_PREFIX, GroupTypes
+from OB.constants import GroupTypes
 from OB.models import Room
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 
 class CreateTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /create command function (see OB.commands.auth_user_level.create).
+    """
+
     def __init__(self):
         """
         Description:

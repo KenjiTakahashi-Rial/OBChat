@@ -1,8 +1,6 @@
 """
-Class to test the /hire command function (see OB.commands.unlimited_admin_level.hire).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    HireTest class container module.
 """
 
 from pytest import mark
@@ -14,6 +12,11 @@ from OB.utilities.database import async_delete, async_get, async_model_list, asy
     async_try_get
 
 class HireTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /hire command function (see OB.commands.unlimited_admin_level.hire).
+    """
+
     def __init__(self):
         """
         Description:

@@ -1,8 +1,6 @@
 """
-Class to test the /private command function (see OB.commands.user_level.private).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    PrivateTest class container module.
 """
 
 from pytest import mark
@@ -15,6 +13,11 @@ from OB.utilities.database import async_get
 from OB.utilities.format import get_group_name
 
 class PrivateTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /private command function (see OB.commands.user_level.private).
+    """
+
     def __init__(self):
         """
         Description:

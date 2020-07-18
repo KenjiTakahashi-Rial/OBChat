@@ -1,8 +1,6 @@
 """
-Class to test the /apply command function (see OB.commands.auth_user_level.apply).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    ApplyTest class container module.
 """
 
 from pytest import mark
@@ -14,6 +12,11 @@ from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_filter, async_get
 
 class ApplyTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /apply command function (see OB.commands.auth_user_level.apply).
+    """
+
     def __init__(self):
         """
         Description:

@@ -1,8 +1,6 @@
 """
-Class to test the /delete command function (see OB.commands.owner_level.delete).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    DeleteTest class container module.
 """
 
 from pytest import mark
@@ -10,6 +8,11 @@ from pytest import mark
 from OB.tests.test_commands.base import BaseCommandTest
 
 class DeleteTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /delete command function (see OB.commands.owner_level.delete).
+    """
+
     def __init__(self):
         """
         Description:

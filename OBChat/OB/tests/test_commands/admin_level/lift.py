@@ -1,8 +1,6 @@
 """
-Class to test the /lift command function (see OB.commands.admin_level.lift).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    LiftTest class container module.
 """
 
 from pytest import mark
@@ -14,6 +12,11 @@ from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_save
 
 class LiftTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /lift command function (see OB.commands.admin_level.lift).
+    """
+
     def __init__(self):
         """
         Description:

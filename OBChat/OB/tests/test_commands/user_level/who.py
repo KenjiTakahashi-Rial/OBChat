@@ -1,8 +1,6 @@
 """
-Class to test the /who command function (see OB.commands.user_level.who).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    WhoTest class container module.
 """
 
 from pytest import mark
@@ -12,6 +10,11 @@ from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_save
 
 class WhoTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /who command function (see OB.commands.user_level.who).
+    """
+
     def __init__(self):
         """
         Description:

@@ -1,8 +1,6 @@
 """
-Class to test the /kick command function (see OB.commands.admin_level.kick).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    KickTest class container module.
 """
 
 from pytest import mark
@@ -13,6 +11,11 @@ from OB.utilities.database import async_add_occupants, async_model_list, async_s
     async_try_get
 
 class KickTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /kick command function (see OB.commands.admin_level.kick).
+    """
+
     def __init__(self):
         """
         Description:

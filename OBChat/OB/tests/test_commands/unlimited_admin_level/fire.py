@@ -1,8 +1,6 @@
 """
-Class to test the /fire command function (see OB.commands.unlimited_admin_level.fire).
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
+Description:
+    FireTest class container module.
 """
 
 from pytest import mark
@@ -10,6 +8,11 @@ from pytest import mark
 from OB.tests.test_commands.base import BaseCommandTest
 
 class FireTest(BaseCommandTest):
+    """
+    Description:
+        Class to test the /fire command function (see OB.commands.unlimited_admin_level.fire).
+    """
+
     def __init__(self):
         """
         Description:
@@ -77,5 +80,3 @@ class FireTest(BaseCommandTest):
             "do..."
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
-
-        
