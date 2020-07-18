@@ -154,7 +154,7 @@ class KickTest(BaseCommandTest):
         # Test others response
         occupants = await async_model_list(self.room.occupants)
         for user in occupants:
-            if user not in targets:
+            if user not in targets and user != sender:
                 assert await self.communicators[user.username].receive() == others_response
 
         # Test kicks

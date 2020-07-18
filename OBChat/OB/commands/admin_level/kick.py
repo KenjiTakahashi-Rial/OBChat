@@ -101,6 +101,6 @@ async def kick(args, sender, room):
         await send_system_room_message("\n".join(send_to_sender), room, [sender])
 
         send_to_others += ["Let this be a lesson to you all."]
-        await send_system_room_message("\n".join(send_to_others), room)
+        await send_system_room_message("\n".join(send_to_others), room, exclusions=[sender])
     elif error_messages:
         await send_system_room_message("\n".join(error_messages), room, [sender])
