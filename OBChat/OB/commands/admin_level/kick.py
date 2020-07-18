@@ -21,6 +21,8 @@ async def kick(args, sender, room):
         room (Room): The Room the command was issued in.
     """
 
+    # TODO: Add an option to do this silently (without notifying everyone)
+
     # Remove duplicates
     args = list(dict.fromkeys(args))
 

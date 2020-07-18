@@ -38,6 +38,7 @@ async def hire(args, sender, room):
     elif len(args) == 0:
         error_message = "Usage: /hire <user1> <user2> ..."
 
+    # Send error message back to the issuing user
     if error_message:
         await send_system_room_message(error_message, room, [sender])
         return
@@ -80,7 +81,7 @@ async def hire(args, sender, room):
             valid_hires += [arg_user]
 
     send_to_sender = error_messages + [("\n" if error_messages else "") + "Hired:"]
-    send_to_targets = ["One or more users have been hired:"]
+    send_to_targets = ["One or more users have been hired:"] # TODO: Change this to only send when more than one user is hired at once
     send_to_others = ["One or more users have been hired:"]
 
     for hired_user in valid_hires:
@@ -112,7 +113,7 @@ async def hire(args, sender, room):
         await send_system_room_message(
             "\n".join(send_to_others),
             room,
-            exclusions=([sender] + valid_hires))
-
+            exclusions=([sender] + valid_hires)
+        )
     elif error_messages:
         await send_system_room_message("\n".join(error_messages), room, [sender])
