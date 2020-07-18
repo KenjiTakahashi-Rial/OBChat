@@ -29,10 +29,8 @@ async def delete(args, sender, room):
         error_message = (
             "Trying to delete someone else's room? How rude. Only the room owner may delete a room"
         )
-    elif args:
-        error_message = (
-            "Usage: /delete"
-        )
+    elif not args or len(args) > 2 or args[0] != room.name or args[1] != sender.username:
+        error_message = "Usage: /delete <room name> <owner username>"
 
     # Send error message back to the issuing user
     if error_message:

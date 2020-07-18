@@ -5,7 +5,9 @@ Description:
 
 from pytest import mark
 
+from OB.models import Admin, Ban, Message, Room
 from OB.tests.test_commands.base import BaseCommandTest
+from OB.utilities.database import async_filter, async_model_list, async_save, async_try_get
 
 class DeleteTest(BaseCommandTest):
     """
@@ -29,3 +31,59 @@ class DeleteTest(BaseCommandTest):
         Description:
             Tests the /delete command (see OB.commands.owner_level.delete).
         """
+
+        # Test anonymous user deleting error
+        message = "/d"
+        correct_response = (
+            "Trying to delete someone else's room? How rude. Only the room owner may delete a room"
+        )
+        await self.test_isolated(self.anon_users[0], message, correct_response)
+
+        # Test authenticated user deleting error
+        await self.test_isolated(self.auth_users[0], message, correct_response)
+
+        # Test Limited Admin user deleting error
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test Unlimited Admin user deleting error
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test no arguments error
+        correct_response = "Usage: /delete <room name> <owner username>"
+        await self.test_isolated(self.owner, message, correct_response)
+
+        # Test too many arguments error
+        message = "/d arg0 arg1 arg2"
+        await self.test_isolated(self.owner, message, correct_response)
+
+        # Test incorrect arguments error
+        message = "/d roomname username"
+        await self.test_isolated(self.owner, message, correct_response)
+
+        # Create test data
+        await async_save(Ban, user=self.auth_users[0], room=self.room, issuer=self.owner)
+        await async_save(Message, message="message", sender=self.owner, room=self.room)
+
+        occupants = await async_model_list(self.room.occupants)
+        message = f"/d {self.room.name} owner"
+
+        # Test occupants kicked
+        for user in occupants:
+            assert (await self.communicators[user.username].receive())["refresh"]
+            assert (
+                (await self.communicators[user.username].receive_output())["type"]
+                == "websocket.close"
+            )
+            assert user not in occupants
+
+        # Test Admins deleted
+        assert not await async_filter(Admin, room=self.room)
+
+        # Test Bans deleted
+        assert not await async_filter(Ban, room=self.room)
+
+        # Test Messages deleted
+        assert not await async_filter(Message, room=self.room)
+
+        # Test Room deleted
+        assert not await async_try_get(Room, name=self.room.name)
