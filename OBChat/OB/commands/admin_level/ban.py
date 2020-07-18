@@ -26,6 +26,7 @@ async def ban(args, sender, room):
     args = list(dict.fromkeys(args))
 
     error_message = ""
+    sender_privilege = await async_get_privilege(sender, room)
 
     # Check for initial errors
     if not sender.is_authenticated or sender.is_anon:
@@ -33,7 +34,7 @@ async def ban(args, sender, room):
             "You're not even logged in! Try making an account first, then we can talk about "
             "banning people."
         )
-    elif await async_get_privilege(sender, room) < Privilege.Admin:
+    elif sender_privilege < Privilege.Admin:
         error_message = (
             "That's a little outside your pay-grade. Only admins may ban users. Try to /apply to "
             "be an Admin."
@@ -54,7 +55,6 @@ async def ban(args, sender, room):
 
         if arg_user:
             arg_privilege = await async_get_privilege(arg_user, room)
-            sender_privilege = await async_get_privilege(sender, room)
 
         # Check for per-argument errors
         if not arg_user or arg_user not in await async_model_list(room.occupants):
