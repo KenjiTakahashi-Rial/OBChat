@@ -4,6 +4,7 @@ Description:
 """
 
 from pytest import mark
+from time import sleep
 
 from OB.models import Admin, Ban, Message, Room
 from OB.tests.test_commands.base import BaseCommandTest
@@ -64,17 +65,10 @@ class DeleteTest(BaseCommandTest):
         await async_save(Ban, user=self.auth_users[0], room=self.room, issuer=self.owner)
         await async_save(Message, message="message", sender=self.owner, room=self.room)
 
-        occupants = await async_model_list(self.room.occupants)
+        # Test owner deleting
         message = f"/d {self.room.name} owner"
-
-        # Test occupants kicked
-        for user in occupants:
-            assert (await self.communicators[user.username].receive())["refresh"]
-            assert (
-                (await self.communicators[user.username].receive_output())["type"]
-                == "websocket.close"
-            )
-            assert user not in occupants
+        await self.communicators[self.owner.username].send(message)
+        assert await self.communicators[self.owner.username].receive() == message
 
         # Test Admins deleted
         assert not await async_filter(Admin, room=self.room)

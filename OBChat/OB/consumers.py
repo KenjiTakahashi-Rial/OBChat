@@ -110,6 +110,10 @@ class OBConsumer(AsyncWebsocketConsumer):
             code: A disconnect code to indicate disconnect conditions
         """
 
+        # The Consumer has already been disconnected
+        if self.room is None or self.room.id is None:
+            return
+
         # Leave room group
         await self.channel_layer.group_discard(
             get_group_name(GroupTypes.Room, self.room.id),
