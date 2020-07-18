@@ -38,7 +38,7 @@ async def fire(args, sender, room):
 
     # Send error message back to the issuing user
     if error_message:
-        await send_system_room_message(error_message, room)
+        await send_system_room_message(error_message, room, [sender])
         return
 
     valid_fires = []

@@ -1,6 +1,6 @@
 """
-A user must have Unlimited Admin privileges of the room to perform this command
-(see OB.models.Admin & OB.constants.Privilege).
+A user must have Unlimited Admin privileges of the room to perform this command (see
+OB.models.Admin & OB.constants.Privilege).
 """
 
 import channels

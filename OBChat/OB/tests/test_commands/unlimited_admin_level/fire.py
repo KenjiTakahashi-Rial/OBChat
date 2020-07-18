@@ -26,3 +26,26 @@ class FireTest(BaseCommandTest):
         Description:
             Tests the /fire command (see OB.commands.unlimited_admin_level.fire).
         """
+
+        # Test anon firing error
+        message = "/fire"
+        correct_response = (
+            "That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to"
+            " /apply to be Unlimited."
+        )
+        await self.test_isolated(self.anon_users[0], message, correct_response)
+
+        # Test auth user firing error
+        await self.test_isolated(self.auth_users[0], message, correct_response)
+
+        # Test Limited Admin hiring error
+        await self.test_isolated(self.limited_admins[0], message, correct_response)
+
+        # Test no arguments error
+        correct_response = "Usage: /fire <user1> <user2> ..."
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
+        # Test invalid target error
+        message = "/f nobody"
+        correct_response = f"nobody does not exist. You can't fire a ghost... can you?"
+        await self.test_isolated(self.unlimited_admins[0], message, correct_response)
