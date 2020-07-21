@@ -46,5 +46,4 @@ def get_datetime_string(date_time):
         A formatted datetime string.
     """
 
-    # TODO: Find an elegant way to format the time for the client's timezone
     return date_time.strftime("%c")

@@ -47,7 +47,6 @@ class OBConsumer(AsyncWebsocketConsumer):
         """
 
         # Set the session
-        # TODO: Consider pros and cons filesystem/cache/cookie sessions vs database sessions
         self.session = self.scope["session"]
         if not self.session.session_key:
             await async_cycle_key(self.session)
