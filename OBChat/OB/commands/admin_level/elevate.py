@@ -3,9 +3,10 @@ A user must have Admin privileges of the room to perform this command (see OB.mo
 OB.constants.Privilege).
 """
 
+from OB.commands.command_handler import COMMANDS
 from OB.constants import Privilege
 from OB.models import Admin, Ban, OBUser
-from OB.utilities.command import async_get_privilege
+from OB.utilities.command import async_get_privilege, is_command
 from OB.utilities.database import async_delete, async_filter, async_model_list, async_try_get
 from OB.utilities.event import send_system_room_message
 
@@ -111,7 +112,27 @@ async def parse(args):
 
     Return values:
         tuple(string, list[OBUser]): A tuple containing a string of the command to elevate with its
-        arguments and a list of the target users to send the elevation request to.
+            arguments and a list of the target users to send the elevation request to.
+        boolean: If there is a syntax error, returns False.
     """
 
-    
+    # Check for initial syntax errors
+    if args[0][0] != '(' or not is_command(args[0][1:]) or args[0][1:] not in COMMANDS:
+        return False
+
+    # Reconstruct the command string
+    command = args[0][1:]
+    for i in range(1, len(args)):
+        if args[i][-1] == ')':
+            if i == 1:
+                # There are no arguments for the requested command
+                return False
+
+            command += [args[i][:-1]]
+            targets = [] if i + 1 == len(args) else args[i + 1:]
+            return command, targets
+
+        command += [args[i]]
+
+    # There was no end parenthesis
+    return False
