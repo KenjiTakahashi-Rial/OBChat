@@ -40,8 +40,13 @@ async def elevate(args, sender, room):
             "Elevation is a skill that only Admins are capable of wielding. You have yet to reach "
             "the level of Admin - come back when you're ready!"
         )
-    elif not args or not args[0][0] != ['('] or not args[0][-1] != [')']:
-        error_message = "Usage: /elevate (<command>) <user1> <user2> ..."
+    else:
+        has_correct_syntax, command, targets, message = parse(args)
+
+        if not has_correct_syntax:
+            error_message = (
+                "Usage: /elevate (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)"
+            )
 
     # Send error message back to the issuing user
     if error_message:
@@ -51,16 +56,15 @@ async def elevate(args, sender, room):
     valid_elevations = []
     error_messages = []
 
-    if not args:
+    if not targets:
         # Get all users with higher privilege
         if sender_privilege < Privilege.UnlimitedAdmin:
             unlimited_admins = await async_filter(Admin, room=room, is_limited=False)
             valid_elevations += unlimited_admins
         valid_elevations += [room.owner]
-        elevated_to_all = True
     else:
         # Check for per-argument errors
-        for username in args:
+        for username in targets:
             arg_user = await async_try_get(OBUser, username=username)
 
             if arg_user:
@@ -78,27 +82,19 @@ async def elevate(args, sender, room):
             else:
                 valid_elevations += [arg_user]
 
-        elevated_to_all = False
-
-    receipt_body = [
-        "    Recipients:" + ", ".join(valid_elevations),
-        "    Command requested: ",
+    # Construction the elevation request
+    elevation_body = [
+        f"    Recipients:" + ", ".join(valid_elevations),
+        f"    Command requested: {command}",
+        f"    Message: {message if message else None}"
     ]
 
+    send_to_sender = ["Sent an elevation request:\n"] + elevation_body
+    send_to_targets = [f"Received an elevation request from {sender}\n:" + elevation_body]
 
-    send_to_sender = [
-        "Sent an elevation request:\n",
-
-    ]
-    send_to_targets = [
-        f"Received an elevation request from {sender}:",
-        "    Recipients:"
-    ]
-
-    for elevation_user in valid_elevations:
-        # Construct the responses
-        send_to_sender += [f"{elevation_user} "]
-        send_to_targets += [f"{elevation_user} "]
+    # Send the elevation request
+    await send_system_room_message("\n".join(send_to_sender), room, [sender])
+    await send_system_room_message("\n".join(send_to_targets), room, valid_elevations)
 
 async def parse(args):
     """
@@ -111,14 +107,15 @@ async def parse(args):
         users to elevate to (defaults to all users of higher privilege).
 
     Return values:
-        tuple(string, list[OBUser]): A tuple containing a string of the command to elevate with its
-            arguments and a list of the target users to send the elevation request to.
-        boolean: If there is a syntax error, returns False.
+        tuple(boolean, string, list[OBUser]): A tuple containing a boolean indicating that there
+            were no syntax errors, a string of the command to elevate with its arguments and a list
+            of the target users to send the elevation request to. If there is a syntax error,
+            returns (False, "", []).
     """
 
     # Check for initial syntax errors
     if args[0][0] != '(' or not is_command(args[0][1:]) or args[0][1:] not in COMMANDS:
-        return False
+        return (False, "", [])
 
     # Reconstruct the command string
     command = args[0][1:]
@@ -126,7 +123,7 @@ async def parse(args):
         if args[i][-1] == ')':
             if i == 1:
                 # There are no arguments for the requested command
-                return False
+                return (False, "", [])
 
             command += [args[i][:-1]]
             targets = [] if i + 1 == len(args) else args[i + 1:]
@@ -135,4 +132,4 @@ async def parse(args):
         command += [args[i]]
 
     # There was no end parenthesis
-    return False
+    return (False, "", [])
