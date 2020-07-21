@@ -30,6 +30,7 @@ COMMANDS = {
     "/who": who,            "/w": who,
 }
 
+# TODO: Rework this to be held inside each command module
 VALID_COMMANDS = "\n".join([
     "Valid commands:",
     "    * /create - Create a new room",
