@@ -17,7 +17,7 @@ async def elevate(args, sender, room):
 
     Arguments:
         args (list[string]): The command to elevate, the arguments of that command, and the user to
-            elevate to (defaults to all users of higher privilege)
+            elevate to (defaults to all users of higher privilege).
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.
     """
@@ -98,3 +98,20 @@ async def elevate(args, sender, room):
         # Construct the responses
         send_to_sender += [f"{elevation_user} "]
         send_to_targets += [f"{elevation_user} "]
+
+async def parse(args):
+    """
+    Description:
+        Parses the arguments into 2 key parts: the command to elevate with its arguments and the
+        target users to send the elevation request to.
+
+    Arguments:
+        args (list[string]): The command to elevate, the arguments of that command, and the target
+        users to elevate to (defaults to all users of higher privilege).
+
+    Return values:
+        tuple(string, list[OBUser]): A tuple containing a string of the command to elevate with its
+        arguments and a list of the target users to send the elevation request to.
+    """
+
+    
