@@ -44,11 +44,11 @@ async def fire(args, sender, room):
     valid_fires = []
     error_messages = []
 
+    # Check for per-argument errors
     for username in args:
         arg_user = await async_try_get(OBUser, username=username)
         arg_admin = await async_try_get(Admin, user=arg_user)
 
-        # Check for per-argument errors
         if not arg_user:
             error_messages += [f"{username} does not exist. You can't fire a ghost... can you?"]
         elif arg_user == sender:

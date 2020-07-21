@@ -28,8 +28,8 @@ async def private(args, sender, room):
     elif args[0][0] != '/':
         error_message = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     else:
-        recipient = await async_try_get(OBUser, username=args[0][1:])
         # Check for per-argument errors
+        recipient = await async_try_get(OBUser, username=args[0][1:])
         if not recipient:
             error_message = (
                 f"{args[0][1:]} doesn't exist. Your private message will broadcasted into space "

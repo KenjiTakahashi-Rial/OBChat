@@ -48,6 +48,7 @@ async def lift(args, sender, room):
     valid_lifts = []
     error_messages = []
 
+    # Check for per-argument errors
     for username in args:
         arg_user = await async_try_get(OBUser, username=username)
 
@@ -59,7 +60,6 @@ async def lift(args, sender, room):
         else:
             arg_ban = None
 
-        # Check for per-argument errors
         if not arg_user or not arg_ban:
             error_messages += [
                 f"No user named {username} has been banned from this room. How can "

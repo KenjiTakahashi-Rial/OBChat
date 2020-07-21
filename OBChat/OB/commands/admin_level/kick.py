@@ -51,13 +51,13 @@ async def kick(args, sender, room):
     valid_kicks = []
     error_messages = []
 
+    # Check for per-argument errors
     for username in args:
         arg_user = await async_try_get(OBUser, username=username)
 
         if arg_user:
             arg_privilege = await async_get_privilege(arg_user, room)
 
-        # Check for per-argument errors
         if not arg_user or arg_user not in await async_model_list(room.occupants):
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user == sender:
