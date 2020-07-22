@@ -1,5 +1,5 @@
 """
-Manages URL routing for the consumers.
+Manages URL routing for the Consumers.
 
 See the Django Channels documentation on Routing for more information.
 https://channels.readthedocs.io/en/latest/topics/routing.html

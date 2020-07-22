@@ -1,5 +1,5 @@
 """
-This module contains enums and constant variables used by more than one other file.
+Constants used in various places throughout the app.
 """
 
 from enum import IntEnum
@@ -9,7 +9,7 @@ ANON_PREFIX = "OB-Anon-"
 
 class GroupTypes(IntEnum):
     """
-    The GroupType of a Consumer determines the format of the Consumer's group name. This
+    The GroupType of a Consumer determines the format of the Consumer's group name, which
     determines which events a Consumer will receive.
     """
 
@@ -28,8 +28,9 @@ class GroupTypes(IntEnum):
 
 class Privilege(IntEnum):
     """
-    The different levels of privilege that a user has to perform commands in a Room. Privilege
-    varies between Rooms.
+    The different levels of privilege that a user has to perform commands in a Room (see
+    OB.commands).
+    Privilege varies between Rooms.
     """
 
     Invalid = 0

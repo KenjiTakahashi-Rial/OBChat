@@ -26,10 +26,9 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         """
-        Description:
-            Defines the instance variables for this consumer's session, user, and room.
-            The session and user are unique to each OBConsumer.
-            The room is not unique.
+        Defines the instance variables for this consumer's session, user, and room.
+        The session and user are unique to each OBConsumer.
+        The room is not unique.
         """
 
         self.session = None
@@ -44,10 +43,9 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         """
-        Description:
-            Set the data for a consumer before it accepts an incoming WebSocket.
-            Add the OBConsumer's user reference to the OBConsumer's room reference's list of
-            occupants.
+        Set the data for a consumer before it accepts an incoming WebSocket.
+        Add the OBConsumer's user reference to the OBConsumer's room reference's list of
+        occupants.
         """
 
         # Set the session
@@ -102,12 +100,11 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, code):
         """
-        Description:
-            Leaves the Room group that this consumer was a part of. It will no longer send to or
-            receive from that group.
-            Remove the OBConsumer's user reference to the OBConsumer's room reference's list of
-            occupants.
-            Called automatically when a WebSocket connection is disconnected by the client.
+        Leaves the Room group that this consumer was a part of. It will no longer send to or
+        receive from that group.
+        Remove the OBConsumer's user reference to the OBConsumer's room reference's list of
+        occupants.
+        Called automatically when a WebSocket connection is disconnected by the client.
 
         Arguments:
             code: A disconnect code to indicate disconnect conditions
@@ -139,8 +136,7 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def close(self, code=None):
         """
-        Description:
-            Forcibly closes a WebSocket from the server.
+        Forcibly closes a WebSocket from the server-side.
 
         Arguments:
             code: A close code to indicate close conditions
@@ -155,12 +151,12 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         """
-        Description:
-            Received a decoded WebSocket frame from the client, NOT from another consumer in this
-            consumers group.
-            Only the consumer whose user sent the message will call this method.
-            This is called first in the consumer messaging process.
-            Finally, if the message is a command, then handle it (see is_command()).
+        Received a decoded WebSocket frame from the client, NOT from another consumer in this
+        consumers group.
+        Only the consumer whose user sent the message will call this method.
+        This is called first in the consumer messaging process.
+        Finally, if the message is in command format, then handle the command (see
+        is_command_format()).
 
         Arguments:
             text_data (string): A JSON string containing the message text. Constructed in the
@@ -208,11 +204,10 @@ class OBConsumer(AsyncWebsocketConsumer):
     # This may be of use later on
     async def send(self, text_data=None, bytes_data=None, close=False):
         """
-        Description:
-            Send an encoded WebSocket frame to the client, NOT to another consumer in this
-            consumers group.
-            Each consumer of a group which receives a message event will call this method.
-            This is called last in the consumer messaging process.
+        Send an encoded WebSocket frame to the client, NOT to another consumer in this consumers
+        group.
+        Each Consumer of a group which receives a message event will call this method.
+        This is called last in the Consumer messaging process.
 
         Arguments:
             text_data (string): A JSON string containing the message text.
@@ -229,9 +224,8 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def room_message(self, event):
         """
-        Description:
-            An event of type "room_message" was sent to a group this consumer is a part of.
-            Send the message JSON to the client associated with this consumer.
+        An event of type "room_message" was sent to a group this consumer is a part of.
+        Send the message JSON to the client associated with this consumer.
 
         Arguments:
             event (dict): Contains the message JSON
@@ -246,9 +240,8 @@ class OBConsumer(AsyncWebsocketConsumer):
 
     async def kick(self, event):
         """
-        Description:
-            An event of type "kick" was sent to a group this consumer is a part of.
-            Perform actions depending on if the user associated with this consumer is specified.
+        An event of type "kick" was sent to a group this consumer is a part of.
+        Perform actions depending on if the user associated with this consumer is specified.
 
         Arguments:
             event (dict): Contains the target user's ID

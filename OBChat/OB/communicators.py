@@ -21,12 +21,12 @@ class OBCommunicator(WebsocketCommunicator):
     See the Django Channels documentation on Testing for more information.
     https://channels.readthedocs.io/en/latest/topics/testing.html
     """
+
     def __init__(self, user, group_type, url_arg):
         """
-        Description:
-            Sets up the OBCommunicator to simulate an OBConsumer with the given arguments.
-            Gives a placeholder "session" key for the scope because OBConsumer uses a session key to
-            generate anonymous usernames.
+        Sets up the OBCommunicator to simulate an OBConsumer with the given arguments.
+        Gives a placeholder "session" key for the scope because OBConsumer uses a session key to
+        generate anonymous usernames.
 
         Arguments:
             user (OBUser): The user who will be assigned to the communicator's self.user.
@@ -52,8 +52,7 @@ class OBCommunicator(WebsocketCommunicator):
 
     async def connect(self, timeout=1):
         """
-        Description:
-            Connects the OBCommunicator and tests that it connected without errors
+        Connects the OBCommunicator and tests that it connected without errors.
         """
 
         is_connected, subprotocol = await super().connect()
@@ -65,8 +64,7 @@ class OBCommunicator(WebsocketCommunicator):
 
     async def send(self, message_text):
         """
-        Description:
-            Sends a message in JSON format that OBConsumer uses.
+        Sends a message in JSON format that OBConsumer uses.
 
         Arguments:
             message_text (string): The desired text to be sent.
@@ -77,12 +75,11 @@ class OBCommunicator(WebsocketCommunicator):
 
     async def receive(self):
         """
-        Description:
-            Decodes a JSON message received by this OBCommunicator and returns the message text.
-            If the frame received does not contain text, but contains a refresh signal, the refresh
-            signal is returned as a dict.
-            If the frame received contains neither text nor a refresh signal, the method attempts
-            to receive another frame.
+        Decodes a JSON message received by this OBCommunicator and returns the message text.
+        If the frame received does not contain text, but contains a refresh signal, the refresh
+        signal is returned as a dict.
+        If the frame received contains neither text nor a refresh signal, the method attempts to
+        receive another frame.
 
         Return Values:
             string: If text is received, the decoded text is returned
