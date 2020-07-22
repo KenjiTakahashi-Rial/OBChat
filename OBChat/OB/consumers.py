@@ -1,8 +1,5 @@
 """
-Consumers manage OBChat's WebSocket communication.
-
-See the Django Channels documentation on Consumers for more information.
-https://channels.readthedocs.io/en/latest/topics/consumers.html
+OBConsumer class container module.
 """
 
 import json
@@ -20,6 +17,13 @@ from OB.utilities.format import get_datetime_string, get_group_name
 from OB.utilities.session import async_cycle_key
 
 class OBConsumer(AsyncWebsocketConsumer):
+    """
+    Consumers manage OBChat's WebSocket communication.
+
+    See the Django Channels documentation on Consumers for more information.
+    https://channels.readthedocs.io/en/latest/topics/consumers.html
+    """
+
     def __init__(self, *args, **kwargs):
         """
         Description:

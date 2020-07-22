@@ -1,8 +1,5 @@
 """
-Communicator are used to test Consumers.
-
-See the Django Channels documentation on Testing for more information.
-https://channels.readthedocs.io/en/latest/topics/testing.html
+OBCommunicator class container module.
 """
 
 import json
@@ -18,6 +15,12 @@ from OB.constants import GroupTypes
 from OB.consumers import OBConsumer
 
 class OBCommunicator(WebsocketCommunicator):
+    """
+    Communicator are used to test Consumers.
+
+    See the Django Channels documentation on Testing for more information.
+    https://channels.readthedocs.io/en/latest/topics/testing.html
+    """
     def __init__(self, user, group_type, url_arg):
         """
         Description:

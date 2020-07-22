@@ -6,6 +6,8 @@ See the Django documentation on Models for more information
 https://docs.djangoproject.com/en/3.0/topics/db/models/
 """
 
+# TODO: Move these into individual modules
+
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
     ForeignKey, ManyToManyField, Model, IntegerField, SET_DEFAULT, TextField
 from django.contrib.auth.models import AbstractUser
