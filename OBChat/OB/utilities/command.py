@@ -5,28 +5,44 @@ particular instance of a class.
 
 from channels.db import database_sync_to_async
 
+from OB.commands.command_handler import COMMANDS
 from OB.constants import Privilege
 from OB.models import Admin
 from OB.utilities.database import try_get
 
-def is_command(command):
+def is_command_format(command):
     """
     Description:
-        Determins if a string is a command or normal message. All commands are called by the user
-        by prepending the command name with '/' or by typing '/' with only the first letter of the
-        command name (see commands directory).
+        Determins if a string is formatted as a command or normal message. Command format is any
+        string with a single '/' in front.
 
     Arguments:
-        command (string): The string to determine is or is not a command.
+        command (string): The string to determine is or is not command format.
 
     Return values:
-        Returns True if the command parameter's argument is a command.
-        Otherwise False.
+        boolean: True if the string is in command format.
     """
+
     if len(command) > 1:
         return command[0] == '/' and command[1] != '/'
 
     return command and command[0] == '/'
+
+def is_valid_command(command):
+    """
+    Description:
+        Determins if a string is a valid command. Valid commands are both in command format (see
+        is_command_format()) and are contained in the COMMANDS dict constant.
+
+
+    Arguments:
+        command (string): The string to determine is or is not a valid command.
+
+    Return values:
+        boolean: True if the string is in command format and the command is in the COMMANDS dict.
+    """
+
+    return is_command_format(command) and command[1:] in COMMANDS
 
 @database_sync_to_async
 def async_get_privilege(user, room):

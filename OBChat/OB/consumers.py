@@ -12,7 +12,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from OB.commands.command_handler import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Ban, Message, OBUser, Room
-from OB.utilities.command import is_command
+from OB.utilities.command import is_command_format
 from OB.utilities.database import async_add, async_delete, async_get, async_remove, async_save,\
     async_try_get, async_model_list
 from OB.utilities.event import send_room_message
@@ -182,7 +182,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         )
 
         # Add sender as the only recipient if message is a command
-        await async_add(new_message.recipients, self.user if is_command(message_text) else None)
+        await async_add(new_message.recipients, self.user if is_command_format(message_text) else None)
         recipients = await async_model_list(new_message.recipients)
 
         # Encode the message data and metadata
@@ -197,7 +197,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         # Send message to room group
         await send_room_message(message_json, self.room.id, recipients)
 
-        if is_command(message_text):
+        if is_command_format(message_text):
             # Handle command
             await handle_command(message_text, self.user, self.room)
 
