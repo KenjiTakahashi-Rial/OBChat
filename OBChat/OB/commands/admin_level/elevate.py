@@ -3,10 +3,11 @@ A user must have Admin privileges of the room to perform this command (see OB.mo
 OB.constants.Privilege).
 """
 
-from OB.commands.command_handler import COMMANDS
+from enum import IntEnum
+
 from OB.constants import Privilege
 from OB.models import Admin, Ban, OBUser
-from OB.utilities.command import async_get_privilege, is_command
+from OB.utilities.command import async_get_privilege, is_valid_command
 from OB.utilities.database import async_delete, async_filter, async_model_list, async_try_get
 from OB.utilities.event import send_system_room_message
 
@@ -99,37 +100,80 @@ async def elevate(args, sender, room):
 async def parse(args):
     """
     Description:
-        Parses the arguments into 2 key parts: the command to elevate with its arguments and the
-        target users to send the elevation request to.
+        Parses the arguments into 3 key parts: the command to elevate with its arguments, the
+        target usernames to send the elevation request to, and the elevation request message.
 
     Arguments:
-        args (list[string]): The command to elevate, the arguments of that command, and the target
-        users to elevate to (defaults to all users of higher privilege).
+        args (list[string]): The command to elevate, the arguments of that command, the target
+        usernames to elevate to (defaults to all users of higher privilege), and the elevation
+        request message.
 
     Return values:
-        tuple(boolean, string, list[OBUser]): A tuple containing a boolean indicating that there
-            were no syntax errors, a string of the command to elevate with its arguments and a list
-            of the target users to send the elevation request to. If there is a syntax error,
-            returns (False, "", []).
+        tuple(boolean, string, list[string], string): A tuple containing a boolean indicating that
+            there were no syntax errors, a string of the command to elevate with its arguments, a
+            list of the target usernames to send the elevation request to, and the elevation
+            request message. If there is a syntax error, returns (False, "", [], "").
     """
 
-    # Check for initial syntax errors
-    if args[0][0] != '(' or not is_command(args[0][1:]) or args[0][1:] not in COMMANDS:
-        return (False, "", [])
+    class Stage(IntEnum):
+        """
+        Description:
+            Tracks which section of the /elevate command is being parsed in order to organize the
+            data correctly.
+        """
 
-    # Reconstruct the command string
-    command = args[0][1:]
-    for i in range(1, len(args)):
-        if args[i][-1] == ')':
-            if i == 1:
-                # There are no arguments for the requested command
-                return (False, "", [])
+        Invalid = 0
+        Command = 1
+        Targets = 2
+        Message = 3
+        Done = 4
 
-            command += [args[i][:-1]]
-            targets = [] if i + 1 == len(args) else args[i + 1:]
-            return command, targets
+    stage = Stage.Command
 
-        command += [args[i]]
+    command = ""
+    targets = []
+    message = ""
 
-    # There was no end parenthesis
-    return (False, "", [])
+    success_return = (True, command, targets, message)
+    failure_return = (False, "", [], "")
+
+    i = 0
+    next_stage = False
+
+    while stage < Stage.Done:
+        # Check for open parenthesis and valid commands
+        if args[i][0] != '(' or stage == Stage.Command and not is_valid_command(args[0][1:]):
+            return failure_return
+
+        while i < len(args):
+            if i == len(args) - 1:
+                # There was no end parenthesis
+                return failure_return
+
+            addition = args[i]
+
+            if args[i][0] == '(':
+                addition = addition[1:]
+
+            if args[i][-1] == ')':
+                if i == 1:
+                    # End parenthesis without command arguments
+                    return failure_return
+
+                addition = addition[:-1]
+                next_stage = True
+
+            if stage == Stage.Command:
+                command += addition
+            elif stage == Stage.Targets:
+                targets += [addition]
+            elif stage == Stage.Message:
+                message += addition
+
+            i += 1
+
+            if next_stage:
+                stage += 1
+                next_stage = False
+
+    return success_return
