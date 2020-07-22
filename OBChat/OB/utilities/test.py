@@ -174,8 +174,8 @@ async def communicator_setup(room):
         room (Room): The room to get a dict of communicators for.
 
     Return values:
-        Returns a dict of communicators for each user occupying the room argument.
-        The keys are the usernames of the occupants.
+        dict{string: OBCommunicator}: A dict with occupant usernames as keys and their
+            Communicators as values.
     """
 
     communicators = {}

@@ -82,8 +82,9 @@ class OBCommunicator(WebsocketCommunicator):
             to receive another frame.
 
         Return Values:
-            If text is received, the decoded text is returned.
-            If a refresh signal is received, the refresh signal as a dict is returned.
+            string: If text is received, the decoded text is returned
+            dict{string: string}: If a refresh signal is received, the refresh signal as a dict is
+                returned.
         """
 
         while True:

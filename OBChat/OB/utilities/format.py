@@ -16,8 +16,8 @@ def get_group_name(group_type, target_id, second_id=-1):
         second_id (int): The id of the second target user. For private messages.
 
     Return values:
-        A formatted group name string, if the GroupType was valid.
-        Otherwise the name parameter's argument.
+        string: If the GroupType was valid, a formatted name string, otherwise the name parameter's
+            argument.
     """
 
     switch = {
@@ -43,7 +43,7 @@ def get_datetime_string(date_time):
         date_time (datetime): The datetime to format as a string.
 
     Return values:
-        A formatted datetime string.
+        string: A formatted datetime string.
     """
 
     return date_time.strftime("%c")

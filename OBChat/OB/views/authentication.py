@@ -25,8 +25,8 @@ def sign_up(request):
         request (AsgiRequest)
 
     Return values:
-        The HTML template if GET or if POST and the form had errors.
-        An HTTP response redirecting to the login page if POST and no errors.
+        HTML Template: If GET or if POST and the form had errors.
+        HTTP Response: If POST and no errors, an HTTP response redirecting to the login page.
     """
 
     if request.method == "GET":
@@ -105,8 +105,8 @@ def log_in(request):
         request (AsgiRequest)
 
     Return values:
-        The HTML template if GET or if POST and the form had errors.
-        An HTTP response redirecting to the chat list page if POST and no errors.
+        HTML Template: If GET or if POST and the form had errors.
+        HTTP Response: If POST and no errors, an HTTP response redirecting to the login page.
     """
 
     template = "OB/log_in.html"
@@ -149,7 +149,7 @@ def log_out(request):
         request (AsgiRequest)
 
     Return values:
-        An HTTP response redirecting to the login page.
+        HTTP Response: An HTTP response redirecting to the login page.
     """
 
     if request.user.is_authenticated:

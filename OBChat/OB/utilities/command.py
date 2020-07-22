@@ -55,7 +55,7 @@ def async_get_privilege(user, room):
         room (Room): The database object of the room to find privilege for.
 
     Return values:
-        The Privilege of the user for the room.
+        Privilege: The Privilege of the user for the room.
     """
 
     if user == room.owner:

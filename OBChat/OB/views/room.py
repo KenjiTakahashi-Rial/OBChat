@@ -29,7 +29,7 @@ def chat(request):
         request (AsgiRequest)
 
     Return values:
-        The HTML template for the chat list.
+        HTTP Response: The HTML template for the chat list.
     """
 
     if request.method == "GET":
@@ -119,8 +119,8 @@ def room(request, room_name):
         room_name (string): The name of the room which may or may not exist. Comes from the URL.
 
     Return values:
-        The HTML template for the room if GET.
-        An error page if GET and the room does not exist.
+        HTML Template: If GET, returns the HTML template for the room or an error page if the room
+            does not exist.
     """
 
     if request.method == "GET":

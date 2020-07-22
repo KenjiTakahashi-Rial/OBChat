@@ -29,9 +29,9 @@ def user(request, username):
         username (string): The name of the user which may or may not exist.
 
     Return values:
-        The HTML template for the room if GET or if POST and the form had errors.
-        An error page if GET and the user does not exist.
-        An empty HTTP response if POST and no errors.
+        HTML Template: If GET or if POST and the form had errors, returns the HTML template for
+            the room or an error page if the user does not exist.
+        HTTP Response: An empty HTTP response if POST and no errors.
     """
 
     template = "OB/user.html"
@@ -99,8 +99,8 @@ def private(request, username):
         username (string): The name of the target user to private message.
 
     Return values:
-        The HTML template for the room if GET.
-        An error page if GET and the user does not exist.
+        HTML Template: If GET, returns the HTML template for the room or an error page if the room
+            does not exist.
     """
 
     if request.method == "GET":

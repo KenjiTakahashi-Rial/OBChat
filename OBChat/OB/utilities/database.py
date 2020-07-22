@@ -21,7 +21,7 @@ def try_get(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A single database object whose class variable values match the kwargs, if it exists.
+        obj: A single database object whose class variable values match the kwargs, if it exists.
     """
 
     try:
@@ -40,7 +40,7 @@ def async_try_get(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A single database object whose class variable values match the kwargs, if it exists.
+        obj: A single database object whose class variable values match the kwargs, if it exists.
     """
 
     return try_get(model, **kwargs)
@@ -56,7 +56,7 @@ def async_get(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A single database object whose class variable values match the kwargs.
+        obj: A single database object whose class variable values match the kwargs.
     """
 
     return model.objects.get(**kwargs)
@@ -72,7 +72,7 @@ def async_filter(model, **kwargs):
         kwargs: Class variable values to use for the database query.
 
     Return values:
-        A list of database objects whose class variable values match the kwargs.
+        list[obj]: A list of database objects whose class variable values match the kwargs.
     """
 
     return [obj for obj in model.objects.filter(**kwargs)]
@@ -89,7 +89,7 @@ def async_save(model_or_object, **kwargs):
         kwargs: Class variable values to assign to the new database object.
 
     Return values:
-        The newly created database object or the existing database object that was just saved.
+        obj: The newly created database object or the existing database object that was just saved.
     """
 
     if not kwargs:
@@ -159,7 +159,7 @@ def async_len_all(query_set):
                exists a corresponding table in the database.
 
     Return values:
-        The integer value of the length of the table.
+        int: The length of the table.
     """
 
     return len(query_set.all())
@@ -176,7 +176,7 @@ def async_model_list(model):
             May also be a ManyRelatedManager, which has its own table in the database.
 
     Return values:
-        A list of database objects from the model's QuerySet.
+        list[obj]: A list of database objects from the model's QuerySet.
     """
 
     # pylint: disable=unnecessary-comprehension
@@ -198,7 +198,7 @@ def async_get_owner(room):
         room (Room): The Room object to get the owner attribute of.
 
     Return values:
-        The OBUser owner attribute of the room argument.
+        OBUser: The owner of the room argument.
     """
 
     return room.owner
