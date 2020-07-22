@@ -1,13 +1,14 @@
 """
-Defines the Django app within the Django project
-
-See the Django documentation on Applications for more information.
-https://docs.djangoproject.com/en/dev/ref/applications/
+Defines the apps within the OBChat project.
 """
 
 from django.apps import AppConfig
 
 class OBConfig(AppConfig):
+    """
+    Defines the OBConfig app within the OBChat project.
+    """
+
     name = "OB"
 
     def ready(self):
