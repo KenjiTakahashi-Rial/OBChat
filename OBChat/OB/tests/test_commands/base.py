@@ -1,5 +1,5 @@
 """
-The BaseCommandTest superclass for testing command functions.
+The BaseCommandTest class container module.
 """
 
 import sqlite3
@@ -16,11 +16,16 @@ from OB.models import Admin, Ban, Message, OBUser, Room
 from OB.utilities.database import async_model_list
 
 class BaseCommandTest:
+    """
+    A superclass for all command tests.
+    Command tests follow require specific database and Communicator setup because of their effects
+    on the database and use of WebSockets.
+    """
     def __init__(self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
+
         Arguments:
             unlimited_admins (int): The number of Unlimited Admins that will be needed to test.
             limited_admins (int): The number of limited admins that will be needed to test.
@@ -39,9 +44,8 @@ class BaseCommandTest:
     @database_sync_to_async
     def database_setup(self):
         """
-        Description:
-            Sets up database objects required to test the commands.
-            Creates users based on the number of users specified from __init__().
+        Sets up database objects required to test the commands.
+        Creates users based on the number of users specified from __init__().
         """
 
         OBUser(
@@ -120,8 +124,7 @@ class BaseCommandTest:
     @database_sync_to_async
     def database_teardown(self):
         """
-        Description:
-            Cleans up the database objects used to test the commands.
+        Cleans up the database objects used to test the commands.
         """
 
         for admin in Admin.objects.all():
@@ -143,8 +146,7 @@ class BaseCommandTest:
 
     async def communicator_setup(self):
         """
-        Description:
-            Sets up the communicator objects used to test the commands.
+        Sets up the communicator objects used to test the commands.
         """
 
         for user in await async_model_list(self.room.occupants):
@@ -156,8 +158,7 @@ class BaseCommandTest:
 
     async def communicator_teardown(self, safe=True):
         """
-        Description:
-            Cleans up the communicator objects used to test the commands.
+        Cleans up the communicator objects used to test the commands.
 
         Arguments:
             safe (bool): Indicates whether to use "safe" disconnection, where the database is not
@@ -179,17 +180,15 @@ class BaseCommandTest:
 
     async def tests(self):
         """
-        Description:
-            This is where the main implementation of the tests goes.
-            This should not be called without first setting up the database and communicators.
+        This is where the main implementation of the tests goes.
+        This should not be called without first setting up the database and communicators.
         """
 
     @mark.asyncio
     @mark.django_db()
     async def run(self):
         """
-        Description:
-            Runs the command test, including all setup and teardown.
+        Runs the command test, including all setup and teardown.
         """
 
         try:
@@ -216,9 +215,7 @@ class BaseCommandTest:
     @mark.django_db()
     async def test_isolated(self, sender, message, response):
         """
-        Description:
-            Tests that a command is isolated; that the command and response are only seen by the
-            sender.
+        Tests that a command and response are only seen by the sender.
 
         Arguments:
             sender (OBUser): The user who sends the message and the only user who should receive a
@@ -226,7 +223,7 @@ class BaseCommandTest:
             response (string): The response that the sender should receive.
         """
 
-        # TODO: Change this to use an message and response instance variables
+        # TODO: Change this to use a message and response instance variables
 
         await self.communicators[sender.username].send(message)
 

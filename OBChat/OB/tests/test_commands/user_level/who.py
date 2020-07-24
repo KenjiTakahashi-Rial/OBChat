@@ -1,6 +1,5 @@
 """
-Description:
-    WhoTest class container module.
+WhoTest class container module.
 """
 
 from pytest import mark
@@ -11,15 +10,13 @@ from OB.utilities.database import async_save
 
 class WhoTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /who command function (see OB.commands.user_level.who).
+    Class to test the /who command function (see OB.commands.user_level.who).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -28,8 +25,7 @@ class WhoTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /who command (see OB.commands.user_level.who).
+        Tests the /who command (see OB.commands.user_level.who).
         """
 
         # Test nonexistent room error

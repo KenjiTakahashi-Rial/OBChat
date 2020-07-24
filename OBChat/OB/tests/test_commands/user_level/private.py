@@ -1,6 +1,5 @@
 """
-Description:
-    PrivateTest class container module.
+PrivateTest class container module.
 """
 
 from pytest import mark
@@ -14,15 +13,13 @@ from OB.utilities.format import get_group_name
 
 class PrivateTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /private command function (see OB.commands.user_level.private).
+    Class to test the /private command function (see OB.commands.user_level.private).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=1, limited_admins=1, auth_users=1, anon_users=1)
@@ -31,8 +28,7 @@ class PrivateTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /private command (see OB.commands.user_level.private).
+        Tests the /private command (see OB.commands.user_level.private).
         """
 
         # Test no arguments error

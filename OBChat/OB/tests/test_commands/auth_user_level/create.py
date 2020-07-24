@@ -1,6 +1,5 @@
 """
-Description:
-    CreateTest class container module.
+CreateTest class container module.
 """
 
 from pytest import mark
@@ -13,15 +12,13 @@ from OB.utilities.database import async_get
 
 class CreateTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /create command function (see OB.commands.auth_user_level.create).
+    Class to test the /create command function (see OB.commands.auth_user_level.create).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -30,8 +27,7 @@ class CreateTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /create command (see OB.commands.user_level.create).
+        Tests the /create command (see OB.commands.user_level.create).
         """
 
         # Test no arguments error

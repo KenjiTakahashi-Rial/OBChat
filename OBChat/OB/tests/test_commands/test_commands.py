@@ -1,18 +1,16 @@
 """
 Tests the command functions (see OB.commands).
-
 Tests are separated into individual functions so their success/failure can be viewed independently
 when using pytest.
-
-See the pytest documentation for more information.
-https://docs.pytest.org/en/latest/contents.html
-
 To enable pytest assertion rewriting (detailed logs for why assertions failed), ensure that the
 module is included in the package's __init__.py (see __init__.py in any of the test packages).
 
 See the pytest documentation on assertion and assertion rewriting for more information.
 https://docs.pytest.org/en/stable/assert.html
 https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting
+
+See the pytest documentation for more information.
+https://docs.pytest.org/en/latest/contents.html
 """
 
 from pytest import mark
@@ -36,8 +34,7 @@ from OB.tests.test_commands.user_level.who import WhoTest
 @mark.django_db()
 async def test_who():
     """
-    Description:
-        Tests the /who command function.
+    Tests the /who command function.
     """
 
     who_test = WhoTest()
@@ -47,8 +44,7 @@ async def test_who():
 @mark.django_db()
 async def test_private():
     """
-    Description:
-        Tests the /private command function.
+    Tests the /private command function.
     """
 
     private_test = PrivateTest()
@@ -62,8 +58,7 @@ async def test_private():
 @mark.django_db()
 async def test_create():
     """
-    Description:
-        Tests the /create command function.
+    Tests the /create command function.
     """
 
     create_test = CreateTest()
@@ -73,8 +68,7 @@ async def test_create():
 @mark.django_db()
 async def test_apply():
     """
-    Description:
-        Tests the /apply command function.
+    Tests the /apply command function.
     """
 
     apply_test = ApplyTest()
@@ -88,8 +82,7 @@ async def test_apply():
 @mark.django_db()
 async def test_kick():
     """
-    Description:
-        Tests the /kick command function.
+    Tests the /kick command function.
     """
 
     kick_test = KickTest()
@@ -99,8 +92,7 @@ async def test_kick():
 @mark.django_db()
 async def test_ban():
     """
-    Description:
-        Tests the /ban command function.
+    Tests the /ban command function.
     """
 
     ban_test = BanTest()
@@ -110,8 +102,7 @@ async def test_ban():
 @mark.django_db()
 async def test_lift():
     """
-    Description:
-        Tests the /lift command function.
+    Tests the /lift command function.
     """
 
     lift_test = LiftTest()
@@ -125,8 +116,7 @@ async def test_lift():
 @mark.django_db()
 async def test_hire():
     """
-    Description:
-        Tests the /hire command function.
+    Tests the /hire command function.
     """
 
     hire_test = HireTest()
@@ -136,8 +126,7 @@ async def test_hire():
 @mark.django_db()
 async def test_fire():
     """
-    Description:
-        Tests the /fire command function.
+    Tests the /fire command function.
     """
 
     fire_test = FireTest()
@@ -151,8 +140,7 @@ async def test_fire():
 @mark.django_db()
 async def test_delete():
     """
-    Description:
-        Tests the /delete command function.
+    Tests the /delete command function.
     """
 
     delete_test = DeleteTest()

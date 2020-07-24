@@ -1,6 +1,5 @@
 """
-Description:
-    ApplyTest class container module.
+ApplyTest class container module.
 """
 
 from pytest import mark
@@ -13,15 +12,13 @@ from OB.utilities.database import async_filter, async_get
 
 class ApplyTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /apply command function (see OB.commands.auth_user_level.apply).
+    Class to test the /apply command function (see OB.commands.auth_user_level.apply).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -30,8 +27,7 @@ class ApplyTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /apply command (see OB.commands.user_level.apply).
+        Tests the /apply command (see OB.commands.user_level.apply).
         """
 
         # Test unauthenticated user error
@@ -58,8 +54,8 @@ class ApplyTest(BaseCommandTest):
     @mark.django_db()
     async def test_success(self, sender, message=""):
         """
-        Description:
-            Tests a successful application through the /apply command.
+        Tests a successful application through the /apply command.
+
         Arguments:
             sender (OBUser): The user to send the /apply command.
             message (string): The accompanying message for the application.

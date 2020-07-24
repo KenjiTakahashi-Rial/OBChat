@@ -1,6 +1,5 @@
 """
-Description:
-    HireTest class container module.
+HireTest class container module.
 """
 
 from pytest import mark
@@ -13,15 +12,13 @@ from OB.utilities.database import async_delete, async_get, async_model_list, asy
 
 class HireTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /hire command function (see OB.commands.unlimited_admin_level.hire).
+    Class to test the /hire command function (see OB.commands.unlimited_admin_level.hire).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -30,8 +27,7 @@ class HireTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /hire command (see OB.commands.unlimited_admin_level.hire).
+        Tests the /hire command (see OB.commands.unlimited_admin_level.hire).
         """
 
         # Test anon hiring error
@@ -116,8 +112,8 @@ class HireTest(BaseCommandTest):
     @mark.django_db()
     async def test_success(self, sender, targets):
         """
-        Description:
-            Tests a successful hire through the /hire command.
+        Tests a successful hire through the /hire command.
+
         Arguments:
             sender (OBUser): The user to send the /hire command.
             targets (list[OBUser]): The users to try to hire.

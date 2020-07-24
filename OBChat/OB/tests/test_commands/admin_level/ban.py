@@ -1,6 +1,5 @@
 """
-Description:
-    BanTest class container module.
+BanTest class container module.
 """
 
 import asyncio
@@ -14,15 +13,13 @@ from OB.utilities.database import async_add_occupants, async_delete, async_get, 
 
 class BanTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /ban command function (see OB.commands.admin_level.ban).
+    Class to test the /ban command function (see OB.commands.admin_level.ban).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -31,9 +28,8 @@ class BanTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /ban command (see OB.commands.user_level.ban).
-            Tests errors last just in case previous tests fail and the test must run again.
+        Tests the /ban command (see OB.commands.user_level.ban).
+        Tests errors last just in case previous tests fail and the test must run again.
         """
 
         # Test limited Admin banning authenticated user
@@ -133,8 +129,8 @@ class BanTest(BaseCommandTest):
     @mark.django_db()
     async def test_success(self, sender, targets):
         """
-        Description:
-            Tests a successful ban through the /ban command.
+        Tests a successful ban through the /ban command.
+
         Arguments:
             sender (OBUser): The user to send the /ban command.
             targets (list[OBUser]): The users to try to ban.

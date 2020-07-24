@@ -1,26 +1,22 @@
 """
-Description:
-    DeleteTest class container module.
+DeleteTest class container module.
 """
 
 from pytest import mark
-from time import sleep
 
 from OB.models import Admin, Ban, Message, Room
 from OB.tests.test_commands.base import BaseCommandTest
-from OB.utilities.database import async_filter, async_model_list, async_save, async_try_get
+from OB.utilities.database import async_filter, async_save, async_try_get
 
 class DeleteTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /delete command function (see OB.commands.owner_level.delete).
+    Class to test the /delete command function (see OB.commands.owner_level.delete).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -29,8 +25,7 @@ class DeleteTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /delete command (see OB.commands.owner_level.delete).
+        Tests the /delete command (see OB.commands.owner_level.delete).
         """
 
         # Test anonymous user deleting error

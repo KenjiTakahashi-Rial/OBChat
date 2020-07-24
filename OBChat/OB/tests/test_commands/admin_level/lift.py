@@ -1,6 +1,5 @@
 """
-Description:
-    LiftTest class container module.
+LiftTest class container module.
 """
 
 from pytest import mark
@@ -13,15 +12,13 @@ from OB.utilities.database import async_save
 
 class LiftTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /lift command function (see OB.commands.admin_level.lift).
+    Class to test the /lift command function (see OB.commands.admin_level.lift).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -30,8 +27,7 @@ class LiftTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /lift command (see OB.commands.user_level.lift).
+        Tests the /lift command (see OB.commands.user_level.lift).
         """
 
         # Test unauthenticated user lifting error

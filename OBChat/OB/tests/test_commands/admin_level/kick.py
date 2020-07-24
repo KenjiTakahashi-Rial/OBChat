@@ -1,6 +1,5 @@
 """
-Description:
-    KickTest class container module.
+KickTest class container module.
 """
 
 from pytest import mark
@@ -12,15 +11,13 @@ from OB.utilities.database import async_add_occupants, async_model_list, async_s
 
 class KickTest(BaseCommandTest):
     """
-    Description:
-        Class to test the /kick command function (see OB.commands.admin_level.kick).
+    Class to test the /kick command function (see OB.commands.admin_level.kick).
     """
 
     def __init__(self):
         """
-        Description:
-            Declares the instance variables that be used for testing, includes communicators and
-            database objects.
+        Declares the instance variables that be used for testing, includes communicators and
+        database objects.
         """
 
         super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
@@ -29,9 +26,8 @@ class KickTest(BaseCommandTest):
     @mark.django_db()
     async def tests(self):
         """
-        Description:
-            Tests the /kick command (see OB.commands.user_level.kick).
-            Tests errors last just in case previous tests fail and the test must run again.
+        Tests the /kick command (see OB.commands.user_level.kick).
+        Tests errors last just in case previous tests fail and the test must run again.
         """
 
         # Test limited Admin kicking authenticated user
@@ -127,8 +123,8 @@ class KickTest(BaseCommandTest):
     @mark.django_db()
     async def test_success(self, sender, targets):
         """
-        Description:
-            Tests a successful kick through the /kick command.
+        Tests a successful kick through the /kick command.
+
         Arguments:
             sender (OBUser): The user to send the /kick command.
             targets (list[OBUser]): The users to try to kick.
