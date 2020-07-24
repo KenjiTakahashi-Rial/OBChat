@@ -4,7 +4,8 @@ Useful command functions.
 
 from channels.db import database_sync_to_async
 
-from OB.commands.command_handler import COMMANDS
+import OB.commands.command_handler as command_handler
+
 from OB.constants import Privilege
 from OB.models import Admin
 from OB.utilities.database import try_get
@@ -38,7 +39,7 @@ def is_valid_command(command):
         boolean: True if the string is in command format and the command is in the COMMANDS dict.
     """
 
-    return is_command_format(command) and command[1:] in COMMANDS
+    return is_command_format(command) and command[1:] in command_handler.COMMANDS
 
 @database_sync_to_async
 def async_get_privilege(user, room):
