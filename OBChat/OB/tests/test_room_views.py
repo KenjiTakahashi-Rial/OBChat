@@ -1,10 +1,10 @@
 """
-Tests the room view functions (see OB.views.room).
+Room views test module (see OB.views.room).
 
 See the Django documentation on Testing for more information.
 https://docs.djangoproject.com/en/3.0/topics/testing/
 
-Also see the pytest documentation for more information.
+See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
@@ -18,12 +18,11 @@ from OB.models import OBUser, Room
 
 def setup_function():
     """
-    Description:
-        Sets up the database objects required to test the views.
+    Sets up the database objects required to test the views.
+    This is a built-in pytest fixture that runs before every function.
 
-        This is a built-in pytest fixture that runs before every function.
-        See the pytest documentation on xunit-style setup for more information.
-        https://docs.pytest.org/en/latest/xunit_setup.html
+    See the pytest documentation on xunit-style setup for more information.
+    https://docs.pytest.org/en/latest/xunit_setup.html
     """
 
     ob_user = OBUser.objects.create_user(
@@ -41,12 +40,11 @@ def setup_function():
 
 def teardown_function():
     """
-    Description:
-        Cleans up the database objects used to test the views.
+    Cleans up the database objects used to test the views.
+    This is a built-in pytest fixture that runs after every function.
 
-        This is a built-in pytest fixture that runs after every function.
-        See the pytest documentation on xunit-style setup for more information.
-        https://docs.pytest.org/en/latest/xunit_setup.html
+    See the pytest documentation on xunit-style setup for more information.
+    https://docs.pytest.org/en/latest/xunit_setup.html
     """
 
     for user in OBUser.objects.all():
@@ -58,8 +56,7 @@ def teardown_function():
 @mark.django_db()
 def test_chat():
     """
-    Description:
-        Tests the chat list page (see OB.views.room.chat()).
+    Tests the chat list page (see OB.views.room.chat()).
     """
 
     client = Client()
@@ -73,8 +70,7 @@ def test_chat():
 @mark.django_db()
 def test_create_room():
     """
-    Description:
-        Tests the room creation page (see OB.views.room.create_room()).
+    Tests the room creation page (see OB.views.room.create_room()).
     """
 
     client = Client()
@@ -170,8 +166,7 @@ def test_create_room():
 @mark.django_db()
 def test_room():
     """
-    Description:
-        Tests the room page (see OB.views.room.room()).
+    Tests the room page (see OB.views.room.room()).
     """
 
     client = Client()

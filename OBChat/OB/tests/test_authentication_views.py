@@ -1,10 +1,10 @@
 """
-Tests the authentication view functions (see OB.views.authentication).
+Authentication views test module (see OB.views.authentication).
 
 See the Django documentation on Testing for more information.
 https://docs.djangoproject.com/en/3.0/topics/testing/
 
-Also see the pytest documentation for more information.
+See the pytest documentation for more information.
 https://docs.pytest.org/en/latest/contents.html
 """
 
@@ -17,12 +17,11 @@ from OB.models import OBUser
 
 def setup_function():
     """
-    Description:
-        Sets up the database objects required to test the views.
+    Sets up the database objects required to test the views.
+    This is a built-in pytest fixture that runs before every function.
 
-        This is a built-in pytest fixture that runs before every function.
-        See the pytest documentation on xunit-style setup for more information.
-        https://docs.pytest.org/en/latest/xunit_setup.html
+    See the pytest documentation on xunit-style setup for more information.
+    https://docs.pytest.org/en/latest/xunit_setup.html
     """
 
     OBUser.objects.create_user(
@@ -35,10 +34,9 @@ def setup_function():
 
 def teardown_function():
     """
-    Description:
         Cleans up the database objects used to test the views.
-
         This is a built-in pytest fixture that runs after every function.
+
         See the pytest documentation on xunit-style setup for more information.
         https://docs.pytest.org/en/latest/xunit_setup.html
     """
@@ -49,8 +47,7 @@ def teardown_function():
 @mark.django_db()
 def test_sign_up():
     """
-    Description:
-        Tests the sign up page (see OB.views.authentication.sign_up()).
+    Tests the sign up page (see OB.views.authentication.sign_up()).
     """
 
     client = Client()
@@ -130,8 +127,7 @@ def test_sign_up():
 @mark.django_db()
 def test_log_in():
     """
-    Description:
-        Tests the login page (see OB.views.authentication.log_in()).
+    Tests the login page (see OB.views.authentication.log_in()).
     """
 
     client = Client()
