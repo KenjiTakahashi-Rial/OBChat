@@ -15,11 +15,10 @@ from OB.models import OBUser
 
 def sign_up(request):
     """
-    Description:
-        Handles HTTP requests for the sign-up page.
-        GETs the HTML template for the page.
-        POSTs the user input in the form and returns errors or saves a new OBUser and redirects
-        to the login page.
+    Handles HTTP requests for the sign-up page.
+    GETs the HTML template for the page.
+    POSTs the user input in the form and returns errors or saves a new OBUser and redirects to
+    the login page.
 
     Arguments:
         request (AsgiRequest)
@@ -95,11 +94,10 @@ def sign_up(request):
 
 def log_in(request):
     """
-    Description:
-        Handles HTTP requests for the login page.
-        GETs the HTML template for the page.
-        POSTs the user input in the form and returns errors or authenticates the user and redirects
-        to the chat list page.
+    Handles HTTP requests for the login page.
+    GETs the HTML template for the page.
+    POSTs the user input in the form and returns errors or authenticates the user and redirects to
+    the chat list page.
 
     Arguments:
         request (AsgiRequest)
@@ -141,9 +139,8 @@ def log_in(request):
 
 def log_out(request):
     """
-    Description:
-        Handles HTTP requests for the logout page.
-        Logs the user out.
+    Handles HTTP requests for the logout page.
+    Logs the user out.
 
     Arguments:
         request (AsgiRequest)

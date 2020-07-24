@@ -1,9 +1,8 @@
 """
 ASGI config for OBChat project.
+Exposes the ASGI callable as a module-level variable named ``application``.
 
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
+See the Django documentation on asgi.py for more information.
 https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 """
 

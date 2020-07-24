@@ -1,9 +1,8 @@
 """
 WSGI config for OBChat project.
-
 It exposes the WSGI callable as a module-level variable named ``application``.
 
-For more information on this file, see
+See the Django documentation on wsgi.py for more information.
 https://docs.djangoproject.com/en/3.0/howto/deployment/wsgi/
 """
 

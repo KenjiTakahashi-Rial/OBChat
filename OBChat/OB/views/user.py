@@ -19,10 +19,9 @@ from OB.utilities.format import get_datetime_string, get_group_name
 
 def user(request, username):
     """
-    Description:
-        Handles HTTP requests for the user info page
-        GETs the HTML template for the page or an error page if it doesn't exist
-        POSTs the user input in the form and returns errors or saves the OBUser
+    Handles HTTP requests for the user info page
+    GETs the HTML template for the page or an error page if it doesn't exist
+    POSTs the user input in the form and returns errors or saves the OBUser
 
     Arguments:
         request (AsgiRequest)
@@ -90,9 +89,8 @@ def user(request, username):
 
 def private(request, username):
     """
-    Description:
-        Handles HTTP requests for the private message page
-        GETs the HTML template for the page or an error page if it doesn't exist
+    Handles HTTP requests for the private message page
+    GETs the HTML template for the page or an error page if it doesn't exist
 
     Arguments:
         request (AsgiRequest)

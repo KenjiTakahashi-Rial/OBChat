@@ -21,9 +21,8 @@ from OB.utilities.format import get_datetime_string
 
 def chat(request):
     """
-    Description:
-        Handles HTTP requests for the chat list page.
-        GETs the HTML template for the page.
+    Handles HTTP requests for the chat list page.
+    GETs the HTML template for the page.
 
     Arguments:
         request (AsgiRequest)
@@ -42,11 +41,10 @@ def chat(request):
 
 def create_room(request):
     """
-    Description:
-        Handles HTTP requests for the room creation page.
-        GETs the HTML template for the page.
-        POSTs the user input in the form and returns errors or saves a new Room and redirects
-        to the new room's page.
+    Handles HTTP requests for the room creation page.
+    GETs the HTML template for the page.
+    POSTs the user input in the form and returns errors or saves a new Room and redirects to
+    the new room's page.
 
     Arguments:
         request (AsgiRequest)
@@ -110,9 +108,8 @@ def create_room(request):
 
 def room(request, room_name):
     """
-    Description:
-        Handles HTTP requests for the chat room page.
-        GETs the HTML template for the page or an error page if it doesn't exist.
+    Handles HTTP requests for the chat room page.
+    GETs the HTML template for the page or an error page if it doesn't exist.
 
     Arguments:
         request (AsgiRequest)
