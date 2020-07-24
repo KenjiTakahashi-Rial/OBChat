@@ -1,6 +1,5 @@
 """
-Storage for session functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful session functions.
 
 See the Django documentation on Sessions for more information.
 https://docs.djangoproject.com/en/3.0/topics/http/sessions/

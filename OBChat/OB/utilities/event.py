@@ -1,6 +1,5 @@
 """
-Storage for event functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful Consumer event functions.
 """
 
 import json
@@ -14,8 +13,7 @@ from OB.utilities.format import get_datetime_string, get_group_name
 
 async def send_event(event, group_name):
     """
-    Description:
-        Distributes an event to a consumer group.
+    Distributes an event to a consumer group.
 
     Arguments:
         event (dict): Contains the event type and variant event data. Each event type must have a
@@ -29,8 +27,7 @@ async def send_event(event, group_name):
 
 async def send_room_event(room_id, event):
     """
-    Description:
-        Distributes an event to the consumer group associated with a room.
+    Distributes an event to the consumer group associated with a room.
 
     Arguments:
         event (dict): Contains the event type and variant event data. Each event type must have
@@ -43,9 +40,8 @@ async def send_room_event(room_id, event):
 
 async def send_room_message(message_json, room_id, recipients=None, exclusions=None):
     """
-    Description:
-        Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
-        This is the last operation performed for only the sender.
+    Sends an event of type "room_message", to a specified room (see OBConsumer.room_message()).
+    This is the last operation performed for only the sender.
 
     Arguments:
         message_json (string): A JSON containing the message text and any metadata to be displayed.
@@ -69,10 +65,9 @@ async def send_room_message(message_json, room_id, recipients=None, exclusions=N
 
 async def send_system_room_message(message_text, room, recipients=None, exclusions=None):
     """
-    Description:
-        Sends a message from the server to a specified room's group (see send_room_message()) with
-        the server's OBUser database object as the sender.
-        Saves the message in the database.
+    Sends a message from the server to a specified room's group (see send_room_message()) with the
+    server's OBUser database object as the sender.
+    Saves the message in the database.
 
     Arguments:
         message_text (string): The message to send from the server.
@@ -119,8 +114,7 @@ async def send_system_room_message(message_text, room, recipients=None, exclusio
 
 async def send_private_message(message_text, sender, recipient):
     """
-    Description:
-        Sends a private message between two users.
+    Sends a private message between two users.
 
     Arguments:
         sender (OBUser): The user sending the private message.

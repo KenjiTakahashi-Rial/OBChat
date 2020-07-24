@@ -1,6 +1,5 @@
 """
-Storage for database functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful command functions.
 """
 
 from channels.db import database_sync_to_async
@@ -12,9 +11,8 @@ from OB.utilities.database import try_get
 
 def is_command_format(command):
     """
-    Description:
-        Determins if a string is formatted as a command or normal message. Command format is any
-        string with a single '/' in front.
+    Determines if a string is formatted as a command or normal message. Command format is any
+    string with a single '/' in front.
 
     Arguments:
         command (string): The string to determine is or is not command format.
@@ -30,10 +28,8 @@ def is_command_format(command):
 
 def is_valid_command(command):
     """
-    Description:
-        Determins if a string is a valid command. Valid commands are both in command format (see
-        is_command_format()) and are contained in the COMMANDS dict constant.
-
+    Determines if a string is a valid command. Valid commands are both in command format (see
+    is_command_format()) and are contained in the COMMANDS dict constant.
 
     Arguments:
         command (string): The string to determine is or is not a valid command.
@@ -47,8 +43,7 @@ def is_valid_command(command):
 @database_sync_to_async
 def async_get_privilege(user, room):
     """
-    Description:
-        Determines the highest privilege level of a user for a room.
+    Determines the highest privilege level of a user for a room.
 
     Arguments:
         username (string): The username of the OBUser to find the privilege of.

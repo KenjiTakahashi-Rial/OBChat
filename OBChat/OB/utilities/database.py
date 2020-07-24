@@ -1,6 +1,5 @@
 """
-Storage for database functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful database functions.
 """
 
 from channels.db import database_sync_to_async
@@ -9,12 +8,11 @@ from OB.models import OBUser
 
 def try_get(model, **kwargs):
     """
-    Description:
-        A safe function to attempt to retrieve a single match of a database object without raising
-        an exception if it is not found.
-        Does not except MultipleObjectsReturned because this function should only ever be used to
-        retrieve a single match.
-        For queries with multiple matches see model.objects.filter().
+    A safe function to attempt to retrieve a single match of a database object without raising an
+    exception if it is not found.
+    Does not except MultipleObjectsReturned because this function should only ever be used to
+    retrieve a single match.
+    For queries with multiple matches see model.objects.filter().
 
     Arguments:
         model (Class): A database model class (see OB.models.py).
@@ -32,8 +30,7 @@ def try_get(model, **kwargs):
 @database_sync_to_async
 def async_try_get(model, **kwargs):
     """
-    Description:
-        Allows an asynchronous function to safely retreive a single database object.
+    Allows an asynchronous function to safely retreive a single database object.
 
     Arguments:
         model (Class): A database model class (see OB.models.py).
@@ -48,8 +45,7 @@ def async_try_get(model, **kwargs):
 @database_sync_to_async
 def async_get(model, **kwargs):
     """
-    Description:
-        Allows an asynchronous function to retreive a single database object.
+    Allows an asynchronous function to retreive a single database object.
 
     Arguments:
         model (Class): A database model class (see OB.models.py).
@@ -64,8 +60,7 @@ def async_get(model, **kwargs):
 @database_sync_to_async
 def async_filter(model, **kwargs):
     """
-    Description:
-        Allows an asynchronous function to filter database objects.
+    Allows an asynchronous function to filter database objects.
 
     Arguments:
         model (Class): A database model class (see OB.models.py).
@@ -75,13 +70,15 @@ def async_filter(model, **kwargs):
         list[obj]: A list of database objects whose class variable values match the kwargs.
     """
 
+    # pylint: disable=unnecessary-comprehension
+    # Justification: These comprehensions are necessary to make a list of database objects. If
+    #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     return [obj for obj in model.objects.filter(**kwargs)]
 
 @database_sync_to_async
 def async_save(model_or_object, **kwargs):
     """
-    Description:
-        Allows an asynchronous function to save a new or existing database object.
+    Allows an asynchronous function to save a new or existing database object.
 
     Arguments:
         model_or_object: A database model class or a database object (see OB.models.py).
@@ -107,8 +104,7 @@ def async_save(model_or_object, **kwargs):
 @database_sync_to_async
 def async_delete(delete_object):
     """
-    Description:
-        Allows an asynchronous function to delete a database object.
+    Allows an asynchronous function to delete a database object.
 
     Arguments:
         delete_object: The database object to delete.
@@ -120,9 +116,8 @@ def async_delete(delete_object):
 @database_sync_to_async
 def async_add(field, add_object):
     """
-    Description:
-        Allows an asynchronous function to add to a database object's OneToManyField or
-        ManyToManyField.
+    Allows an asynchronous function to add to a database object's OneToManyField or
+    ManyToManyField.
 
     Arguments:
         field (OneToManyField/ManyToManyField): A database object's field to add to.
@@ -135,9 +130,8 @@ def async_add(field, add_object):
 @database_sync_to_async
 def async_remove(field, remove_object):
     """
-    Description:
-        Allows an asynchronous function to remove from a database object's OneToManyField or
-        ManyToManyField.
+    Allows an asynchronous function to remove from a database object's OneToManyField or
+    ManyToManyField.
 
     Arguments:
         field (OneToManyField/ManyToManyField): A database object's field to remove from.
@@ -150,8 +144,7 @@ def async_remove(field, remove_object):
 @database_sync_to_async
 def async_len_all(query_set):
     """
-    Description:
-        Allows an asynchronous function to get the length of a database table.
+    Allows an asynchronous function to get the length of a database table.
 
     Arguments:
         table: A database table to find the length of.
@@ -167,9 +160,8 @@ def async_len_all(query_set):
 @database_sync_to_async
 def async_model_list(model):
     """
-    Description:
-        Allows an asynchronous function to get a list of database objects of a model so that it
-        may be iterated on asynchronously.
+    Allows an asynchronous function to get a list of database objects of a model so that it may
+    be iterated on asynchronously.
 
     Arguments:
         model: The model to get a list of.
@@ -191,9 +183,9 @@ def async_model_list(model):
 @database_sync_to_async
 def async_get_owner(room):
     """
-    Description:
-        Allows an asynchronous function to get the owner attribute of a Room.
-        The owner attribute of a Room is a ForeignKey, which require a database query to access.
+    Allows an asynchronous function to get the owner attribute of a Room.
+    The owner attribute of a Room is a ForeignKey, which require a database query to access.
+
     Arguments:
         room (Room): The Room object to get the owner attribute of.
 
@@ -205,8 +197,7 @@ def async_get_owner(room):
 
 def add_occupants(room, occupants):
     """
-    Description:
-        Adds a list of users to the occupants of room if they are not already in it.
+    Adds a list of users to the occupants of room if they are not already in it.
 
     Arguments:
         room (Room): The room to add users to the occupants of.
@@ -220,9 +211,8 @@ def add_occupants(room, occupants):
 @database_sync_to_async
 def async_add_occupants(room, occupants):
     """
-    Description:
-        Allows an asynchronous function to add a list of users to the occupants of room if they are
-        not already in it.
+    Allows an asynchronous function to add a list of users to the occupants of room if they are not
+    already in it.
 
     Arguments:
         room (Room): The room to add users to the occupants of.
@@ -234,10 +224,9 @@ def async_add_occupants(room, occupants):
 @database_sync_to_async
 def async_repr(repr_object):
     """
-    Description:
-        Allows an asynchronous function to call __repr__() on a database object.
-        Some database objects have attributes that are other database objects, thus they require
-        an additional database query, which can only be performed synchronously.
+    Allows an asynchronous function to call __repr__() on a database object.
+    Some database objects have attributes that are other database objects, thus they require an
+    additional database query, which can only be performed synchronously.
 
     Arguments:
         room (Room): The room to add users to the occupants of.

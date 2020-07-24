@@ -1,9 +1,10 @@
 """
-Storage for test functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful test functions.
 """
 
-import django, sqlite3
+import sqlite3
+
+import django
 
 from channels.db import database_sync_to_async
 
@@ -12,15 +13,16 @@ from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
 from OB.models import Admin, Ban, Message, OBUser, Room
 from OB.utilities.database import add_occupants, async_model_list
 
+# TODO: Go through these and remove unneeded ones.
+
 @database_sync_to_async
 def database_setup():
     """
-    Description:
-        Sets up database objects required to test the commands.
-        Ideally, the return value would be a dict of OBUsers and Rooms, but returning any database
-        objects from this function will cause threading issues by locking the database.
-        The built-in pytest setup fixture causes threading issues with the asynchronous command
-        testing.
+    Sets up database objects required to test the commands.
+    Ideally, the return value would be a dict of OBUsers and Rooms, but returning any database
+    objects from this function will cause threading issues by locking the database.
+    The built-in pytest setup fixture causes threading issues with the asynchronous command
+    testing.
     """
 
     OBUser(
@@ -142,10 +144,9 @@ def database_setup():
 @database_sync_to_async
 def database_teardown():
     """
-    Description:
-        Cleans up the database objects used to test the commands.
-        The built-in pytest teardown fixture causes threading issues with the asynchronous command
-        testing.
+    Cleans up the database objects used to test the commands.
+    The built-in pytest teardown fixture causes threading issues with the asynchronous command
+    testing.
     """
 
     for admin in Admin.objects.all():
@@ -165,10 +166,9 @@ def database_teardown():
 
 async def communicator_setup(room):
     """
-    Description:
-        Sets up the communicator objects used to test the commands.
-        The built-in pytest setup fixture causes threading issues with the asynchronous command
-        testing.
+    Sets up the communicator objects used to test the commands.
+    The built-in pytest setup fixture causes threading issues with the asynchronous command
+    testing.
 
     Arguments:
         room (Room): The room to get a dict of communicators for.
@@ -191,10 +191,9 @@ async def communicator_setup(room):
 
 async def communicator_teardown(communicators, safe=True):
     """
-    Description:
-        Cleans up the communicator objects used to test the commands.
-        The built-in pytest teardown fixture causes threading issues with the asynchronous command
-        testing.
+    Cleans up the communicator objects used to test the commands.
+    The built-in pytest teardown fixture causes threading issues with the asynchronous command
+    testing.
 
     Arguments:
         communicators (dict{string: OBCommunicator}): The dict of communicators to clean up.

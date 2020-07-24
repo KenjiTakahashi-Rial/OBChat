@@ -1,14 +1,12 @@
 """
-Storage for format functions that are called in multiple places and are not associated with any
-particular instance of a class.
+Useful format functions.
 """
 
 from OB.constants import GroupTypes
 
 def get_group_name(group_type, target_id, second_id=-1):
     """
-    Description:
-        Gets the correctly formatted name of a group as a string.
+    Gets the correctly formatted name of a group as a string.
 
     Arguments:
         group_type (GroupType): The type of the desired group name.
@@ -35,9 +33,8 @@ def get_group_name(group_type, target_id, second_id=-1):
 
 def get_datetime_string(date_time):
     """
-    Description:
-        Gets the correctly formatted string for a datetime.
-        Ensures consistent datetime format across the website.
+    Gets the correctly formatted string for a datetime.
+    Ensures consistent datetime format across the website.
 
     Arguments:
         date_time (datetime): The datetime to format as a string.
