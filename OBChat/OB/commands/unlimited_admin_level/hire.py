@@ -1,9 +1,6 @@
 """
-A user must have Unlimited Admin privileges of the room to perform this command (see
-OB.models.Admin & OB.constants.Privilege).
+hire function container module
 """
-
-import channels
 
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
@@ -13,9 +10,8 @@ from OB.utilities.event import send_system_room_message
 
 async def hire(args, sender, room):
     """
-    Description:
-        Saves one or more new Admin database objects. The user may issue admin-level commands
-            in the target room.
+    Saves one or more new Admin database objects.
+    Allows the target user to issue admin-level commands in this Room.
 
     Arguments:
         args (list[string]): The usernames of OBUsers to hire. Should have length 1 or more.

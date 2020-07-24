@@ -1,5 +1,5 @@
 """
-Any user may perform this command.
+private function container module.
 """
 
 from OB.models import OBUser
@@ -8,9 +8,9 @@ from OB.utilities.event import send_private_message, send_system_room_message
 
 async def private(args, sender, room):
     """
-    Description:
-        Sends a private message from the user parameter to another OBUser. The private message will
-        have its own OBConsumer group where only the two users will receive messages.
+    Sends a private message from the user parameter to another OBUser.
+    The private message will have its own OBConsumer group where only the two users will receive
+    messages.
 
     Arguments:
         args (list[string]): The first item should be a username prepended with '/' and the

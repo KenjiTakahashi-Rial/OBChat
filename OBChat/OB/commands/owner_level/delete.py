@@ -1,6 +1,5 @@
 """
-A user must be the owner of the room to perform this command (see OB.models.Room &
-OB.constants.Privilege).
+delete function container module
 """
 
 from OB.constants import Privilege
@@ -11,9 +10,8 @@ from OB.utilities.event import send_room_event, send_system_room_message
 
 async def delete(args, sender, room):
     """
-    Description:
-        Deletes an existing Room database object. All Admin, Ban, and Message objects will be
-        deleted as well.
+    Deletes an existing Room database object.
+    All Admin, Ban, and Message objects will be deleted as well.
 
     Arguments:
         args (list[string]): The names of Rooms to delete. Should have length 1 or more.

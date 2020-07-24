@@ -48,9 +48,9 @@ VALID_COMMANDS = "\n".join([
 
 async def handle_command(command, sender, room):
     """
-    Description:
-        Tries to execute a command function from the COMMANDS dict with arguments.
-        Assumes that the text given is in command format (see OB.utilities.command.is_command()).
+    Tries to execute a command function from the COMMANDS dict with arguments.
+    Assumes that the text given is in command format (see
+    OB.utilities.command.is_command_format()).
 
     Arguments:
         data (string): A space-separated string of a command with arguments.

@@ -1,6 +1,5 @@
 """
-A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+elevate function container module.
 """
 
 from enum import IntEnum
@@ -13,9 +12,8 @@ from OB.utilities.event import send_system_room_message
 
 async def elevate(args, sender, room):
     """
-    Description:
-        Requests an action (e.g. /kick, /ban, /lift) be performed by a user with higher privilege.
-        Can request generally to all users with higher privilege or to a specific user.
+    Requests an action (e.g. /kick, /ban, /lift) be performed by a user with higher privilege.
+    Can request generally to all users with higher privilege or to a specific user.
 
     Arguments:
         args (list[string]): The command to elevate, the arguments of that command, and the user to
@@ -99,9 +97,8 @@ async def elevate(args, sender, room):
 
 async def parse(args):
     """
-    Description:
-        Parses the arguments into 3 key parts: the command to elevate with its arguments, the
-        target usernames to send the elevation request to, and the elevation request message.
+    Parses the arguments into 3 key parts: the command to elevate with its arguments, the target
+    usernames to send the elevation request to, and the elevation request message.
 
     Arguments:
         args (list[string]): The command to elevate, the arguments of that command, the target
@@ -117,9 +114,7 @@ async def parse(args):
 
     class Stage(IntEnum):
         """
-        Description:
-            Tracks which section of the /elevate command is being parsed in order to organize the
-            data correctly.
+        Tracks which section of the /elevate command is being parsed in order to organize the data.
         """
 
         Invalid = 0

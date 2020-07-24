@@ -1,6 +1,5 @@
 """
-A user must have Unlimited Admin privileges of the room to perform this command (see
-OB.models.Admin & OB.constants.Privilege).
+fire function container module
 """
 
 from OB.constants import Privilege

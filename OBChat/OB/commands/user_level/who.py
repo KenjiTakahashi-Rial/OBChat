@@ -1,5 +1,5 @@
 """
-Any user may perform this command.
+who function container module.
 """
 
 from OB.constants import GroupTypes
@@ -9,9 +9,8 @@ from OB.utilities.event import send_system_room_message
 
 async def who(args, sender, room):
     """
-    Description:
-        Lists all the occupants in a room. Can be called without arguments to list the users of the
-        issuing user's current room.
+    Lists all the occupants in a room. Can be called without arguments to list the users of the
+    issuing user's current room.
 
     Arguments:
         args (list[string]): The names of the Rooms to list the occupants of (defaults to the

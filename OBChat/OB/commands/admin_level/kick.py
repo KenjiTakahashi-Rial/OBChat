@@ -1,6 +1,5 @@
 """
-A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+kick function container module
 """
 
 from OB.constants import Privilege
@@ -11,9 +10,8 @@ from OB.utilities.event import send_room_event, send_system_room_message
 
 async def kick(args, sender, room):
     """
-    Description:
-        Remove one or more OBConsumers from the group a Room is associated with. They will not
-        receive messages from the group until they rejoin the Room.
+    Remove one or more OBConsumers from the group a Room is associated with.
+    Kicked users will not receive messages from the group until they rejoin the Room.
 
     Arguments:
         args (list[string]): The usernames of OBUsers to kick. Should have length 1 or more.

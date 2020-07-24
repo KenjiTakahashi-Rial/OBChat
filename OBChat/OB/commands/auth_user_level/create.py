@@ -1,6 +1,5 @@
 """
-A user must be authenticated of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+create function container module
 """
 
 from OB.constants import GroupTypes
@@ -10,8 +9,7 @@ from OB.utilities.event import send_system_room_message
 
 async def create(args, sender, room):
     """
-    Description:
-        Create a new chat room from a commandline instead of through the website GUI.
+    Create a new chat room from a commandline instead of through the website GUI.
 
     Arguments:
         args (list[string]): The desired name of the new room.

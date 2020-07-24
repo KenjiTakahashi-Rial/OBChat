@@ -1,6 +1,5 @@
 """
-A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+lift function container module
 """
 
 from OB.constants import Privilege
@@ -11,9 +10,9 @@ from OB.utilities.event import send_system_room_message
 
 async def lift(args, sender, room):
     """
-    Description:
-        Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after
-        being banned. Viewing the user from inside the Room will show they have been banned before.
+    Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after
+    being banned.
+    TODO: Viewing a user from inside the Room will show they have been banned before.
 
     Arguments:
         args (list[string]): The usernames of OBUsers whose bans to lift. Should have length 1 or

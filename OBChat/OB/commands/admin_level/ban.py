@@ -1,6 +1,5 @@
 """
-A user must have Admin privileges of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+ban function container module.
 """
 
 from OB.constants import Privilege
@@ -12,9 +11,8 @@ from OB.utilities.event import send_room_event, send_system_room_message
 
 async def ban(args, sender, room):
     """
-    Description:
-        Remove one or more OBConsumers from the group a Room is associated with and do not allow
-        them to rejoin the group. Bans may be lifted (see lift()).
+    Remove one or more OBConsumers from the group a Room is associated with and do not allow
+    them to rejoin the group. Bans may be lifted (see lift()).
 
     Arguments:
         args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.

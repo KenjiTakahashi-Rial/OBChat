@@ -1,6 +1,5 @@
 """
-A user must be authenticated of the room to perform this command (see OB.models.Admin &
-OB.constants.Privilege).
+apply function container module
 """
 
 from OB.constants import Privilege
@@ -11,10 +10,9 @@ from OB.utilities.event import send_system_room_message
 
 async def apply(args, sender, room):
     """
-    Description:
-        Sends a request for a user to be hired as an Admin or promoted to Unlimited Admin.
-        The request is visible by all users with hiring privileges of the room.
-        Optionally includes a message.
+    Sends a request for a user to be hired as an Admin or promoted to Unlimited Admin.
+    The request is visible by all users with hiring privileges of the room.
+    Optionally includes a message.
 
     Arguments:
         args (list[string]): An optional message to the users with hiring privileges.
