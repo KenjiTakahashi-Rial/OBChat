@@ -1,5 +1,5 @@
 """
-Admin class container module
+Ban class container module
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
@@ -8,18 +8,19 @@ from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTi
 from OB.models.ob_user import OBUser
 from OB.models.room import Room
 
-class Admin(Model):
+class Ban(Model):
     """
-    Receipt of an adminship given to a user for a room.
-    Starts as Limited Admin, which has fewer privileges than Unlimited Admin.
-    May only be created by a room owner or Unlimited Admin.
+    Receipt of a user being banned from a room.
+    May be lifted to allow a user back in to a room.
+    May only be created by a room owner, Unlimited Admin, or Limited Admin.
     """
+
+    # TODO: Add support for timed bans
 
     user = ForeignKey(
         OBUser,
         on_delete=CASCADE,
-        default=-1,
-        related_name="adminship"
+        default=-1
     )
     room = ForeignKey(
         Room,
@@ -28,11 +29,12 @@ class Admin(Model):
     )
     issuer = ForeignKey(
         OBUser,
-        related_name="admin_hired",
+        related_name="ban_issued",
         on_delete=SET_DEFAULT,
         default=-1
     )
-    is_limited = BooleanField(default=True)
+    timestamp = DateTimeField(auto_now_add=True)
+    is_lifted = BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
@@ -44,7 +46,10 @@ class Admin(Model):
         return self
 
     def __str__(self, show_id=False):
-        display_string = f"{self.user}, Admin of {self.room.name}"
+        display_string = f"{self.user}, banned in {self.room}"
+
+        if self.is_lifted:
+            display_string += "(lifted)"
 
         if show_id:
             display_string += f"[{self.id}]"
@@ -53,10 +58,11 @@ class Admin(Model):
 
     def __repr__(self):
         return "\n".join([
-            f"Admin {{",
+            f"Ban {{",
             f"    user: {self.user}",
             f"    room: {self.room}",
             f"    issuer: {self.issuer}",
-            f"    is_limited: {self.is_limited}",
+            f"    timestamp: {self.timestamp}",
+            f"    is_lifted: {self.is_lifted}",
             f"}}"
         ])

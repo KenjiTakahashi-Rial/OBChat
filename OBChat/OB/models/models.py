@@ -18,65 +18,6 @@ ROOM_NAME_MAX_LENGTH = 15
 # 40 is the max length of the session_key, which is the suffix of anonymous usernames
 ANON_USERNAME_MAX_LENGTH = len(ANON_PREFIX) + 40
 
-class Ban(Model):
-    """
-    Receipt of a user being banned from a room.
-    May be lifted to allow a user back in to a room.
-    May only be created by a room owner, Unlimited Admin, or Limited Admin.
-    """
-
-    # TODO: Add support for timed bans
-
-    user = ForeignKey(
-        OBUser,
-        on_delete=CASCADE,
-        default=-1
-    )
-    room = ForeignKey(
-        Room,
-        on_delete=CASCADE,
-        default=-1
-    )
-    issuer = ForeignKey(
-        OBUser,
-        related_name="ban_issued",
-        on_delete=SET_DEFAULT,
-        default=-1
-    )
-    timestamp = DateTimeField(auto_now_add=True)
-    is_lifted = BooleanField(default=False)
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields
-        )
-        return self
-
-    def __str__(self, show_id=False):
-        display_string = f"{self.user}, banned in {self.room}"
-
-        if self.is_lifted:
-            display_string += "(lifted)"
-
-        if show_id:
-            display_string += f"[{self.id}]"
-
-        return display_string
-
-    def __repr__(self):
-        return "\n".join([
-            f"Ban {{",
-            f"    user: {self.user}",
-            f"    room: {self.room}",
-            f"    issuer: {self.issuer}",
-            f"    timestamp: {self.timestamp}",
-            f"    is_lifted: {self.is_lifted}",
-            f"}}"
-        ])
-
 class Message(Model):
     """
     Messages sent in a room.
