@@ -21,6 +21,15 @@ ROOM_NAME_MAX_LENGTH = 15
 ANON_USERNAME_MAX_LENGTH = len(ANON_PREFIX) + 40
 
 class OBUser(AbstractUser):
+    """
+    Represents a user.
+    Authenticated users are saved in the database until they choose to delete their account.
+    Unauthenticated (anonymous) users are created automatically when entering a room while not
+    logged in, and are deleted automatically when leaving the room.
+    Inherits from the AbstractUser superclass, which holds the basic information and handles
+    password security.
+    """
+
     display_name = CharField(
         max_length=DISPLAY_NAME_MAX_LENGTH,
         null=True
@@ -60,6 +69,11 @@ class OBUser(AbstractUser):
         ])
 
 class Room(Model):
+    """
+    Represents a chat room.
+    May only be created by authenticated users.
+    """
+
     group_type = IntegerField(
         default=GroupTypes.Room,
         choices=GroupTypes.choices()
@@ -131,6 +145,12 @@ class Room(Model):
         ])
 
 class Admin(Model):
+    """
+    Receipt of an adminship given to a user for a room.
+    Starts as Limited Admin, which has fewer privileges than Unlimited Admin.
+    May only be created by a room owner or Unlimited Admin.
+    """
+
     user = ForeignKey(
         OBUser,
         on_delete=CASCADE,
@@ -178,6 +198,12 @@ class Admin(Model):
         ])
 
 class Ban(Model):
+    """
+    Receipt of a user being banned from a room.
+    May be lifted to allow a user back in to a room.
+    May only be created by a room owner, Unlimited Admin, or Limited Admin.
+    """
+
     user = ForeignKey(
         OBUser,
         on_delete=CASCADE,
@@ -229,6 +255,12 @@ class Ban(Model):
         ])
 
 class Message(Model):
+    """
+    Messages sent in a room.
+    Includes private and system messages.
+    May be created by any user.
+    """
+
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
     sender = ForeignKey(
         OBUser,
