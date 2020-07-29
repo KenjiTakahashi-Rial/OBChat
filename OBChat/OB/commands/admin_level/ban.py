@@ -23,7 +23,7 @@ async def ban(args, sender, room):
     args = list(dict.fromkeys(args))
 
     # Check for initial errors
-    initial_error_message = check_initial_errors(args, sender, room)
+    initial_error_message = await check_initial_errors(args, sender, room)
 
     # Send initial error message back to user and cancel the command
     if initial_error_message:
@@ -31,10 +31,10 @@ async def ban(args, sender, room):
         return
 
     # Check the validity of the arguments
-    valid_bans, arg_error_messages = check_arguments(args, sender, room)
+    valid_bans, arg_error_messages = await check_arguments(args, sender, room)
 
     # Execute the bans
-    sender_receipt, occupants_notification = execute_bans(
+    sender_receipt, occupants_notification = await execute_bans(
         valid_bans,
         arg_error_messages,
         sender,
