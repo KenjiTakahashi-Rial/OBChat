@@ -1,5 +1,5 @@
 """
-ban function container module.
+/ban command functions container module.
 """
 
 from OB.constants import Privilege
@@ -23,27 +23,49 @@ async def ban(args, sender, room):
     # Remove duplicates
     args = list(dict.fromkeys(args))
 
+    # Check for initial errors
+    initial_error_message = check_initial_errors(args, sender, room)
+
+    # Send initial error message back to user and cancel the command
+    if initial_error_message:
+        await send_system_room_message(initial_error_message, room, [sender])
+        return
+
+async def check_initial_errors(args, sender, room):
+    """
+    Check for initial errors such as lack of privilege or invalid syntax.
+
+    Arguments:
+        args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
+
+    Return values:
+        string: Returns an appropriate error message string. If there are no errors, returns the
+            empty string.
+    """
+
     error_message = ""
     sender_privilege = await async_get_privilege(sender, room)
 
-    # Check for initial errors
-    if not sender.is_authenticated or sender.is_anon:
+    if sender_privilege < Privilege.AuthUser:
+        # Is an anonymous/unauthenticated user
         error_message = (
             "You're not even logged in! Try making an account first, then we can talk about "
             "banning people."
         )
     elif sender_privilege < Privilege.Admin:
+        # Is authenticated, but not an admin
         error_message = (
             "That's a little outside your pay-grade. Only admins may ban users. Try to /apply to "
             "be an Admin."
         )
     elif not args:
+        # Missing target arguments
         error_message = "Usage: /ban <user1> <user2> ..."
 
-    # Send error message back to the issuing user
-    if error_message:
-        await send_system_room_message(error_message, room, [sender])
-        return
+    return error_message
+
 
     valid_bans = []
     error_messages = []
