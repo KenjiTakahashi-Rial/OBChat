@@ -5,8 +5,7 @@
 from OB.constants import Privilege
 from OB.models import Ban, OBUser
 from OB.utilities.command import async_get_privilege
-from OB.utilities.database import async_get_owner, async_model_list, async_save, \
-    async_try_get
+from OB.utilities.database import async_get_owner, async_save, async_try_get
 from OB.utilities.event import send_room_event, send_system_room_message
 
 async def ban(args, sender, room):
@@ -30,6 +29,9 @@ async def ban(args, sender, room):
     if initial_error_message:
         await send_system_room_message(initial_error_message, room, [sender])
         return
+
+    # Check the validity of the arguments
+    valid_bans, arg_error_messages = check_arguments(args, sender, room)
 
 async def check_initial_errors(args, sender, room):
     """
@@ -66,29 +68,43 @@ async def check_initial_errors(args, sender, room):
 
     return error_message
 
+async def check_arguments(args, sender, room):
+    """
+    Check each argument for errors such as self-targeting or targeting a user of higher privilege.
+
+    Arguments:
+        args (list[string]): The usernames of OBUsers to ban. Should have length 1 or more.
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
+
+    Return values:
+        tuple(list[OBUser], list[string]): Returns a tuple of a list of OBUsers to ban and a list
+            of error messages to send to the sender.
+    """
 
     valid_bans = []
     error_messages = []
 
-    # Check for per-argument errors
     for username in args:
         arg_user = await async_try_get(OBUser, username=username)
+        arg_privilege = None if not arg_user else await async_get_privilege(arg_user, room)
 
-        if arg_user:
-            arg_privilege = await async_get_privilege(arg_user, room)
-
-        if not arg_user or arg_user not in await async_model_list(room.occupants):
+        if not arg_user:
+            # Target user does not exist
             error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
         elif arg_user == sender:
+            # Target user is the sender, themself
             error_messages += [
                 f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
             ]
         elif arg_user == await async_get_owner(room):
+            # Target user is the owner
             error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
-        elif arg_privilege >= sender_privilege:
+        elif arg_privilege >= await async_get_privilege(sender, room):
+            # Target user has Privilege greater than or equal to the sender
             job_title = "Admin"
 
-            if arg_privilege == sender_privilege:
+            if arg_privilege == await async_get_privilege(sender, room):
                 job_title += " just like you"
 
             if arg_privilege == Privilege.UnlimitedAdmin:
