@@ -33,6 +33,21 @@ async def ban(args, sender, room):
     # Check the validity of the arguments
     valid_bans, arg_error_messages = check_arguments(args, sender, room)
 
+    # Execute the bans
+    sender_receipt, occupants_notification = execute_bans(
+        valid_bans,
+        arg_error_messages,
+        sender,
+        room
+    )
+
+    # Send messages if applicable
+    if sender_receipt:
+        await send_system_room_message(sender_receipt, room, [sender])
+
+    if occupants_notification:
+        await send_system_room_message(occupants_notification, room, exclusions=[sender])
+
 async def check_initial_errors(args, sender, room):
     """
     Check for initial errors such as lack of privilege or invalid syntax.
@@ -115,12 +130,39 @@ async def check_arguments(args, sender, room):
                 "/elevate your complaints to someone who has more authority."
             ]
         else:
+            # Target user is a valid ban
             valid_bans += [arg_user]
 
-    send_to_sender = error_messages + [("\n" if error_messages else "") + "Banned:"]
-    send_to_others = ["One or more users have been banned:"]
+    return valid_bans, error_messages
 
-    for banned_user in valid_bans:
+async def execute_bans(bans, arg_error_messages, sender, room):
+    """
+    Kick and ban users from the room.
+    Constructs strings to send back to the sender and to the other occupants of the room.
+
+    Arguments:
+        bans (list[OBUser]): List of users to ban. Assumes that the validity of these users being
+            banned has already been checked.
+        arg_error_messages (list[string]): A list of argument error message strings (see
+            check_arguments()).
+        sender (OBUser): The OBUser who issued the command.
+        room (Room): The Room the command was sent from.
+
+    Return values:
+        tuple(string, string): Returns a tuple of a sender receipt string and a room occupant
+            notification string.
+    """
+
+    if not bans:
+        # Send the argument error messages back to the sender if there are any
+        # Do not create a notification for other occupants
+        return "\n".join(arg_error_messages) if arg_error_messages else "", ""
+
+    # Prepend the argument error messages to the sender's receipt
+    sender_receipt = arg_error_messages + [("\n" if arg_error_messages else "") + "Banned:"]
+    occupants_notification = ["One or more users have been banned:"]
+
+    for banned_user in bans:
         # Save the ban to the database
         await async_save(
             Ban,
@@ -137,15 +179,10 @@ async def check_arguments(args, sender, room):
 
         await send_room_event(room.id, kick_event)
 
-        # Notify others that a user was banned
-        send_to_sender += [f"   {banned_user}"]
-        send_to_others += [f"   {banned_user}"]
+        sender_receipt += [f"   {banned_user}"]
+        occupants_notification += [f"   {banned_user}"]
 
-    if valid_bans:
-        send_to_sender += ["That'll show them."]
-        await send_system_room_message("\n".join(send_to_sender), room, [sender])
+    sender_receipt += ["That'll show them."]
+    occupants_notification += ["Let this be a lesson to you all."]
 
-        send_to_others += ["Let this be a lesson to you all."]
-        await send_system_room_message("\n".join(send_to_others), room)
-    elif error_messages:
-        await send_system_room_message("\n".join(error_messages), room, [sender])
+    return "\n".join(sender_receipt), "\n".join(occupants_notification)
