@@ -3,6 +3,7 @@ The BaseCommand class container module.
 """
 
 from OB.constants import Privilege
+from OB.utilities.event import send_system_room_message
 
 # pylint: disable=too-few-public-methods
 # Justification: The only method that needs to be publicly visible is execute()
@@ -15,6 +16,7 @@ class BaseCommand:
     def __init__(self, args, sender, room):
         """
         Declares the instance variables that will be used for the command execution.
+        The sender receipt and occupants notification are lists of strings that are joined later.
 
         Arguments:
             args (list[string]): The arguments of the command. Some commands may not use arguments.
@@ -25,10 +27,33 @@ class BaseCommand:
         self.args = args
         self.sender = sender
         self.room = room
-        self.error_messages = []
         self.sender_privilege = Privilege.Invalid
+        self.sender_receipt = []
+        self.occupants_notification = []
 
     async def execute(self):
         """
         This is where the main implementation of the command goes.
         """
+
+    async def send_responses(self):
+        """
+        Sends the sender a receipt of errors and successes.
+        Sends other occupants of the room a notification of a command's execution.
+        It is possible that neither of these are valid, in which case nothing is sent.
+        Joins the sender receipt and occupants notification lists by \n.
+        """
+
+        if self.sender_receipt:
+            await send_system_room_message(
+                "\n".join(self.sender_receipt),
+                self.room,
+                [self.sender]
+            )
+
+        if self.occupants_notification:
+            await send_system_room_message(
+                "\n".join(self.occupants_notification),
+                self.room,
+                exclusions=[self.sender]
+            )
