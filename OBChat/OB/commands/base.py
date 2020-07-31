@@ -40,20 +40,17 @@ class BaseCommand:
         """
         Sends the sender a receipt of errors and successes.
         Sends other occupants of the room a notification of a command's execution.
-        It is possible that neither of these are valid, in which case nothing is sent.
         Joins the sender receipt and occupants notification lists by \n.
         """
 
-        if self.sender_receipt:
-            await send_system_room_message(
-                "\n".join(self.sender_receipt),
-                self.room,
-                [self.sender]
-            )
+        await send_system_room_message(
+            "\n".join(self.sender_receipt),
+            self.room,
+            [self.sender]
+        )
 
-        if self.occupants_notification:
-            await send_system_room_message(
-                "\n".join(self.occupants_notification),
-                self.room,
-                exclusions=[self.sender]
-            )
+        await send_system_room_message(
+            "\n".join(self.occupants_notification),
+            self.room,
+            exclusions=[self.sender]
+        )

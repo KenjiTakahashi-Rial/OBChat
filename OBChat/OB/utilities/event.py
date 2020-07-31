@@ -80,6 +80,9 @@ async def send_system_room_message(message_text, room, recipients=None, exclusio
             will not receive the message.
     """
 
+    if not message_text or message_text.isspace():
+        return
+
     # Save message to database
     system_user = await async_get(OBUser, username=SYSTEM_USERNAME)
     new_message = await async_save(
