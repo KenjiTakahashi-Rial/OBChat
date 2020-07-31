@@ -5,6 +5,7 @@ OB.utilities.command.is_command_format()).
 """
 
 from OB.commands.admin_level.ban import ban
+from OB.commands.base import BaseCommand
 from OB.commands.admin_level.lift import lift
 from OB.commands.admin_level.kick import kick
 from OB.commands.auth_user_level.apply import apply
