@@ -2,6 +2,8 @@
 The BaseCommand class container module.
 """
 
+from OB.constants import Privilege
+
 # pylint: disable=too-few-public-methods
 # Justification: The only method that needs to be publicly visible is execute()
 class BaseCommand:
@@ -9,6 +11,7 @@ class BaseCommand:
     A superclass for all commands.
     Allows commands to be carried out generically by OB.commands.command_handler.
     """
+
     def __init__(self, args, sender, room):
         """
         Declares the instance variables that will be used for the command execution.
@@ -22,6 +25,8 @@ class BaseCommand:
         self.args = args
         self.sender = sender
         self.room = room
+        self.error_messages = []
+        self.sender_privilege = Privilege.Invalid
 
     async def execute(self):
         """
