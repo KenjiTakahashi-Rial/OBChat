@@ -2,12 +2,14 @@
 The BaseCommand class container module.
 """
 
+# pylint: disable=too-few-public-methods
+# Justification: The only method that needs to be publicly visible is execute()
 class BaseCommand:
     """
     A superclass for all commands.
     Allows commands to be carried out generically by OB.commands.command_handler.
     """
-    def __init__(self, command_string, sender, room):
+    def __init__(self, args, sender, room):
         """
         Declares the instance variables that will be used for the command execution.
 
@@ -17,14 +19,9 @@ class BaseCommand:
             room (Room): The Room the command was sent from.
         """
 
-        self.command_string = command_string
+        self.args = args
         self.sender = sender
         self.room = room
-
-    async def parse(self):
-        """
-        This is where the command string is parsed into arguments.
-        """
 
     async def execute(self):
         """
