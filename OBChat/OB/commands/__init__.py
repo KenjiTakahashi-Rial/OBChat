@@ -1,20 +1,20 @@
 """
-Each of these functions is a user command.
+Each of these classes is a user command.
 Commands are issued by users when using the command syntax (see
 OB.utilities.command.is_command_format()).
 """
 
-from OB.commands.admin_level.ban import ban
+from OB.commands.admin_level import ban
+from OB.commands.admin_level import lift
+from OB.commands.admin_level import kick
+from OB.commands.auth_user_level import apply
+from OB.commands.auth_user_level import create
 from OB.commands.base import BaseCommand
-from OB.commands.admin_level.lift import lift
-from OB.commands.admin_level.kick import kick
-from OB.commands.auth_user_level.apply import apply
-from OB.commands.auth_user_level.create import create
-from OB.commands.owner_level.delete import delete
-from OB.commands.unlimited_admin_level.hire import hire
-from OB.commands.unlimited_admin_level.fire import fire
-from OB.commands.user_level.who import who
-from OB.commands.user_level.private import private
+from OB.commands.owner_level import delete
+from OB.commands.unlimited_admin_level import hire
+from OB.commands.unlimited_admin_level import fire
+from OB.commands.user_level import who
+from OB.commands.user_level import private
 
 # pylint: disable=bad-whitespace
 # Justification: Commands mapped to the same function are put into columns for readability.
