@@ -32,7 +32,7 @@ class BaseCommand:
         self.sender_privilege = Privilege.Invalid
         self.sender_receipt = []
         self.occupants_notification = []
-        self.valid_arguments = []
+        self.valid_targets = []
 
     async def execute(self):
         """
@@ -68,7 +68,7 @@ class BaseCommand:
         Check each argument for errors such as self-targeting or targeting a user of higher
         privilege.
         Save per-argument error messages in the sender_receipt instance variable.
-        Save the valid arguments in the valid_arguments instance variable.
+        Save the valid arguments in the valid_targets instance variable.
 
         Return values:
             boolean: True if any of the arguments are a valid ban.

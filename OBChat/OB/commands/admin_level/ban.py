@@ -15,31 +15,6 @@ class BanCommand(BaseCommand):
     to rejoin the group. Bans may be lifted (see lift()).
     """
 
-    def __init__(self, args, sender, room):
-        """
-        See BaseCommand.__init__().
-        """
-
-        super().__init__(args, sender, room)
-        self.valid_bans = []
-
-    async def execute(self):
-        """
-        The main implementation of the /ban command.
-        """
-
-        # Check for initial errors
-        if not await self.check_initial_errors():
-            pass
-        # Check the validity of the arguments
-        elif not await self.check_arguments():
-            pass
-        # Execute the bans
-        else:
-            await self.execute_bans()
-
-        await self.send_responses()
-
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
@@ -101,9 +76,9 @@ class BanCommand(BaseCommand):
                 ]
             else:
                 # Target user is a valid ban
-                self.valid_bans += [arg_user]
+                self.valid_targets += [arg_user]
 
-        return bool(self.valid_bans)
+        return bool(self.valid_targets)
 
     async def execute_implementation(self):
         """
@@ -116,7 +91,7 @@ class BanCommand(BaseCommand):
         self.sender_receipt += [("\n" if self.sender_receipt else "") + "Banned:"]
         self.occupants_notification = ["One or more users have been banned:"]
 
-        for banned_user in self.valid_bans:
+        for banned_user in self.valid_targets:
             # Save the ban to the database
             await async_save(
                 Ban,
