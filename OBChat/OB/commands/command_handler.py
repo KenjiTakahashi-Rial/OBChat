@@ -2,7 +2,8 @@
 Handles when a command is issued from a user and redirects to the appropriate command function.
 """
 
-from OB.commands import COMMANDS
+import OB.commands
+
 from OB.utilities.event import send_system_room_message
 
 # TODO: Rework this to be held inside each command module

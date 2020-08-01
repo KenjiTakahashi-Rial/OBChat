@@ -52,6 +52,8 @@ class BanCommand(BaseCommand):
             boolean: True if there were no initial errors.
         """
 
+        self.sender_privilege = await async_get_privilege(self.sender, self.room)
+
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
             self.sender_receipt = [
@@ -85,15 +87,17 @@ class BanCommand(BaseCommand):
 
             if not arg_user:
                 # Target user does not exist
-                error_messages += [f"Nobody named {username} in this room. Are you seeing things?"]
+                self.sender_receipt += [
+                    f"Nobody named {username} in this room. Are you seeing things?"
+                ]
             elif arg_user == self.sender:
                 # Target user is the sender, themself
-                error_messages += [
+                self.sender_receipt += [
                     f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
                 ]
             elif arg_privilege == Privilege.Owner:
                 # Target user is the owner
-                error_messages += [f"That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += [f"That's the owner. You know, your BOSS. Nice try."]
             elif arg_privilege >= self.sender_privilege:
                 # Target user has Privilege greater than or equal to the sender
                 job_title = "Admin"
@@ -104,15 +108,13 @@ class BanCommand(BaseCommand):
                 if arg_privilege == Privilege.UnlimitedAdmin:
                     job_title = "Unlimited " + job_title
 
-                error_messages += [
+                self.sender_receipt += [
                     f"{arg_user} is an {job_title}, so you can't ban them. Feel free to "
                     "/elevate your complaints to someone who has more authority."
                 ]
             else:
                 # Target user is a valid ban
-                valid_bans += [arg_user]
-
-        self.sender_receipt += error_messages
+                self.valid_bans += [arg_user]
 
         return bool(self.valid_bans)
 

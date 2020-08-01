@@ -4,7 +4,8 @@ Commands are issued by users when using the command syntax (see
 OB.utilities.command.is_command_format()).
 """
 
-from OB.commands.admin_level import ban
+from OB.commands.command_handler import handle_command
+from OB.commands.admin_level import BanCommand
 from OB.commands.admin_level import lift
 from OB.commands.admin_level import kick
 from OB.commands.auth_user_level import apply
@@ -21,7 +22,7 @@ from OB.commands.user_level import private
 # The values of this dict are command functions
 COMMANDS = {
     "/apply": apply,        "/a": apply,
-    "/ban": ban,            "/b": ban,
+    "/ban": BanCommand,     "/b": BanCommand,
     "/create": create,      "/c": create,
     "/delete": delete,      "/d": delete,
     "/fire": fire,          "/f": fire,
