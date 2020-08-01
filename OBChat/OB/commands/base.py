@@ -24,7 +24,8 @@ class BaseCommand:
             room (Room): The Room the command was sent from.
         """
 
-        self.args = args
+        # Remove duplicates
+        self.args = list(dict.fromkeys(args))
         self.sender = sender
         self.room = room
         self.sender_privilege = Privilege.Invalid

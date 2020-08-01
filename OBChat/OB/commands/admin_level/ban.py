@@ -28,9 +28,6 @@ class BanCommand(BaseCommand):
         The main implementation of the /ban command.
         """
 
-        # Remove duplicates
-        self.args = list(dict.fromkeys(self.args))
-
         # Check for initial errors
         if not await self.check_initial_errors():
             pass
