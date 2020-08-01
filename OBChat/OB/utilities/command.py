@@ -41,8 +41,7 @@ def is_valid_command(command):
 
     return is_command_format(command) and command[1:] in OB.commands.COMMANDS
 
-@database_sync_to_async
-def async_get_privilege(user, room):
+def get_privilege(user, room):
     """
     Determines the highest privilege level of a user for a room.
 
@@ -69,3 +68,11 @@ def async_get_privilege(user, room):
         return Privilege.AuthUser
 
     return Privilege.User
+
+@database_sync_to_async
+def async_get_privilege(user, room):
+    """
+    See OB.utilities.command.get_privilege().
+    """
+
+    get_privilege(user, room)
