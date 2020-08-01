@@ -2,7 +2,7 @@
 The BaseCommand class container module.
 """
 
-from OB.utilities.command import get_privilege
+from OB.constants import Privilege
 from OB.utilities.event import send_system_room_message
 
 # pylint: disable=too-few-public-methods
@@ -27,7 +27,7 @@ class BaseCommand:
         self.args = args
         self.sender = sender
         self.room = room
-        self.sender_privilege = get_privilege(sender, room)
+        self.sender_privilege = Privilege.Invalid
         self.sender_receipt = []
         self.occupants_notification = []
 
