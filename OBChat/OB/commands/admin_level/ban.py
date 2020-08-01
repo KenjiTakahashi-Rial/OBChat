@@ -42,14 +42,8 @@ class BanCommand(BaseCommand):
 
     async def check_initial_errors(self):
         """
-        Check for initial errors such as lack of privilege or invalid syntax.
-        If there are any errors, send them back to the issuing user.
-
-        Return values:
-            boolean: True if there were no initial errors.
+        See BaseCommand.check_initial_errors().
         """
-
-        self.sender_privilege = await async_get_privilege(self.sender, self.room)
 
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
@@ -71,11 +65,7 @@ class BanCommand(BaseCommand):
 
     async def check_arguments(self):
         """
-        Check each argument for errors such as self-targeting or targeting a user of higher
-        privilege.
-
-        Return values:
-            boolean: True if any of the arguments are a valid ban.
+        See BaseCommand.check_initial_errors().
         """
 
         for username in self.args:
@@ -115,7 +105,7 @@ class BanCommand(BaseCommand):
 
         return bool(self.valid_bans)
 
-    async def execute_bans(self):
+    async def execute_implementation(self):
         """
         Kick and ban users from the room.
         Constructs strings to send back to the sender and to the other occupants of the room.

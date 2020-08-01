@@ -3,6 +3,7 @@ The BaseCommand class container module.
 """
 
 from OB.constants import Privilege
+from OB.utilities.command import async_get_privilege
 from OB.utilities.event import send_system_room_message
 
 # pylint: disable=too-few-public-methods
@@ -31,10 +32,51 @@ class BaseCommand:
         self.sender_privilege = Privilege.Invalid
         self.sender_receipt = []
         self.occupants_notification = []
+        self.valid_arguments = []
 
     async def execute(self):
         """
-        This is where the main implementation of the command goes.
+        This is the driver code behind the command.
+        """
+
+        # Get the sender's privilege
+        self.sender_privilege = await async_get_privilege(self.sender, self.room)
+
+        # Check for initial errors
+        if not await self.check_initial_errors():
+            pass
+        # Check the validity of the arguments
+        elif not await self.check_arguments():
+            pass
+        # Execute the command
+        else:
+            await self.execute_implementation()
+
+        await self.send_responses()
+
+    async def check_initial_errors(self):
+        """
+        Check for initial errors such as lack of privilege or invalid syntax.
+        Save initial error messages in the sender receipt instance variable.
+
+        Return values:
+            boolean: True if there were no initial errors.
+        """
+
+    async def check_arguments(self):
+        """
+        Check each argument for errors such as self-targeting or targeting a user of higher
+        privilege.
+        Save per-argument error messages in the sender_receipt instance variable.
+        Save the valid arguments in the valid_arguments instance variable.
+
+        Return values:
+            boolean: True if any of the arguments are a valid ban.
+        """
+
+    async def execute_implementation(self):
+        """
+        The main implementation of the command function.
         """
 
     async def send_responses(self):
