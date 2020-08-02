@@ -45,7 +45,9 @@ class BanCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
-            arg_privilege = None if not arg_user else await async_get_privilege(arg_user, self.room)
+
+            if arg_user:
+                    arg_privilege = await async_get_privilege(arg_user, self.room)
 
             if not arg_user:
                 # Target user does not exist
