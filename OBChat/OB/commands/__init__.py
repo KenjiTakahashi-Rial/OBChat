@@ -6,6 +6,7 @@ OB.utilities.command.is_command_format()).
 
 from OB.commands.command_handler import handle_command
 from OB.commands.admin_level import BanCommand
+from OB.commands.admin_level import ElevateCommand
 from OB.commands.admin_level import lift
 from OB.commands.admin_level import kick
 from OB.commands.auth_user_level import apply
@@ -21,14 +22,15 @@ from OB.commands.user_level import private
 # Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
-    "/apply": apply,        "/a": apply,
-    "/ban": BanCommand,     "/b": BanCommand,
-    "/create": create,      "/c": create,
-    "/delete": delete,      "/d": delete,
-    "/fire": fire,          "/f": fire,
-    "/hire": hire,          "/h": hire,
-    "/kick": kick,          "/k": kick,
-    "/lift": lift,          "/l": lift,
-    "/private": private,    "/p": private,
-    "/who": who,            "/w": who,
+    "/apply": apply,                    "/a": apply,
+    "/ban": BanCommand,                 "/b": BanCommand,
+    "/create": create,                  "/c": create,
+    "/delete": delete,                  "/d": delete,
+    "/elevate": ElevateCommand,         "/e": ElevateCommand,
+    "/fire": fire,                      "/f": fire,
+    "/hire": hire,                      "/h": hire,
+    "/kick": kick,                      "/k": kick,
+    "/lift": lift,                      "/l": lift,
+    "/private": private,                "/p": private,
+    "/who": who,                        "/w": who,
 }
