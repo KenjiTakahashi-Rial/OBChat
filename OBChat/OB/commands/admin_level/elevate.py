@@ -38,6 +38,7 @@ class ElevateCommand(BaseCommand):
                 "Why don't you make an account or log in first? Call us old-fashiond, but anons "
                 "have very little privileges around these parts."
             ]
+        # Is authenticated, but not an admin
         elif self.sender_privilege < Privilege.Admin:
             self.sender_receipt += [
                 "Elevation is a skill that only Admins are capable of wielding. You have yet to "
@@ -130,6 +131,9 @@ class ElevateCommand(BaseCommand):
 
         while stage < Stage.Done:
             # Check for open parenthesis and valid commands
+            # pylint: disable=bad-continuation
+            # Justification: For some reason pylint wants an extra tab of indentation for the
+            #   predicates here. That's ugly so I'm not going to do it.
             if (
                 self.args[i][0] != '(' or
                 stage == Stage.Command and
@@ -146,11 +150,12 @@ class ElevateCommand(BaseCommand):
 
                 addition = self.args[i]
 
+                # Start parenthesis
                 if self.args[i][0] == '(':
                     addition = addition[1:]
 
+                # End parenthesis without command arguments
                 if self.args[i][-1] == ')':
-                    # End parenthesis without command arguments
                     if i == 1:
                         self.sender_receipt += [syntax_error_message]
                         return
@@ -158,6 +163,7 @@ class ElevateCommand(BaseCommand):
                     addition = addition[:-1]
                     next_stage = True
 
+                # Add the argument to the correct instance variable
                 if stage == Stage.Command:
                     self.command += addition
                 elif stage == Stage.Targets:
