@@ -97,10 +97,15 @@ class ElevateCommand(BaseCommand):
             f"    Message: {self.message if self.message else None}"
         ]
 
-        self.sender_receipt += ["Sent an elevation request:\n"] + elevation_body
-        self.occupants_notification += [
-            f"Received an elevation request from {self.sender}\n:" + elevation_body
-        ]
+        self.sender_receipt += (
+            # Add an exra newline to separate argument error messages from request receipt
+            [("\n" if self.sender_receipt else "") + "Sent an elevation request:"] +
+            elevation_body
+        )
+        self.occupants_notification += (
+            [f"Received an elevation request from {self.sender}:"] +
+            elevation_body
+        )
 
     async def parse(self):
         """
