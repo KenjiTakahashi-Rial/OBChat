@@ -92,7 +92,7 @@ class BanCommand(BaseCommand):
         # Prepend the argument error messages to the sender's receipt
 
 
-        ban_body = []
+        ban_message_body = []
 
         for banned_user in self.valid_targets:
             # Save the ban to the database
@@ -111,16 +111,16 @@ class BanCommand(BaseCommand):
             await send_room_event(self.room.id, kick_event)
 
             # Add the user's name to the sender receipt and occupants notification
-            ban_body += [f"   {banned_user}"]
+            ban_message_body += [f"   {banned_user}"]
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
             [("\n" if self.sender_receipt else "") + "Banned:"] +
-            ban_body +
+            ban_message_body +
             ["That'll show them."]
         )
         self.occupants_notification += (
             ["One or more users have been banned:"] +
-            ban_body +
+            ban_message_body +
             ["Let this be a lesson to you all."]
         )
