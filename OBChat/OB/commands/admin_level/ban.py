@@ -47,23 +47,23 @@ class BanCommand(BaseCommand):
             arg_user = await async_try_get(OBUser, username=username)
 
             if arg_user:
-                    arg_privilege = await async_get_privilege(arg_user, self.room)
+                arg_privilege = await async_get_privilege(arg_user, self.room)
 
+            # Target user does not exist
             if not arg_user:
-                # Target user does not exist
                 self.sender_receipt += [
                     f"Nobody named {username} in this room. Are you seeing things?"
                 ]
+            # Target user is the sender, themself
             elif arg_user == self.sender:
-                # Target user is the sender, themself
                 self.sender_receipt += [
                     f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
                 ]
+            # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                # Target user is the owner
                 self.sender_receipt += [f"That's the owner. You know, your BOSS. Nice try."]
+            # Target user has Privilege greater than or equal to the sender
             elif arg_privilege >= self.sender_privilege:
-                # Target user has Privilege greater than or equal to the sender
                 job_title = "Admin"
 
                 if arg_privilege == await async_get_privilege(self.sender, self.room):
