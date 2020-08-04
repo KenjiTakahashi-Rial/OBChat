@@ -83,7 +83,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         self.room = await async_get(Room, group_type=group_type, name=room_name)
 
         # Stop here if banned
-        if await async_try_get(Ban, user=self.user, room=self.room):
+        if await async_try_get(Ban, user=self.user, room=self.room, is_lifted=False):
             return
 
         # Add to room group

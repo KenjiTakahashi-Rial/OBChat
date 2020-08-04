@@ -59,7 +59,7 @@ class LiftTest(BaseCommandTest):
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Create test ban
-        await async_save(
+        test_ban = await async_save(
             Ban,
             user=self.auth_users[1],
             room=self.room,
@@ -96,13 +96,10 @@ class LiftTest(BaseCommandTest):
         ).connect()
         await self.communicators["auth_user_1"].disconnect()
 
-        # Create test ban
-        await async_save(
-            Ban,
-            user=self.auth_users[1],
-            room=self.room,
-            issuer=self.unlimited_admins[0]
-        )
+        # Renew test ban
+        test_ban.issuer = self.unlimited_admins[0]
+        test_ban.is_lifted = False
+        await async_save(test_ban)
 
         # Test limited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
