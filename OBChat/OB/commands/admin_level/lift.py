@@ -47,7 +47,7 @@ class LiftCommand(BaseCommand):
             arg_user = await async_try_get(OBUser, username=username)
 
             if arg_user:
-                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room)
+                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
                 issuer = await async_try_get(OBUser, ban_issued=arg_ban)
                 issuer_privilege = await async_get_privilege(issuer, self.room)
                 sender_privilege = await async_get_privilege(self.sender, self.room)

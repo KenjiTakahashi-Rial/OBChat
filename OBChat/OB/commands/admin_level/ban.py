@@ -48,6 +48,7 @@ class BanCommand(BaseCommand):
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
+                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
 
             # Target user does not exist
             if not arg_user:
@@ -57,11 +58,14 @@ class BanCommand(BaseCommand):
             # Target user is the sender, themself
             elif arg_user == self.sender:
                 self.sender_receipt += [
-                    f"You can't ban yourself. Just leave the room. Or put yourself on time-out."
+                    "You can't ban yourself. Just leave the room. Or put yourself on time-out."
                 ]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += [f"That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += ["That's the owner. You know, your BOSS. Nice try."]
+            # Target user is already banned
+            elif arg_ban:
+                self.sender_receipt += ["That user is already banned. How unoriginal of you."]
             # Target user has Privilege greater than or equal to the sender
             elif arg_privilege >= self.sender_privilege:
                 job_title = "Admin"

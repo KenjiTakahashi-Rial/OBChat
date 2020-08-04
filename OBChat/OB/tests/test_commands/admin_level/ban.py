@@ -125,9 +125,21 @@ class BanTest(BaseCommandTest):
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
+        # Test Owner banning already banned user error
+        await async_save(
+            Ban,
+            user=self.auth_users[0],
+            room=self.room,
+            issuer=self.owner
+        )
+
+        message = "/b auth_user_0"
+        correct_response = "That user is already banned. How unoriginal of you."
+        await self.test_isolated(self.owner, message, correct_response)
+
     @mark.asyncio
     @mark.django_db()
-    async def test_success(self, sender, targets):
+    async def test_success(self, sender, targets, should_delete_ban=True):
         """
         Tests a successful ban through the /ban command.
 
@@ -182,8 +194,9 @@ class BanTest(BaseCommandTest):
             except asyncio.TimeoutError:
                 pass
 
-            # Remove ban
-            await async_delete(ban)
+            if should_delete_ban:
+                # Remove ban
+                await async_delete(ban)
 
         # Add banned users back to room occupants and reset Communicators
         await self.communicator_teardown()

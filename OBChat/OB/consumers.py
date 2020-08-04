@@ -10,8 +10,8 @@ from OB.commands import handle_command
 from OB.constants import ANON_PREFIX, GroupTypes
 from OB.models import Ban, Message, OBUser, Room
 from OB.utilities.command import is_command_format
-from OB.utilities.database import async_add, async_delete, async_get, async_remove, async_save,\
-    async_try_get, async_model_list
+from OB.utilities.database import async_add, async_delete, async_filter, async_get, \
+    async_model_list, async_remove, async_save, async_try_get
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
 from OB.utilities.session import async_cycle_key
@@ -83,7 +83,7 @@ class OBConsumer(AsyncWebsocketConsumer):
         self.room = await async_get(Room, group_type=group_type, name=room_name)
 
         # Stop here if banned
-        if await async_try_get(Ban, user=self.user, room=self.room, is_lifted=False):
+        if await async_filter(Ban, user=self.user, room=self.room, is_lifted=False):
             return
 
         # Add to room group
