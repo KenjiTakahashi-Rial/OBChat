@@ -106,7 +106,7 @@ class KickCommand(BaseCommand):
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
             [("\n" if self.sender_receipt else "") + "Kicked:"] +
-            kick_message_body
+            kick_message_body +
             ["That'll show them."]
         )
         self.occupants_notification += (
