@@ -4,7 +4,7 @@ ElevateCommand class container module.
 
 from enum import IntEnum
 
-from OB.commands import BaseCommand
+from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities.command import async_get_privilege, is_valid_command
