@@ -93,9 +93,6 @@ class BanCommand(BaseCommand):
         The sender receipt includes per-argument error messages.
         """
 
-        # Prepend the argument error messages to the sender's receipt
-
-
         ban_message_body = []
 
         for banned_user in self.valid_targets:
