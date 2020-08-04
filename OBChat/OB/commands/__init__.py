@@ -8,7 +8,7 @@ from OB.commands.command_handler import handle_command
 from OB.commands.admin_level import BanCommand
 from OB.commands.admin_level import ElevateCommand
 from OB.commands.admin_level import KickCommand
-from OB.commands.admin_level import lift
+from OB.commands.admin_level import LiftCommand
 from OB.commands.auth_user_level import apply
 from OB.commands.auth_user_level import create
 from OB.commands.base import BaseCommand
@@ -30,7 +30,7 @@ COMMANDS = {
     "/fire": fire,                      "/f": fire,
     "/hire": hire,                      "/h": hire,
     "/kick": KickCommand,               "/k": KickCommand,
-    "/lift": lift,                      "/l": lift,
+    "/lift": LiftCommand,               "/l": LiftCommand,
     "/private": private,                "/p": private,
     "/who": who,                        "/w": who,
 }
