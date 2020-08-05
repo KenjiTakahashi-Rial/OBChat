@@ -9,7 +9,7 @@ from OB.commands.admin_level import BanCommand
 from OB.commands.admin_level import ElevateCommand
 from OB.commands.admin_level import KickCommand
 from OB.commands.admin_level import LiftCommand
-from OB.commands.auth_user_level import apply
+from OB.commands.auth_user_level import ApplyCommand
 from OB.commands.auth_user_level import create
 from OB.commands.base import BaseCommand
 from OB.commands.owner_level import delete
@@ -22,7 +22,7 @@ from OB.commands.user_level import private
 # Justification: Commands mapped to the same function are put into columns for readability.
 # The values of this dict are command functions
 COMMANDS = {
-    "/apply": apply,                    "/a": apply,
+    "/apply": ApplyCommand,             "/a": ApplyCommand,
     "/ban": BanCommand,                 "/b": BanCommand,
     "/create": create,                  "/c": create,
     "/delete": delete,                  "/d": delete,
