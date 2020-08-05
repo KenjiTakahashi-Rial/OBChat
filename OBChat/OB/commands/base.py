@@ -25,8 +25,7 @@ class BaseCommand:
             room (Room): The Room the command was sent from.
         """
 
-        # Remove duplicates
-        self.args = list(dict.fromkeys(args))
+        self.args = args
         self.sender = sender
         self.room = room
 
@@ -40,10 +39,15 @@ class BaseCommand:
         # Valid targets for the command, type varying by command
         self.valid_targets = []
 
+        self.remove_duplicates = True
+
     async def execute(self):
         """
         This is the driver code behind the command.
         """
+
+        if self.remove_duplicates:
+            args = list(dict.fromkeys(args))
 
         # Get the sender's privilege
         self.sender_privilege = await async_get_privilege(self.sender, self.room)

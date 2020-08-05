@@ -38,7 +38,9 @@ class ApplyTest(BaseCommandTest):
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test Unlimited Admin error
-        correct_response = "You're already a big shot! There's nothing left to apply to."
+        correct_response = (
+            "You're already a big shot Unlimited Admin! There's nothing left to apply to."
+        )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner error
@@ -72,31 +74,38 @@ class ApplyTest(BaseCommandTest):
         position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
         message = message if message else None
 
-        application = "\n".join([
-            f"Application Received",
+        application_body = [
             f"   User: {sender}{user_suffix}",
             f"   Position: {position_prefix}Admin",
-            f"   Message: {message}",
-            f"To hire this user, use /hire."
-        ])
+            f"   Message: {message}"
+        ]
 
-        receipt = (
-            "Your application was received. Hopefully the response doesn't start with: \"After "
-            "careful consideration...\""
+        sender_receipt = "\n".join(
+            # Add an exra newline to separate argument error messages from ban receipt
+            ["Application sent:"] +
+            application_body +
+            ["Hopefully the response doesn't start with: \"After careful consideration...\""]
+        )
+
+        targets_notification = "\n".join(
+            ["Application Received"] +
+            application_body +
+            ["To hire this user, use /hire."]
         )
 
         # Gather recipients
-        if sender_privilege == Privilege.Admin:
-            recipients = [self.owner]
-        else:
-            recipients = []
+        recipients = []
+
+        if sender_privilege < Privilege.Admin:
             for adminship in await async_filter(Admin, room=self.room, is_limited=False):
                 recipients += [await async_get(OBUser, adminship=adminship)]
 
+        recipients += [self.owner]
+
         # Test recipient response
         for user in recipients:
-            assert await self.communicators[user.username].receive() == application
+            assert await self.communicators[user.username].receive() == targets_notification
 
         # Test sender response
         assert await self.communicators[sender.username].receive() == f"/apply{command}"
-        assert await self.communicators[sender.username].receive() == receipt
+        assert await self.communicators[sender.username].receive() == sender_receipt

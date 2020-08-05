@@ -5,9 +5,7 @@ ApplyCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
-from OB.utilities.command import async_get_privilege
-from OB.utilities.database import async_filter, async_get
-from OB.utilities.event import send_system_room_message
+from OB.utilities.database import async_filter, async_get, async_get_owner
 
 class ApplyCommand(BaseCommand):
     """
@@ -16,13 +14,13 @@ class ApplyCommand(BaseCommand):
     Optionally includes a message.
     """
 
-    def __init__(self):
+    def __init__(self, args, sender, room):
         """
-        Apply requires an instance variable for sending the message to specific users.
+        Arguments of /apply are a message, so do not remove duplicates.
         """
 
-        super().__init__()
-        self.targets_message = []
+        super().__init__(args, sender, room)
+        self.remove_duplicates = False
 
     async def check_initial_errors(self):
         """
@@ -43,27 +41,33 @@ class ApplyCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def execute(self):
+    async def check_arguments(self):
         """
-        Gathers recipients for the application.
-        Constructs strings to send back to the sender and to those who may hire them.
         Arguments can only be a message to send along with the application, so they do not need to
         be checked for errors like with other commands.
         """
 
+        return True
+
+    async def execute_implementation(self):
+        """
+        Gathers recipients for the application.
+        Constructs strings to send back to the sender and to those who may hire them.
+        """
+
+        print(self.sender)
         # Gather recipients
         if self.sender_privilege < Privilege.Admin:
             unlimited_admins = await async_filter(
                 Admin,
                 room=self.room,
-                is_limited=False,
-                is_revoked=False
+                is_limited=False
             )
 
             for adminship in unlimited_admins:
                 self.valid_targets += [await async_get(OBUser, adminship=adminship)]
 
-        self.valid_targets = [self.room.owner]
+        self.valid_targets += [await async_get_owner(self.room)]
 
         # Construct strings
         user_suffix = " [Admin]" if self.sender_privilege == Privilege.Admin else ""
@@ -84,7 +88,7 @@ class ApplyCommand(BaseCommand):
         )
 
         self.targets_notification += (
-            "Application Received" +
+            ["Application Received"] +
             application_body +
-            "To hire this user, use /hire."
+            ["To hire this user, use /hire."]
         )
