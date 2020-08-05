@@ -19,7 +19,7 @@ class ElevateCommand(BaseCommand):
     def __init__(self):
         """
         Elevate requires more instance variables than other commands because of its more complex
-        syntax. Declare them here, then call the superclass __init__().
+        syntax.
         """
 
         super().__init__()
@@ -48,64 +48,6 @@ class ElevateCommand(BaseCommand):
             self.parse()
 
         return not self.sender_receipt
-
-    async def check_arguments(self):
-        """
-        See BaseCommand.check_initial_errors().
-        """
-
-        if not self.valid_targets:
-            # Get all users with higher privilege
-            if self.sender_privilege < Privilege.UnlimitedAdmin:
-                unlimited_admins = await async_filter(Admin, room=self.room, is_limited=False)
-                self.valid_elevations += unlimited_admins
-            self.valid_elevations += [self.room.owner]
-        else:
-            # Check for per-argument errors
-            for username in self.valid_targets:
-                arg_user = await async_try_get(OBUser, username=username)
-
-                if arg_user:
-                    arg_privilege = await async_get_privilege(arg_user, self.room)
-
-                if not arg_user or arg_user not in await async_model_list(self.room.occupants):
-                    error_messages += [
-                        f"Nobody named {username} in this room. Are you seeing things?"
-                    ]
-                elif arg_user == self.sender:
-                    error_messages += [f"You can't elevate to yourself. Who do you think you are?"]
-                elif arg_privilege < Privilege.UnlimitedAdmin:
-                    error_messages += [
-                        f"{username} does not have more privileges than you. What's the point of "
-                        "/elevate -ing do them?"
-                    ]
-                else:
-                    self.valid_elevations += [arg_user]
-
-        return bool(self.valid_elevations)
-
-    async def execute_implementation(self):
-        """
-        Construct an elevation request message and send it to the valid elevations.
-        Also send a receipt to the sender.
-        """
-
-        # Construction the elevation request
-        elevate_message_body = [
-            f"    Recipients:" + ", ".join(self.valid_elevations),
-            f"    Command requested: {self.command}",
-            f"    Message: {self.message if self.message else None}"
-        ]
-
-        self.sender_receipt += (
-            # Add an exra newline to separate argument error messages from request receipt
-            [("\n" if self.sender_receipt else "") + "Sent an elevation request:"] +
-            elevate_message_body
-        )
-        self.occupants_notification += (
-            [f"Received an elevation request from {self.sender}:"] +
-            elevate_message_body
-        )
 
     async def parse(self):
         """
@@ -181,3 +123,61 @@ class ElevateCommand(BaseCommand):
                 if next_stage:
                     stage += 1
                     next_stage = False
+
+    async def check_arguments(self):
+        """
+        See BaseCommand.check_initial_errors().
+        """
+
+        if not self.valid_targets:
+            # Get all users with higher privilege
+            if self.sender_privilege < Privilege.UnlimitedAdmin:
+                unlimited_admins = await async_filter(Admin, room=self.room, is_limited=False)
+                self.valid_elevations += unlimited_admins
+            self.valid_elevations += [self.room.owner]
+        else:
+            # Check for per-argument errors
+            for username in self.valid_targets:
+                arg_user = await async_try_get(OBUser, username=username)
+
+                if arg_user:
+                    arg_privilege = await async_get_privilege(arg_user, self.room)
+
+                if not arg_user or arg_user not in await async_model_list(self.room.occupants):
+                    error_messages += [
+                        f"Nobody named {username} in this room. Are you seeing things?"
+                    ]
+                elif arg_user == self.sender:
+                    error_messages += [f"You can't elevate to yourself. Who do you think you are?"]
+                elif arg_privilege < Privilege.UnlimitedAdmin:
+                    error_messages += [
+                        f"{username} does not have more privileges than you. What's the point of "
+                        "/elevate -ing do them?"
+                    ]
+                else:
+                    self.valid_elevations += [arg_user]
+
+        return bool(self.valid_elevations)
+
+    async def execute_implementation(self):
+        """
+        Construct an elevation request message and send it to the valid elevations.
+        Also send a receipt to the sender.
+        """
+
+        # Construction the elevation request
+        elevate_message_body = [
+            f"    Recipients:" + ", ".join(self.valid_elevations),
+            f"    Command requested: {self.command}",
+            f"    Message: {self.message if self.message else None}"
+        ]
+
+        self.sender_receipt += (
+            # Add an exra newline to separate argument error messages from request receipt
+            [("\n" if self.sender_receipt else "") + "Sent an elevation request:"] +
+            elevate_message_body
+        )
+        self.targets_notification += (
+            [f"Received an elevation request from {self.sender}:"] +
+            elevate_message_body
+        )
