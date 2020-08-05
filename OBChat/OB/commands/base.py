@@ -29,9 +29,15 @@ class BaseCommand:
         self.args = list(dict.fromkeys(args))
         self.sender = sender
         self.room = room
+
         self.sender_privilege = Privilege.Invalid
+
+        # Responses to send after processing the command
         self.sender_receipt = []
         self.occupants_notification = []
+        self.targets_notification = []
+
+        # Valid targets for the command, type varying by command
         self.valid_targets = []
 
     async def execute(self):
@@ -96,4 +102,10 @@ class BaseCommand:
             "\n".join(self.occupants_notification),
             self.room,
             exclusions=[self.sender]
+        )
+
+        await send_system_room_message(
+            "\n".join(self.targets_notification),
+            self.room,
+            self.valid_targets
         )
