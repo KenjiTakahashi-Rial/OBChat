@@ -1,23 +1,38 @@
 """
-create function container module
+CreateCommand class container module
 """
 
+from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes
 from OB.models import Room
 from OB.utilities.database import async_save, async_try_get
 from OB.utilities.event import send_system_room_message
 
-async def create(args, sender, room):
+class CreateCommand(BaseCommand):
     """
     Create a new chat room from a commandline instead of through the website GUI.
-
-    Arguments:
-        args (list[string]): The desired name of the new room.
-        sender (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was sent from.
     """
 
-    error_message = ""
+    async def check_initial_errors(self):
+        """
+        See BaseCommand.check_initial_errors().
+        """
+
+        # Is an anonymous/unauthenticated user
+        if self.sender_privilege < Privilege.Admin:
+            self.sender_receipt = ["Identify yourself! Must log in to create a room."]
+        # Missing room name argument
+        elif not args:
+            self.sender_receipt = ["Usage: /create <name>"]
+        # Too many arguments
+        elif len(args) > 1:
+            self.sender_receipt = ["Room name cannot contain spaces."]
+        # Room with argument name already exists
+        elif existing_room:
+            self.sender_receipt = [f"Someone beat you to it. {existing_room} already exists."]
+
+        return not self.sender_receipt
+
 
     # Check for errors
     if not args:
