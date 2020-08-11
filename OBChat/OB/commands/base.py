@@ -47,7 +47,7 @@ class BaseCommand:
         """
 
         if self.remove_duplicates:
-            args = list(dict.fromkeys(args))
+            self.args = list(dict.fromkeys(self.args))
 
         # Get the sender's privilege
         self.sender_privilege = await async_get_privilege(self.sender, self.room)
