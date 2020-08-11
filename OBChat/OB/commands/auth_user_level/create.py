@@ -48,15 +48,22 @@ class CreateCommand(BaseCommand):
 
         return True
 
+    async def execute_implementation(self):
+        """
+        Create the new room with the sender of the command as the owner.
+        Construct a string to send back to the sender.
+        """
 
-    # Save the new room
-    created_room = await async_save(
-        Room,
-        name=args[0].lower(),
-        owner=sender,
-        display_name=display_name
-    )
+        # If there are capitalized letters in the argument room name, set the argument room name
+        # as the display name and the lowecase version of it as the room name
+        display_name = self.args[0] if not self.args[0].islower() else None
 
-    # Send success message back to issueing user
-    success_message = f"Sold! Check out your new room: {created_room}"
-    await send_system_room_message(success_message, room, [sender])
+        # Save the new room
+        created_room = await async_save(
+            Room,
+            name=self.args[0].lower(),
+            owner=self.sender,
+            display_name=display_name
+        )
+
+        self.sender_receipt += [f"Sold! Check out your new room: {created_room}"]
