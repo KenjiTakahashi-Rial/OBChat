@@ -1,5 +1,5 @@
 """
-Admin class container module
+Admin class container module.
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \

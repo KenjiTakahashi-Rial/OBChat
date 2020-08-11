@@ -1,5 +1,5 @@
 """
-Room class container module
+Room class container module.
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \

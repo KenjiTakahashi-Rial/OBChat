@@ -1,5 +1,5 @@
 """
-fire function container module
+fire function container module.
 """
 
 from OB.constants import Privilege

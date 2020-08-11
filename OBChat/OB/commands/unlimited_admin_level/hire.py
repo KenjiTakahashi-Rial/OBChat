@@ -1,5 +1,5 @@
 """
-hire function container module
+hire function container module.
 """
 
 from OB.constants import Privilege

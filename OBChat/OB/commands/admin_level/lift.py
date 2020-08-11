@@ -1,5 +1,5 @@
 """
-LiftCommand class container module
+LiftCommand class container module.
 """
 
 from OB.commands.base import BaseCommand

@@ -1,5 +1,5 @@
 """
-OBUser class container module
+OBUser class container module.
 """
 
 from django.contrib.auth.models import AbstractUser

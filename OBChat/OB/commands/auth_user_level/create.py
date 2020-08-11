@@ -1,5 +1,5 @@
 """
-CreateCommand class container module
+CreateCommand class container module.
 """
 
 from OB.commands.base import BaseCommand

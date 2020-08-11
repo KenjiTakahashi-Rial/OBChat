@@ -1,5 +1,5 @@
 """
-Ban class container module
+Ban class container module.
 """
 
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \

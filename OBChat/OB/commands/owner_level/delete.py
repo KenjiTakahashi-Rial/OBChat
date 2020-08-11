@@ -1,5 +1,5 @@
 """
-delete function container module
+DeleteCommand class container module.
 """
 
 from OB.constants import Privilege

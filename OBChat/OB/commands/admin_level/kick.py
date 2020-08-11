@@ -1,5 +1,5 @@
 """
-KickCommand class container module
+KickCommand class container module.
 """
 
 from OB.commands.base import BaseCommand
