@@ -6,7 +6,6 @@ from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes, Privilege
 from OB.models import Room
 from OB.utilities.database import async_save, async_try_get
-from OB.utilities.event import send_system_room_message
 
 class CreateCommand(BaseCommand):
     """
