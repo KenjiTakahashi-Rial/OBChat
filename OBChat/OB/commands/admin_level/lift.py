@@ -39,7 +39,7 @@ class LiftCommand(BaseCommand):
 
     async def check_arguments(self):
         """
-        See BaseCommand.check_initial_errors().
+        See BaseCommand.check_arguments().
         """
 
         for username in self.args:

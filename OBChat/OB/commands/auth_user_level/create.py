@@ -31,7 +31,7 @@ class CreateCommand(BaseCommand):
 
     async def check_arguments(self):
         """
-        See BaseCommand.check_initial_errors()
+        See BaseCommand.check_arguments()
         """
 
         existing_room = await async_try_get(
