@@ -12,7 +12,7 @@ from OB.commands.admin_level import LiftCommand
 from OB.commands.auth_user_level import ApplyCommand
 from OB.commands.auth_user_level import CreateCommand
 from OB.commands.base import BaseCommand
-from OB.commands.owner_level import delete
+from OB.commands.owner_level import DeleteCommand
 from OB.commands.unlimited_admin_level import hire
 from OB.commands.unlimited_admin_level import fire
 from OB.commands.user_level import who
@@ -25,7 +25,7 @@ COMMANDS = {
     "/apply": ApplyCommand,             "/a": ApplyCommand,
     "/ban": BanCommand,                 "/b": BanCommand,
     "/create": CreateCommand,           "/c": CreateCommand,
-    "/delete": delete,                  "/d": delete,
+    "/delete": DeleteCommand,           "/d": DeleteCommand,
     "/elevate": ElevateCommand,         "/e": ElevateCommand,
     "/fire": fire,                      "/f": fire,
     "/hire": hire,                      "/h": hire,
