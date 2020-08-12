@@ -78,9 +78,6 @@ class ElevateCommand(BaseCommand):
 
         while stage < Stage.Done:
             # Check for open parenthesis and valid commands
-            # pylint: disable=bad-continuation
-            # Justification: For some reason pylint wants an extra tab of indentation for the
-            #   predicates here. That's ugly so I'm not going to do it.
             if (
                 self.args[i][0] != '(' or
                 stage == Stage.Command and
