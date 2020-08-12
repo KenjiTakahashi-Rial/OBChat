@@ -27,6 +27,8 @@ class DeleteCommand(BaseCommand):
                 "room"
             ]
 
+        return not self.sender_receipt
+
     async def check_arguments(self):
         """
         See BaseCommand.check_arguments().
@@ -34,11 +36,13 @@ class DeleteCommand(BaseCommand):
 
         # Missing or invalid target arguments
         if (
-            not self.args or len(self.args) > 2 or
+            len(self.args) != 2 or
             self.args[0] != self.room.name or
-            self.args[1] != await async_get_owner(self.room)
+            self.args[1] != (await async_get_owner(self.room)).username
         ):
             self.sender_receipt = ["Usage: /delete <room name> <owner username>"]
+
+        return not self.sender_receipt
 
     async def execute_implementation(self):
         """
