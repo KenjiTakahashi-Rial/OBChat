@@ -46,7 +46,9 @@ class FireCommand(BaseCommand):
 
             # Target user does not exist
             if not arg_user:
-                self.sender_receipt += [f"{username} does not exist. You can't fire a ghost... can you?"]
+                self.sender_receipt += [
+                    f"{username} does not exist. You can't fire a ghost... can you?"
+                ]
             # Target user is the sender, themself
             elif arg_user == self.sender:
                 self.sender_receipt += [
@@ -58,15 +60,15 @@ class FireCommand(BaseCommand):
             # Target user is not an Admin
             elif not arg_admin:
                 self.sender_receipt += [
-                    f"{username} is just a regular ol' user, so you can't fire them. You can /kick or "
-                    "/ban them if you want."
+                    f"{username} is just a regular ol' user, so you can't fire them. You can /kick"
+                    " or /ban them if you want."
                 ]
             # Target user has higher privilege than sender
             elif not arg_admin.is_limited and self.sender_privilege < Privilege.Owner:
                 self.sender_receipt += [
                     f"{username} is an Unlimited Admin, so you can't fire them. Please direct all "
-                    "complaints to your local room owner, I'm sure they'll love some more paperwork to"
-                    " do..."
+                    "complaints to your local room owner, I'm sure they'll love some more "
+                    "paperwork to do..."
                 ]
             # Target user is a valid fire
             else:
@@ -74,35 +76,41 @@ class FireCommand(BaseCommand):
 
             return bool(self.valid_targets)
 
-        send_to_sender = self.sender_receipt + [("\n" if self.sender_receipt else "") + "Fired:"]
-        send_to_targets = ["One or more users have been fired:"] # TODO: Change this to only send when more than one user is fired at once
-        send_to_others = ["One or more users have been fired:"]
+    async def execute_implementation(self):
+        """
+        Removes adminships of targets.
+        Constructs strings to send back to the sender and other occupants of the room.
+        The sender receipt includes per-argument error messages.
+        """
 
-        for fired_user in valid_fires:
+        fire_message_body = []
+
+        for fired_user in self.valid_targets:
+            # Remove the adminship if they were a normal Admin
             if fired_user["adminship"].is_limited:
-                # Remove the adminship
                 await async_delete(fired_user["adminship"])
+            # Limit the adminship if they were an Unlimited Admin
             else:
-                # Make the adminship limited
                 fired_user["adminship"].is_limited = True
                 await async_save(fired_user["adminship"])
 
-            send_to_sender += [f"    {fired_user}"]
-            send_to_targets += [f"    {fired_user}"]
-            send_to_others += [f"    {fired_user}"]
+            fire_message_body += [f"    {fired_user}"]
 
-        if valid_fires:
-            send_to_sender += ["It had to be done."]
-            await send_system_room_message("\n".join(send_to_sender), room, [sender])
+        self.sender_receipt += (
+            # Add an extra newline to separate argument error messages from fire receipt
+            [("\n" if self.sender_receipt else "") + "Fired:"] +
+            fire_message_body +
+            ["It had to be done."]
+        )
 
-            send_to_targets += ["Clean out your desk."]
-            await send_system_room_message("\n".join(send_to_sender), room, valid_fires)
+        self.occupants_notification += (
+            ["One or more users have been fired:"] +
+            fire_message_body +
+            ["Those budget cuts are killer."]
+        )
 
-            send_to_others += ["Those budget cuts are killer."]
-            await send_system_room_message(
-                "\n".join(send_to_others),
-                room,
-                exclusions=([sender] + valid_fires)
-            )
-        elif error_messages:
-            await send_system_room_message("\n".join(error_messages), room, [sender])
+        self.targets_notification += (
+            ["One or more users have been fired:"] +
+            fire_message_body +
+            ["Clean out your desk."]
+        )

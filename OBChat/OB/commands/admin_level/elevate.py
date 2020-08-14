@@ -174,6 +174,7 @@ class ElevateCommand(BaseCommand):
             [("\n" if self.sender_receipt else "") + "Sent an elevation request:"] +
             elevate_message_body
         )
+
         self.targets_notification += (
             [f"Received an elevation request from {self.sender}:"] +
             elevate_message_body

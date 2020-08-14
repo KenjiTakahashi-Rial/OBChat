@@ -120,6 +120,7 @@ class BanCommand(BaseCommand):
             ban_message_body +
             ["That'll show them."]
         )
+
         self.occupants_notification += (
             ["One or more users have been banned:"] +
             ban_message_body +
