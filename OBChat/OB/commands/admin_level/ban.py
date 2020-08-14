@@ -80,8 +80,8 @@ class BanCommand(BaseCommand):
                     f"{arg_user} is an {job_title}, so you can't ban them. Feel free to "
                     "/elevate your complaints to someone who has more authority."
                 ]
+            # Target user is a valid ban
             else:
-                # Target user is a valid ban
                 self.valid_targets += [arg_user]
 
         return bool(self.valid_targets)
