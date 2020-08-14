@@ -7,12 +7,12 @@ from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_delete, async_save, async_try_get
-from OB.utilities.event import send_system_room_message
 
 class FireCommand(BaseCommand):
     """
-    Removes one or more existing Admin database objects.
-    The user may no longer issue admin-level commands in the target room.
+    Reduces the privilege of an Admin or Unlimited Admin user by 1.
+    Admins have their adminships deleted.
+    Unlimited Admins have their adminships limited.
     """
 
     async def check_initial_errors(self):
