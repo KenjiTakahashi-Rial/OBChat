@@ -13,8 +13,8 @@ from OB.commands.auth_user_level import ApplyCommand
 from OB.commands.auth_user_level import CreateCommand
 from OB.commands.base import BaseCommand
 from OB.commands.owner_level import DeleteCommand
+from OB.commands.unlimited_admin_level import FireCommand
 from OB.commands.unlimited_admin_level import hire
-from OB.commands.unlimited_admin_level import fire
 from OB.commands.user_level import who
 from OB.commands.user_level import private
 
@@ -27,7 +27,7 @@ COMMANDS = {
     "/create": CreateCommand,           "/c": CreateCommand,
     "/delete": DeleteCommand,           "/d": DeleteCommand,
     "/elevate": ElevateCommand,         "/e": ElevateCommand,
-    "/fire": fire,                      "/f": fire,
+    "/fire": FireCommand,               "/f": FireCommand,
     "/hire": hire,                      "/h": hire,
     "/kick": KickCommand,               "/k": KickCommand,
     "/lift": LiftCommand,               "/l": LiftCommand,
