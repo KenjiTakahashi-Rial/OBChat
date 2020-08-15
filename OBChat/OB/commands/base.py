@@ -105,7 +105,7 @@ class BaseCommand:
         await send_system_room_message(
             "\n".join(self.occupants_notification),
             self.room,
-            exclusions=[self.sender]
+            exclusions=[self.sender] + self.valid_targets
         )
 
         await send_system_room_message(
