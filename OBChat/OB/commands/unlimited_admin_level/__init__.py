@@ -4,4 +4,4 @@ They can only be performed by Unlimited Admins.
 """
 
 from OB.commands.unlimited_admin_level.fire import FireCommand
-from OB.commands.unlimited_admin_level.hire import hire
+from OB.commands.unlimited_admin_level.hire import HireCommand
