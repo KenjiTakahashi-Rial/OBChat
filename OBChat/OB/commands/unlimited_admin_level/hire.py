@@ -80,42 +80,49 @@ class HireCommand(BaseCommand):
                 ]
             # Target user is a valid hire
             else:
-                self.valid_targets += [arg_user]
+                self.valid_targets += [arg_user, arg_admin]
 
-        send_to_sender = error_messages + [("\n" if error_messages else "") + "Hired:"]
-        send_to_targets = ["One or more users have been hired:"] # TODO: Change this to only send when more than one user is hired at once
-        send_to_others = ["One or more users have been hired:"]
+        return not self.sender_receipt
 
-        for hired_user in valid_hires:
-            if arg_admin and sender_privilege == Privilege.Owner:
+    async def execute_implementation(self):
+        """
+        Add adminships for targets who are not already an Admin.
+        Un-limit the adminships for targets who are already an Admin.
+        """
+
+        hire_message_body = []
+
+        for hired_user, target_adminship in self.valid_targets:
+            if target_adminship and self.sender_privilege == Privilege.Owner:
                 # Make the Admin unlimited
-                arg_admin.is_limited = False
-                await async_save(arg_admin)
+                target_adminship.is_limited = False
+                await async_save(target_adminship)
             else:
-                # Make the user an admin
+                # Make an adminship for the user
                 await async_save(
                     Admin,
                     user=hired_user,
-                    room=room,
-                    issuer=sender
+                    room=self.room,
+                    issuer=self.sender
                 )
 
-            send_to_sender += [f"    {hired_user}"]
-            send_to_targets += [f"    {hired_user}"]
-            send_to_others += [f"    {hired_user}"]
+            hire_message_body += [f"    {hired_user}"]
 
-        if valid_hires:
-            send_to_sender += ["Keep an eye on them."]
-            await send_system_room_message("\n".join(send_to_sender), room, [sender])
+        self.sender_receipt += (
+            # Add an extra newline to separate argument error messages from fire receipt
+            [("\n" if self.sender_receipt else "") + "Hired:"] +
+            hire_message_body +
+            ["Now for the three month evaluation period."]
+        )
 
-            send_to_targets += ["With great power comes great responsibility."]
-            await send_system_room_message("\n".join(send_to_targets), room, valid_hires)
+        self.occupants_notification += (
+            ["One or more users have been hired:"] +
+            hire_message_body +
+            ["Drinks on them!"]
+        )
 
-            send_to_others += ["Drinks on them!"]
-            await send_system_room_message(
-                "\n".join(send_to_others),
-                room,
-                exclusions=([sender] + valid_hires)
-            )
-        elif error_messages:
-            await send_system_room_message("\n".join(error_messages), room, [sender])
+        self.targets_notification += (
+            ["One or more users have been hired:"] +
+            hire_message_body +
+            ["With great power comes great responsibility."]
+        )
