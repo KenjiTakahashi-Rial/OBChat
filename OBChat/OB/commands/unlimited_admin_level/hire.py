@@ -7,7 +7,6 @@ from OB.constants import Privilege
 from OB.models import Admin, OBUser
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
-from OB.utilities.event import send_system_room_message
 
 class HireCommand(BaseCommand):
     """
