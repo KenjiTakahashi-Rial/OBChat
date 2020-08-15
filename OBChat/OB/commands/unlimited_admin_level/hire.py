@@ -79,9 +79,9 @@ class HireCommand(BaseCommand):
                 ]
             # Target user is a valid hire
             else:
-                self.valid_targets += [arg_user, arg_admin]
+                self.valid_targets += [(arg_user, arg_admin)]
 
-        return not self.sender_receipt
+        return bool(self.valid_targets)
 
     async def execute_implementation(self):
         """
@@ -125,3 +125,11 @@ class HireCommand(BaseCommand):
             hire_message_body +
             ["With great power comes great responsibility."]
         )
+
+    async def send_responses(self):
+        """
+        Change the valid_targets list to be a list of OBUsers instead of a list of tuples.
+        """
+
+        self.valid_targets = [hired_user for hired_user, existing_adminship in self.valid_targets]
+        await super().send_responses()

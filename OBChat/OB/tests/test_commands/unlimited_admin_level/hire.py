@@ -131,7 +131,7 @@ class HireTest(BaseCommandTest):
             sender_response += f"    {user}\n"
             others_response += f"    {user}\n"
 
-        sender_response += "Keep an eye on them."
+        sender_response += "Now for the three month evaluation period."
         targets_response += "With great power comes great responsibility."
         others_response += "Drinks on them!"
 
