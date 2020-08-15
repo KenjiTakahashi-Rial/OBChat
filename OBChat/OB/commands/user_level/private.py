@@ -23,19 +23,29 @@ class PrivateCommand(BaseCommand):
         if not self.args:
             self.sender_receipt = ["Usage: /private /<user> <message>"]
         # Invalid syntax
-        elif args[0][0] != '/':
-            self.sender_receipt = ["Looks like you forgot a \"/\" before the username. I'll let it slide."]
+        elif self.args[0][0] != '/':
+            self.sender_receipt = [
+                "Looks like you forgot a \"/\" before the username. I'll let it slide."
+            ]
 
+        return not self.sender_receipt
 
-        # Check for per-argument errors
-        recipient = await async_try_get(OBUser, username=args[0][1:])
-        if not recipient:
-            error_message = (
-                f"{args[0][1:]} doesn't exist. Your private message will broadcasted into space "
-                "instead."
-            )
-        elif len(args) == 1:
-            error_message = "No message specified. Did you give up at just the username?"
+    async def check_arguments(self):
+        """
+        See BaseCommand.check_arguments().
+        """
+
+        self.valid_targets = [await async_try_get(OBUser, username=self.args[0][1:])]
+
+        if not self.valid_targets:
+            self.sender_receipt = [
+                f"{self.args[0][1:]} doesn't exist. Your private message will broadcasted into "
+                "space instead."
+            ]
+        elif len(self.args) == 1:
+            self.sender_receipt = ["No message specified. Did you give up at just the username?"]
+
+        return bool(self.valid_targets)
 
         # Send error message back to issuing user
         if error_message:
