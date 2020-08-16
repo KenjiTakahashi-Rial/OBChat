@@ -15,8 +15,8 @@ from OB.commands.base import BaseCommand
 from OB.commands.owner_level import DeleteCommand
 from OB.commands.unlimited_admin_level import FireCommand
 from OB.commands.unlimited_admin_level import HireCommand
+from OB.commands.user_level import PrivateCommand
 from OB.commands.user_level import who
-from OB.commands.user_level import private
 
 # pylint: disable=bad-whitespace
 # Justification: Commands mapped to the same function are put into columns for readability.
@@ -31,6 +31,6 @@ COMMANDS = {
     "/hire": HireCommand,               "/h": HireCommand,
     "/kick": KickCommand,               "/k": KickCommand,
     "/lift": LiftCommand,               "/l": LiftCommand,
-    "/private": private,                "/p": private,
+    "/private": PrivateCommand,         "/p": PrivateCommand,
     "/who": who,                        "/w": who,
 }
