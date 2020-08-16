@@ -37,7 +37,7 @@ class PrivateCommand(BaseCommand):
 
         self.valid_targets = [await async_try_get(OBUser, username=self.args[0][1:])]
 
-        if not self.valid_targets:
+        if not self.valid_targets[0]:
             self.sender_receipt = [
                 f"{self.args[0][1:]} doesn't exist. Your private message will broadcasted into "
                 "space instead."
