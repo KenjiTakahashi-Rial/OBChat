@@ -47,11 +47,9 @@ class PrivateCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-        # Send error message back to issuing user
-        if error_message:
-            await send_system_room_message(error_message, room, [sender])
-            return
+    async def execute_implementation(self):
+        """
+        Reconstruct the original message from the command arugments and send it to the target user.
+        """
 
-        # Reconstruct message from args
-        message_text = " ".join(args[1:])
-        await send_private_message(message_text, sender, recipient)
+        self.targets_notification = [" ".join(self.args[1:])]
