@@ -24,6 +24,13 @@ class WhoCommand(BaseCommand):
 
         super().__init__()
 
+    async def check_initial_errors(self):
+        """
+        There are no initial errors for /who.
+        """
+
+        return True
+
     async def check_arguments(self):
         """
         See BaseCommand.check_arguments().
