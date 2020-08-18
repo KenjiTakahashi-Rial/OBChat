@@ -24,20 +24,22 @@ class WhoCommand(BaseCommand):
 
         super().__init__()
 
+    async def check_arguments(self):
+        """
+        See BaseCommand.check_arguments().
+        """
 
-    for room_name in args:
-        arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
+        for room_name in self.args:
+            arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
-        # Check for errors
-        if not arg_room:
-            return_strings += [
-                f"{room_name} doesn't exist, so that probably means nobody is in there."
-            ]
-            continue
+            if not arg_room:
+                self.sender_receipt += [
+                    f"{room_name} doesn't exist, so that probably means nobody is in there."
+                ]
+            else:
+                self.valid_targets += [arg_room]
 
-        if await async_len_all(arg_room.occupants) == 0:
-            return_strings += [f"{arg_room} is all empty!"]
-            continue
+        return bool(self.valid_targets)
 
         return_strings += [f"Users in {arg_room}:"]
         who_string = ""
