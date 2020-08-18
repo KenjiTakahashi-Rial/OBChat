@@ -41,24 +41,28 @@ class WhoCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-        return_strings += [f"Users in {arg_room}:"]
-        who_string = ""
+    async def execute_implementation(self):
+        """
+        Construct a string of occupants in the room and send it back to the sender.
+        The sender receipt includes per-argument error messages.
+        """
 
-        for occupant in await async_model_list(arg_room.occupants):
-            occupant_string = f"    {occupant}"
+        for room in self.valid_targets:
+            occupants = await async_model_list(room)
 
-            # Tag occupant appropriately
-            if occupant == await async_get_owner(arg_room):
-                occupant_string += " [Owner]"
-            if await async_try_get(Admin, user=occupant, room=room):
-                occupant_string += " [Admin]"
-            if occupant == sender:
-                occupant_string += " [you]"
+            if not occupants:
+                who_string = f"{room} is all empty!"
+            else:
+                who_string = f"Users in {room}:"
 
-            who_string += occupant_string + "\n"
+                for user in occupants:
+                    user_suffix = ""
 
-        if who_string:
-            return_strings += [who_string]
+                    if user == await async_get_owner(room):
+                        user_suffix += " [Owner]"
+                    if await async_try_get(Admin, user=user, room=room):
+                        user_suffix += " [Admin]"
+                    if user == self.sender:
+                        user_suffix += " [you]"
 
-    # Send user lists back to the sender
-    await send_system_room_message("\n".join(return_strings), room, [sender])
+                    who_string += f"    {user}{user_suffix}\n"
