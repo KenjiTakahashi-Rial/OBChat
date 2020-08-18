@@ -40,11 +40,8 @@ async def handle_command(command, sender, room):
     command_name = separated[0]
     arguments = separated[1:]
 
-    # try:
-    await OB.commands.COMMANDS[command_name](arguments, sender, room).execute()
-    # except:
-    #     try:
-    #         await OB.commands.COMMANDS[command_name](arguments, sender, room)
-    #     except KeyError:
-    #         # Invalid command, send the list of valid commands
-    #         await send_system_room_message(VALID_COMMANDS, room, [sender])
+    try:
+        await OB.commands.COMMANDS[command_name](arguments, sender, room).execute()
+    except KeyError:
+        # Invalid command, send the list of valid commands
+        await send_system_room_message(VALID_COMMANDS, room, [sender])
