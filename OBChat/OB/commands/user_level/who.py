@@ -1,32 +1,29 @@
 """
-who function container module.
+WhoCommand class container module.
 """
 
+from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes
 from OB.models import Admin, Room
 from OB.utilities.database import async_get_owner, async_len_all, async_model_list, async_try_get
 from OB.utilities.event import send_system_room_message
 
-async def who(args, sender, room):
+class WhoCommand(BaseCommand):
     """
     Lists all the occupants in a room. Can be called without arguments to list the users of the
     issuing user's current room.
-
-    Arguments:
-        args (list[string]): The names of the Rooms to list the occupants of (defaults to the
-            sender's current room).
-        sender (OBUser): The OBUser who issued the command.
-        room (Room): The Room the command was sent from.
     """
 
-    if not args:
-        # Default to current room when no arguments
-        args = [room.name]
-    else:
-        # Remove duplicates
-        args = list(dict.fromkeys(args))
+    async def __init__(self, args, sender, room):
+        """
+        When there are no arguments, the default is the current room.
+        """
 
-    return_strings = []
+        if not args:
+            args = [room.name]
+
+        super().__init__()
+
 
     for room_name in args:
         arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
