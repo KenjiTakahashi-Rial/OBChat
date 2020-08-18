@@ -75,8 +75,8 @@ class WhoTest(BaseCommandTest):
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
         correct_response = "\n".join([
+            f"nonexistent_room doesn't exist, so that probably means nobody is in there.",
             f"{correct_response}",
-            f"{empty_room} is all empty!",
-            f"nonexistent_room doesn't exist, so that probably means nobody is in there."
+            f"{empty_room} is all empty!"
         ])
         await self.test_isolated(self.owner, message, correct_response)

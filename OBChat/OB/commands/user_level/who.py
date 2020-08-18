@@ -5,8 +5,7 @@ WhoCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes
 from OB.models import Admin, Room
-from OB.utilities.database import async_get_owner, async_len_all, async_model_list, async_try_get
-from OB.utilities.event import send_system_room_message
+from OB.utilities.database import async_get_owner, async_model_list, async_try_get
 
 class WhoCommand(BaseCommand):
     """
@@ -14,7 +13,7 @@ class WhoCommand(BaseCommand):
     issuing user's current room.
     """
 
-    async def __init__(self, args, sender, room):
+    def __init__(self, args, sender, room):
         """
         When there are no arguments, the default is the current room.
         """
@@ -22,7 +21,7 @@ class WhoCommand(BaseCommand):
         if not args:
             args = [room.name]
 
-        super().__init__()
+        super().__init__(args, sender, room)
 
     async def check_initial_errors(self):
         """
@@ -55,12 +54,12 @@ class WhoCommand(BaseCommand):
         """
 
         for room in self.valid_targets:
-            occupants = await async_model_list(room)
+            occupants = await async_model_list(room.occupants)
 
             if not occupants:
                 who_string = f"{room} is all empty!"
             else:
-                who_string = f"Users in {room}:"
+                who_string = f"Users in {room}:\n"
 
                 for user in occupants:
                     user_suffix = ""
@@ -73,3 +72,5 @@ class WhoCommand(BaseCommand):
                         user_suffix += " [you]"
 
                     who_string += f"    {user}{user_suffix}\n"
+
+            self.sender_receipt += [who_string]
