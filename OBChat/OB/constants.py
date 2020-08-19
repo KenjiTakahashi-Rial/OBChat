@@ -34,8 +34,8 @@ class Privilege(IntEnum):
     """
 
     Invalid = 0
-    User = 0
-    AuthUser = 1
-    Admin = 2
-    UnlimitedAdmin = 3
-    Owner = 4
+    User = 1
+    AuthUser = 2
+    Admin = 3
+    UnlimitedAdmin = 4
+    Owner = 5
