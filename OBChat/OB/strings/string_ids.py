@@ -3,15 +3,16 @@ StringId enum container module.
 Do not modify this file directly. It is generated from OB.strings.strings_generator.
 """
 
-from enum import IntEnum
+from enum import Enum
 
-class StringId(IntEnum):
+class StringId(Enum):
     """
     IDs used to get strings from strings_map.
     """
 
-    String0: 0,
-    String1: 1,
-    String2: 2,
-    String3: 3,
-    String4: 4,
+    Invalid = None
+    String0 = None
+    String1 = None
+    String2 = None
+    String3 = None
+    String4 = None
