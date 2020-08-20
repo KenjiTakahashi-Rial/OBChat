@@ -5,6 +5,7 @@ BanCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Ban, OBUser
+from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
 from OB.utilities.event import send_room_event
@@ -22,19 +23,13 @@ class BanCommand(BaseCommand):
 
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
-            self.sender_receipt = [
-                "You're not even logged in! Try making an account first, then we can talk about "
-                "banning people."
-            ]
+            self.sender_receipt = [StringId.AnonBanning]
         # Is authenticated, but not an admin
         elif self.sender_privilege < Privilege.Admin:
-            self.sender_receipt = [
-                "That's a little outside your pay-grade. Only admins may ban users. Try to /apply "
-                "to be an Admin."
-            ]
+            self.sender_receipt = [StringId.NonAdminBanning]
         # Missing target arguments
         elif not self.args:
-            self.sender_receipt = ["Usage: /ban <user1> <user2> ..."]
+            self.sender_receipt = [StringId.BanSyntax]
 
         return not self.sender_receipt
 
@@ -52,34 +47,27 @@ class BanCommand(BaseCommand):
 
             # Target user does not exist
             if not arg_user:
-                self.sender_receipt += [
-                    f"Nobody named {username} in this room. Are you seeing things?"
-                ]
+                self.sender_receipt += [StringId.UserNotPresent.format(username)]
             # Target user is the sender, themself
             elif arg_user == self.sender:
-                self.sender_receipt += [
-                    "You can't ban yourself. Just leave the room. Or put yourself on time-out."
-                ]
+                self.sender_receipt += [StringId.BanSelf]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += ["That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += [StringId.BanOwner]
             # Target user is already banned
             elif arg_ban:
-                self.sender_receipt += ["That user is already banned. How unoriginal of you."]
+                self.sender_receipt += [StringId.AlreadyBanned]
             # Target user has Privilege greater than or equal to the sender
             elif arg_privilege >= self.sender_privilege:
-                job_title = "Admin"
+                job_title = StringId.Admin
 
                 if arg_privilege == await async_get_privilege(self.sender, self.room):
-                    job_title += " just like you"
+                    job_title += StringId.JustLikeYou
 
                 if arg_privilege == Privilege.UnlimitedAdmin:
-                    job_title = "Unlimited " + job_title
+                    job_title = StringId.Unlimited + job_title
 
-                self.sender_receipt += [
-                    f"{arg_user} is an {job_title}, so you can't ban them. Feel free to "
-                    "/elevate your complaints to someone who has more authority."
-                ]
+                self.sender_receipt += [StringId.BanPeer.format(arg_user, job_title)]
             # Target user is a valid ban
             else:
                 self.valid_targets += [arg_user]
@@ -116,13 +104,13 @@ class BanCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
-            [("\n" if self.sender_receipt else "") + "Banned:"] +
+            [("\n" if self.sender_receipt else "") + StringId.BanSenderReceiptPreface] +
             ban_message_body +
-            ["That'll show them."]
+            [StringId.BanSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            ["One or more users have been banned:"] +
+            [StringId.BanOccupantsNotificationPreface] +
             ban_message_body +
-            ["Let this be a lesson to you all."]
+            [StringId.BanOccupantsNotificationNote]
         )
