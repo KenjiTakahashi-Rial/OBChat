@@ -11,8 +11,9 @@ from channels.db import database_sync_to_async
 from pytest import mark
 
 from OB.communicators import OBCommunicator
-from OB.constants import ANON_PREFIX, GroupTypes, SYSTEM_USERNAME
+from OB.constants import GroupTypes
 from OB.models import Admin, Ban, Message, OBUser, Room
+from OB.strings import StringId
 from OB.utilities.database import async_model_list
 
 class BaseCommandTest:
@@ -49,7 +50,7 @@ class BaseCommandTest:
         """
 
         OBUser(
-            username=SYSTEM_USERNAME,
+            username=StringId.SystemUsername,
             email="ob-sys@ob.ob",
             password="ob-sys"
         ).save()
@@ -115,7 +116,7 @@ class BaseCommandTest:
 
         for i in range(len(self.anon_users)):
             self.anon_users[i] = OBUser.objects.create_user(
-                username=f"{ANON_PREFIX}{i}",
+                username=f"{StringId.AnonPrefix}{i}",
                 is_anon=True
             ).save()
 

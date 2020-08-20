@@ -6,8 +6,9 @@ import json
 
 from channels.layers import get_channel_layer
 
-from OB.constants import SYSTEM_USERNAME, GroupTypes
+from OB.constants import GroupTypes
 from OB.models import Message, OBUser, Room
+from OB.strings import StringId
 from OB.utilities.database import async_add, async_get, async_save, async_try_get
 from OB.utilities.format import get_datetime_string, get_group_name
 
@@ -84,7 +85,7 @@ async def send_system_room_message(message_text, room, recipients=None, exclusio
         return
 
     # Save message to database
-    system_user = await async_get(OBUser, username=SYSTEM_USERNAME)
+    system_user = await async_get(OBUser, username=StringId.SystemUsername)
     new_message = await async_save(
         Message,
         message=message_text,
@@ -106,7 +107,7 @@ async def send_system_room_message(message_text, room, recipients=None, exclusio
 
     message_json = json.dumps({
         "text": message_text,
-        "sender_name": SYSTEM_USERNAME,
+        "sender_name": StringId.SystemUsername,
         "has_recipients": bool(recipients),
         "has_exclusions": bool(exclusions),
         "timestamp": get_datetime_string(new_message.timestamp)

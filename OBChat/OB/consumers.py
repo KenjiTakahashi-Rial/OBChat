@@ -7,8 +7,9 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from OB.commands import handle_command
-from OB.constants import ANON_PREFIX, GroupTypes
+from OB.constants import GroupTypes
 from OB.models import Ban, Message, OBUser, Room
+from OB.strings import StringId
 from OB.utilities.command import is_command_format
 from OB.utilities.database import async_add, async_delete, async_filter, async_get, \
     async_model_list, async_remove, async_save, async_try_get
@@ -58,12 +59,12 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = self.scope["user"]
         else:
             # Make an OBUser object for this anonymous user's session
-            while await async_try_get(OBUser, username=f"{ANON_PREFIX}{self.session.session_key}"):
+            while await async_try_get(OBUser, username=f"{StringId.AnonPrefix}{self.session.session_key}"):
                 await async_cycle_key(self.session)
 
             self.user = await async_save(
                 OBUser,
-                username=f"{ANON_PREFIX}{self.session.session_key}",
+                username=f"{StringId.AnonPrefix}{self.session.session_key}",
                 is_anon=True
             )
 

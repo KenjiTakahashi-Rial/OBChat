@@ -4,9 +4,6 @@ Constants used in various places throughout the app.
 
 from enum import IntEnum
 
-SYSTEM_USERNAME = "OB-Sys"
-ANON_PREFIX = "OB-Anon-"
-
 class GroupTypes(IntEnum):
     """
     The GroupType of a Consumer determines the format of the Consumer's group name, which

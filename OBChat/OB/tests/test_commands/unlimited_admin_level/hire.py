@@ -4,8 +4,8 @@ HireTest class container module.
 
 from pytest import mark
 
-from OB.constants import ANON_PREFIX
 from OB.models import Admin
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_delete, async_get, async_model_list, async_save, \
     async_try_get
@@ -68,9 +68,9 @@ class HireTest(BaseCommandTest):
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring anonymous user error
-        message = f"/h {ANON_PREFIX}0"
+        message = f"/h {StringId.AnonPrefix}0"
         correct_response = (
-            f"{ANON_PREFIX}0 hasn't signed up yet. They cannot be trusted with the immense "
+            f"{StringId.AnonPrefix}0 hasn't signed up yet. They cannot be trusted with the immense "
             "responsibility that is adminship."
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)

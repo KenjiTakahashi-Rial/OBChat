@@ -5,12 +5,12 @@ Message class container module.
 from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
     ForeignKey, ManyToManyField, Model, IntegerField, SET_DEFAULT, TextField
 
-from OB.constants import ANON_PREFIX
 from OB.models.room import Room
 from OB.models.ob_user import OBUser
+from OB.strings import StringId
 
 # 40 is the max length of the session_key, which is the suffix of anonymous usernames
-ANON_USERNAME_MAX_LENGTH = len(ANON_PREFIX) + 40
+ANON_USERNAME_MAX_LENGTH = len(StringId.AnonPrefix) + 40
 MESSAGE_MAX_LENGTH = 100
 
 class Message(Model):
