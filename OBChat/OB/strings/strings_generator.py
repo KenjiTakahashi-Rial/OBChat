@@ -22,8 +22,6 @@ string_id_module.write("\n".join([
     "    \"\"\"",
     "    IDs used to get strings the string map (see OB.strings.strings_map).",
     "    \"\"\"",
-    "",
-    "    Invalid = \"!@#$%&\"",
     ""
 ]))
 
