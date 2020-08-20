@@ -16,12 +16,11 @@ string_id_module.write("\n".join([
     "Do not modify this file directly. It is generated from OB.strings.strings_generator.",
     "\"\"\"",
     "",
-    "from enum import Enum",
-    "",
-    "class StringId(Enum):",
+    "class StringId:",
     "    \"\"\"",
     "    IDs used to get strings the string map (see OB.strings.strings_map).",
     "    \"\"\"",
+    "",
     ""
 ]))
 
