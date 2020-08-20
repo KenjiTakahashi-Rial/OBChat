@@ -2,7 +2,7 @@
 Script that generate the string ID module from strings.csv
 """
 
-# TODO: Consider transferring from .csv to .json first.
+# TODO: Consider transferring from .csv to .json first for multiple locale support.
 
 from csv import reader
 

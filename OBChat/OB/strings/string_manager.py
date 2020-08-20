@@ -2,7 +2,6 @@
 StringManager class container module.
 """
 
-from OB.strings import strings_map
 from OB.strings import StringId
 
 class StringManager():
