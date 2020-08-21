@@ -5,6 +5,7 @@ KickCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import OBUser
+from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_model_list, async_try_get
 from OB.utilities.event import send_room_event
@@ -24,19 +25,13 @@ class KickCommand(BaseCommand):
 
         # Is an anonymous/unauthenticted user
         if self.sender_privilege < Privilege.AuthUser:
-            self.sender_receipt = [
-                "You're not even logged in! Try making an account first, then we can talk about "
-                "kicking people."
-            ]
+            self.sender_receipt = [StringId.AnonKicking]
         # Is authenticated, but not an admin
         elif self.sender_privilege < Privilege.Admin:
-            self.sender_receipt = [
-                "That's a little outside your pay-grade. Only admins may kick users. Try to "
-                "/apply to be an Admin."
-            ]
+            self.sender_receipt = [StringId.NonAdminKicking]
         # Missing target arguments
         elif not self.args:
-            self.sender_receipt = ["Usage: /kick <user1> <user2> ..."]
+            self.sender_receipt = [StringId.KickSyntax]
 
         return not self.sender_receipt
 
@@ -53,31 +48,25 @@ class KickCommand(BaseCommand):
 
             # Target user is not present in the room
             if not arg_user or arg_user not in await async_model_list(self.room.occupants):
-                self.sender_receipt += [
-                    f"Nobody named {username} in this room. Are you seeing things?"
-                ]
+                self.sender_receipt += [StringId.UserNotPresent.format(username)]
             # Target user is the sender
             elif arg_user == self.sender:
-                self.sender_receipt += [
-                    f"You can't kick yourself. Just leave the room. Or put yourself on time-out."
-                ]
+                self.sender_receipt += [StringId.KickSelf]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += [f"That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += [StringId.TargetOwner]
             # Target user has Privilege greater than or equal to the sender
             elif arg_privilege >= self.sender_privilege:
-                job_title = "Admin"
+                job_title = StringId.Admin
 
                 if arg_privilege == self.sender_privilege:
-                    job_title += " just like you"
+                    job_title += StringId.JustLikeYou
 
                 if arg_privilege == Privilege.UnlimitedAdmin:
-                    job_title = "Unlimited " + job_title
+                    job_title = StringId.Unlimited + job_title
 
-                self.sender_receipt += [
-                    f"{arg_user} is an {job_title}, so you can't kick them. Feel free to "
-                    "/elevate your complaints to someone who has more authority."
-                ]
+                self.sender_receipt += [StringId.BanPeer.format(arg_user, job_title)]
+            # Is valid kick
             else:
                 self.valid_targets += [arg_user]
 
@@ -105,12 +94,12 @@ class KickCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
-            [("\n" if self.sender_receipt else "") + "Kicked:"] +
+            [("\n" if self.sender_receipt else "") + StringId.KickSenderReceiptPreface] +
             kick_message_body +
-            ["That'll show them."]
+            [StringId.KickSenderReceiptNote]
         )
         self.occupants_notification += (
-            ["One or more users have been kicked:"] +
+            [StringId.KickOccupantsNotificationPreface] +
             kick_message_body +
-            ["Let this be a lesson to you all."]
+            [StringId.KickOccupantsNotificationNote]
         )
