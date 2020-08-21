@@ -8,6 +8,8 @@ from OB.utilities.event import send_system_room_message
 
 # pylint: disable=too-few-public-methods
 # Justification: The only method that needs to be publicly visible is execute()
+# pylint: disable=too-many-instance-attributes
+# Justification: These are all necessary and used for a majority of commands.
 class BaseCommand:
     """
     A superclass for all commands.

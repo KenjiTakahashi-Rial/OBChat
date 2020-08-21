@@ -34,3 +34,4 @@ COMMANDS = {
     "/private": PrivateCommand,         "/p": PrivateCommand,
     "/who": WhoCommand,                 "/w": WhoCommand,
 }
+# pylint: enable=bad-whitespace

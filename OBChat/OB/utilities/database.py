@@ -74,6 +74,7 @@ def async_filter(model, **kwargs):
     # Justification: These comprehensions are necessary to make a list of database objects. If
     #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     return [obj for obj in model.objects.filter(**kwargs)]
+    # pylint: enable=unnecessary-comprehension
 
 @database_sync_to_async
 def async_save(model_or_object, **kwargs):

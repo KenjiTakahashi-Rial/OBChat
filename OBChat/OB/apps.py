@@ -22,6 +22,7 @@ class OBConfig(AppConfig):
         # Justification: The Django documentation recommends importing here because you cannot
         #   import models at the module-level.
         from OB.models import OBUser, Room
+        # pylint: enable=import-outside-toplevel
 
         # Remove all occupants from all rooms
         for room in Room.objects.all():
