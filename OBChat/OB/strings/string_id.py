@@ -8,6 +8,8 @@ class StringId:
     IDs used to get strings the string map (see OB.strings.strings_map).
     """
 
+    # pylint: disable=line-too-long
+    # Justification: This is just storage, it does not need to be readable.
     Invalid = "!@#$%^&*()"
     SystemUsername = "OB-Sys"
     AnonPrefix = "OB-Anon-"
