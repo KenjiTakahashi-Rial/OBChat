@@ -7,6 +7,7 @@ from enum import IntEnum
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
+from OB.strings import StringId
 from OB.utilities.command import async_get_privilege, is_valid_command
 from OB.utilities.database import async_filter, async_model_list, async_try_get
 
@@ -34,16 +35,11 @@ class ElevateCommand(BaseCommand):
 
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
-            self.sender_receipt += [
-                "Why don't you make an account or log in first? Call us old-fashiond, but anons "
-                "have very little privileges around these parts."
-            ]
+            self.sender_receipt += [StringId.AnonElevating]
         # Is authenticated, but not an admin
         elif self.sender_privilege < Privilege.Admin:
-            self.sender_receipt += [
-                "Elevation is a skill that only Admins are capable of wielding. You have yet to "
-                "reach the level of Admin - come back when you're ready!"
-            ]
+            self.sender_receipt += [StringId.NonAdminElevating]
+        # Is a valid elevation
         else:
             self.parse()
 
@@ -69,10 +65,6 @@ class ElevateCommand(BaseCommand):
 
         stage = Stage.Command
 
-        syntax_error_message = (
-            "Usage: /elevate (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)"
-        )
-
         i = 0
         next_stage = False
 
@@ -83,13 +75,13 @@ class ElevateCommand(BaseCommand):
                 stage == Stage.Command and
                 not is_valid_command(self.args[0][1:])
             ):
-                self.sender_receipt += [syntax_error_message]
+                self.sender_receipt += [StringId.ElevateSyntax]
                 return
 
             while i < len(self.args):
                 # There was no end parenthesis
                 if i == len(self.args) - 1:
-                    self.sender_receipt += [syntax_error_message]
+                    self.sender_receipt += [StringId.ElevateSyntax]
                     return
 
                 addition = self.args[i]
@@ -101,7 +93,7 @@ class ElevateCommand(BaseCommand):
                 # End parenthesis without command arguments
                 if self.args[i][-1] == ')':
                     if i == 1:
-                        self.sender_receipt += [syntax_error_message]
+                        self.sender_receipt += [StringId.ElevateSyntax]
                         return
 
                     addition = addition[:-1]
@@ -141,16 +133,11 @@ class ElevateCommand(BaseCommand):
                     arg_privilege = await async_get_privilege(arg_user, self.room)
 
                 if not arg_user or arg_user not in await async_model_list(self.room.occupants):
-                    self.sender_receipt += [
-                        f"Nobody named {username} in this room. Are you seeing things?"
-                    ]
+                    self.sender_receipt += [StringId.UserNotPresent.format(username)]
                 elif arg_user == self.sender:
-                    self.sender_receipt += [f"You can't elevate to yourself. Who do you think you are?"]
+                    self.sender_receipt += [StringId.ElevateSelf]
                 elif arg_privilege < Privilege.UnlimitedAdmin:
-                    self.sender_receipt += [
-                        f"{username} does not have more privileges than you. What's the point of "
-                        "/elevate -ing do them?"
-                    ]
+                    self.sender_receipt += [StringId.ElevatePeer.format(username)]
                 else:
                     self.valid_elevations += [arg_user]
 
@@ -164,18 +151,18 @@ class ElevateCommand(BaseCommand):
 
         # Construction the elevation request
         elevate_message_body = [
-            f"    Recipients:" + ", ".join(self.valid_elevations),
-            f"    Command requested: {self.command}",
-            f"    Message: {self.message if self.message else None}"
+            f"    {StringId.Recipients}" + ", ".join(self.valid_elevations),
+            f"    {StringId.CommandRequested} {self.command}",
+            f"    {StringId.Message} {self.message if self.message else None}"
         ]
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from request receipt
-            [("\n" if self.sender_receipt else "") + "Sent an elevation request:"] +
+            [("\n" if self.sender_receipt else "") + StringId.ElevateSenderReceiptPreface] +
             elevate_message_body
         )
 
         self.targets_notification += (
-            [f"Received an elevation request from {self.sender}:"] +
+            [StringId.ElevateTargetsNotificationPreface.format(self.sender)] +
             elevate_message_body
         )

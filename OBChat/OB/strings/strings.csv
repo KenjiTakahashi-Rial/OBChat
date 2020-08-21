@@ -17,3 +17,13 @@ BanSenderReceiptPreface,Banned:
 BanSenderReceiptNote,That'll show them.
 BanOccupantsNotificationPreface,One or more users have been banned:
 BanOccupantsNotificationNote,Let this be a lesson to you all.
+AnonElevating,"Why don't you make an account or log in first? Call us old-fashioned, but anons have very little privileges around these parts."
+NonAdminElevating,Elevation is a skill that only Admins are capable of wielding. You have yet to reach the level of Admin - come back when you're ready!
+ElevateSyntax,Usage: /elevate (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)
+ElevateSelf,You can't elevate to yourself. Who do you think you are?
+ElevatePeer,{0} does not have more privileges than you. What's the point of /elevate -ing to them?
+ElevateSenderReceiptPreface,Sent an elevation request:
+ElevateTargetsNotificationPreface,Received an elevation request from {0}
+Recipients,Recipients:
+CommandRequested,Command requested:
+Message,Message:
