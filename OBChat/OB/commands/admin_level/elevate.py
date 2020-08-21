@@ -141,13 +141,13 @@ class ElevateCommand(BaseCommand):
                     arg_privilege = await async_get_privilege(arg_user, self.room)
 
                 if not arg_user or arg_user not in await async_model_list(self.room.occupants):
-                    error_messages += [
+                    self.sender_receipt += [
                         f"Nobody named {username} in this room. Are you seeing things?"
                     ]
                 elif arg_user == self.sender:
-                    error_messages += [f"You can't elevate to yourself. Who do you think you are?"]
+                    self.sender_receipt += [f"You can't elevate to yourself. Who do you think you are?"]
                 elif arg_privilege < Privilege.UnlimitedAdmin:
-                    error_messages += [
+                    self.sender_receipt += [
                         f"{username} does not have more privileges than you. What's the point of "
                         "/elevate -ing do them?"
                     ]
