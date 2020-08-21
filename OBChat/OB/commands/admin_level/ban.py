@@ -53,7 +53,7 @@ class BanCommand(BaseCommand):
                 self.sender_receipt += [StringId.BanSelf]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += [StringId.BanOwner]
+                self.sender_receipt += [StringId.TargetOwner]
             # Target user is already banned
             elif arg_ban:
                 self.sender_receipt += [StringId.AlreadyBanned]

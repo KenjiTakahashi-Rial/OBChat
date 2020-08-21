@@ -16,7 +16,7 @@ class StringId:
     BanSyntax = "Usage: /ban <user1> <user2> ..."
     UserNotPresent = "Nobody named {0} in this room. Are you seeing things?"
     BanSelf = "You can't ban yourself. Just leave the room. Or put yourself on time-out."
-    BanOwner = "That's the owner. You know, your BOSS. Nice try."
+    TargetOwner = "That's the owner. You know, your BOSS. Nice try."
     AlreadyBanned = "That user is already banned. How unoriginal of you."
     Admin = "Admin"
     JustLikeYou = " just like you"
