@@ -7,6 +7,7 @@ import asyncio
 from pytest import mark
 
 from OB.models import Ban, OBUser
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_add_occupants, async_delete, async_get, async_model_list, \
     async_save, async_try_get
@@ -60,68 +61,60 @@ class BanTest(BaseCommandTest):
 
         # Test unauthenticated user banning error
         message = "/ban"
-        correct_response = (
-            "You're not even logged in! Try making an account first, then we can talk about "
-            "banning people."
-        )
+        correct_response = StringId.AnonBanning
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test authenticated user banning error
         message = "/b"
-        correct_response = (
-            "That's a little outside your pay-grade. Only admins may ban users. "
-            "Try to /apply to be an Admin."
-        )
+        correct_response = StringId.NonAdminBanning
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
         # Test no arguments error
         message = "/b"
-        correct_response = "Usage: /ban <user1> <user2> ..."
+        correct_response = StringId.BanSyntax
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test absent target error
-        message = "/b auth_user_0_1"
-        correct_response = "Nobody named auth_user_0_1 in this room. Are you seeing things?"
+        message = "/b absent_user"
+        correct_response = StringId.UserNotPresent.format("absent_user")
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test self target error
         message = "/b limited_admin_0"
-        correct_response = (
-            "You can't ban yourself. Just leave the room. Or put yourself on time-out."
-        )
+        correct_response = StringId.BanSelf
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin banning owner error
         message = "/b owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_0"
-        correct_response = (
-            f"{self.unlimited_admins[0]} is an Unlimited Admin, so you can't ban them. Feel free "
-            "to /elevate your complaints to someone who has more authority."
+        correct_response = StringId.BanPeer.format(
+            f"{self.unlimited_admins[0]}",
+            StringId.Unlimited + StringId.Admin
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin banning limited Admin error
         message = "/b limited_admin_1"
-        correct_response = (
-            f"{self.limited_admins[1]} is an Admin just like you, so you can't ban them. Feel "
-            "free to /elevate your complaints to someone who has more authority."
+        correct_response = StringId.BanPeer.format(
+            f"{self.limited_admins[1]}",
+            StringId.Admin + StringId.JustLikeYou
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin banning owner error
         message = "/b owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_1"
-        correct_response = (
-            f"{self.unlimited_admins[1]} is an Unlimited Admin just like you, so you can't ban "
-            "them. Feel free to /elevate your complaints to someone who has more authority."
+        correct_response = StringId.BanPeer.format(
+            f"{self.unlimited_admins[1]}",
+            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
@@ -134,7 +127,7 @@ class BanTest(BaseCommandTest):
         )
 
         message = "/b auth_user_0"
-        correct_response = "That user is already banned. How unoriginal of you."
+        correct_response = StringId.AlreadyBanned
         await self.test_isolated(self.owner, message, correct_response)
 
     @mark.asyncio
@@ -150,17 +143,16 @@ class BanTest(BaseCommandTest):
 
         # Prepare the message and responses
         message = "/b"
-        sender_response = "Banned:\n"
-        others_response = "One or more users have been banned:\n"
+        sender_response = StringId.BanSenderReceiptPreface + "\n"
+        others_response = StringId.BanOccupantsNotificationPreface + "\n"
 
         for user in targets:
             message += f" {user.username}"
             sender_response += f"   {user}\n"
             others_response += f"   {user}\n"
 
-        sender_response += "That'll show them."
-        others_response += "Let this be a lesson to you all."
-
+        sender_response += StringId.BanSenderReceiptNote
+        others_response += StringId.BanOccupantsNotificationNote
 
         # Send the command message
         await self.communicators[sender.username].send(message)
