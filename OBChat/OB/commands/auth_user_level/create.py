@@ -5,6 +5,7 @@ CreateCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes, Privilege
 from OB.models import Room
+from OB.strings import StringId
 from OB.utilities.database import async_save, async_try_get
 
 class CreateCommand(BaseCommand):
@@ -19,13 +20,13 @@ class CreateCommand(BaseCommand):
 
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.Admin:
-            self.sender_receipt = ["Identify yourself! Must log in to create a room."]
+            self.sender_receipt = [StringId.AnonCreating]
         # Missing room name argument
         elif not self.args:
-            self.sender_receipt = ["Usage: /create <name>"]
+            self.sender_receipt = [StringId.CreateSyntax]
         # Too many arguments
         elif len(self.args) > 1:
-            self.sender_receipt = ["Room name cannot contain spaces."]
+            self.sender_receipt = [StringId.CreateSyntaxError]
 
         return not self.sender_receipt
 
@@ -42,7 +43,7 @@ class CreateCommand(BaseCommand):
 
         # Room with argument name already exists
         if existing_room:
-            self.sender_receipt += [f"Someone beat you to it. {existing_room} already exists."]
+            self.sender_receipt += [StringId.CreateExistingRoom.format(existing_room)]
             return False
 
         return True
@@ -65,4 +66,4 @@ class CreateCommand(BaseCommand):
             display_name=display_name
         )
 
-        self.sender_receipt += [f"Sold! Check out your new room: {created_room}"]
+        self.sender_receipt += [StringId.CreateSenderReceipt.format(created_room)]
