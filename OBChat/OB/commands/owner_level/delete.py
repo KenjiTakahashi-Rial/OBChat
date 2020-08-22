@@ -5,6 +5,7 @@ DeleteCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, Ban, Message
+from OB.strings import StringId
 from OB.utilities.database import async_delete, async_model_list, async_filter, async_get_owner
 from OB.utilities.event import send_room_event
 
@@ -21,10 +22,7 @@ class DeleteCommand(BaseCommand):
 
         # Is not the owner
         if self.sender_privilege < Privilege.Owner:
-            self.sender_receipt = [
-                "Trying to delete someone else's room? How rude. Only the room owner may delete a "
-                "room"
-            ]
+            self.sender_receipt = [StringId.NonOwnerDeleting]
 
         return not self.sender_receipt
 
@@ -39,7 +37,7 @@ class DeleteCommand(BaseCommand):
             self.args[0] != self.room.name or
             self.args[1] != (await async_get_owner(self.room)).username
         ):
-            self.sender_receipt = ["Usage: /delete <room name> <owner username>"]
+            self.sender_receipt = [StringId.DeleteSyntax]
 
         return not self.sender_receipt
 
