@@ -7,6 +7,7 @@ from pytest import mark
 from OB.communicators import OBCommunicator
 from OB.constants import GroupTypes
 from OB.models import Ban
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_save
 
@@ -32,34 +33,26 @@ class LiftTest(BaseCommandTest):
 
         # Test unauthenticated user lifting error
         message = "/lift"
-        correct_response = (
-            "You are far from one who can lift bans. Log in and prove yourself an Admin."
-        )
+        correct_response = StringId.AnonLifting
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test authenticated user lifting error
         message = "/l"
-        correct_response = (
-            "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be"
-            " an Admin and perhaps you may obtain this power if you are worthy."
-        )
+        correct_response = StringId.NonAdminLifting
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
         # Test no arguments error
         message = "/l"
-        correct_response = "Usage: /lift <user1> <user2> ..."
+        correct_response = StringId.LiftSyntax
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test absent target error
         message = "/l auth_user_0_1"
-        correct_response = (
-            "No user named auth_user_0_1 has been banned from this room. How can one lift that "
-            "which has not been banned?"
-        )
+        correct_response = StringId.LiftInvalidTarget.format("auth_user_0_1")
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Create test ban
-        test_ban = await async_save(
+        await async_save(
             Ban,
             user=self.auth_users[1],
             room=self.room,
@@ -68,10 +61,9 @@ class LiftTest(BaseCommandTest):
 
         # Test limited Admin lifting owner-issued ban error
         message = "/l auth_user_1"
-        correct_response = (
-            f"auth_user_1 was banned by {self.owner}. You cannot lift a ban issued by a user of "
-            "equal or higher privilege than yourself. If you REALLY want to lift this ban you can "
-            "/elevate to a higher authority."
+        correct_response = StringId.LiftInsufficientPermission.format(
+            self.auth_users[1],
+            self.owner
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
@@ -82,9 +74,9 @@ class LiftTest(BaseCommandTest):
         # Test owner lifting ban
         message = "/l auth_user_1"
         correct_response = "\n".join([
-            f"Ban lifted:",
+            StringId.LiftSenderReceiptPreface,
             f"   {self.auth_users[1]}",
-            f"Fully reformed and ready to integrate into society."
+            StringId.LiftSenderReceiptNote
         ])
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
@@ -106,10 +98,9 @@ class LiftTest(BaseCommandTest):
 
         # Test limited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
-        correct_response = (
-            f"auth_user_1 was banned by {self.unlimited_admins[0]}. You cannot lift a ban issued "
-            "by a user of equal or higher privilege than yourself. If you REALLY want to lift this"
-            " ban you can /elevate to a higher authority."
+        correct_response = StringId.LiftInsufficientPermission.format(
+            self.auth_users[1],
+            self.unlimited_admins[0]
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
@@ -120,8 +111,9 @@ class LiftTest(BaseCommandTest):
         # Test Unlimited Admin lifting ban
         message = "/l auth_user_1"
         correct_response = "\n".join([
-            f"Ban lifted:",
+            StringId.LiftSenderReceiptPreface,
             f"   {self.auth_users[1]}",
-            f"Fully reformed and ready to integrate into society."
+            StringId.LiftSenderReceiptNote
         ])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
