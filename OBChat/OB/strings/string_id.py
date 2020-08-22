@@ -68,3 +68,5 @@ class StringId:
     CreateSyntaxError = "Room name cannot contain spaces."
     CreateExistingRoom = "Someone beat you to it. {0} already exists."
     CreateSenderReceipt = "Sold! Check out your new room: {0}"
+    NonOwnerDeleting = "Trying to delete someone else's room? How rude. Only the room owner may delete a room"
+    DeleteSyntax = "Usage: /delete <room name> <owner username>"
