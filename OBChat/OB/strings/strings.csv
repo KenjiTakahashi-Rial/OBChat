@@ -52,3 +52,8 @@ ApplySenderReceiptPreface,Application sent:
 ApplySenderReceiptNote,"Hopefully the response doesn't start with: \""After careful consideration...\"""
 ApplyTargetsNotificationPreface,Application Received:
 ApplyTargetsNotificationNote,"To hire this user, use /hire."
+AnonCreating,Identify yourself! Must log in to create a room.
+CreateSyntax,Usage: /create <name>
+CreateSyntaxError,Room name cannot contain spaces.
+CreateExistingRoom,Someone beat you to it. {0} already exists.
+CreateSenderReceipt,Sold! Check out your new room: {0}
