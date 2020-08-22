@@ -43,3 +43,12 @@ LiftInvalidTarget,No user named {0} has been banned from this room. How can one 
 LiftInsufficientPermission,{0} was banned by {1}. You cannot lift a ban issued by a user of equal or higher privilege than yourself. If you REALLY want to lift this ban you can /elevate to a higher authority.
 LiftSenderReceiptPreface,Ban lifted:
 LiftSenderReceiptNote,Fully reformed and ready to integrate into society.
+AnonApplying,You can't get hired looking like that! Clean yourself up and make an account first.
+UnlimitedAdminApplying,You're already a big shot Unlimited Admin! There's nothing left to apply to.
+AdminSuffix,[Admin]
+User,User: 
+Position,Position:
+ApplySenderReceiptPreface,Application sent:
+ApplySenderReceiptNote,"Hopefully the response doesn't start with: \""After careful consideration...\"""
+ApplyTargetsNotificationPreface,Application Received:
+ApplyTargetsNotificationNote,"To hire this user, use /hire."
