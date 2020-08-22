@@ -56,7 +56,7 @@ class StringId:
     LiftSenderReceiptNote = "Fully reformed and ready to integrate into society."
     AnonApplying = "You can't get hired looking like that! Clean yourself up and make an account first."
     UnlimitedAdminApplying = "You're already a big shot Unlimited Admin! There's nothing left to apply to."
-    AdminSuffix = "[Admin]"
+    AdminSuffix = " [Admin]"
     User = "User: "
     Position = "Position:"
     ApplySenderReceiptPreface = "Application sent:"

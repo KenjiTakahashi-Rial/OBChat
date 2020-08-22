@@ -5,6 +5,7 @@ ApplyCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
+from OB.strings import StringId
 from OB.utilities.database import async_filter, async_get, async_get_owner
 
 class ApplyCommand(BaseCommand):
@@ -29,15 +30,10 @@ class ApplyCommand(BaseCommand):
 
         # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
-            self.sender_receipt += [
-                "You can't get hired looking like that! Clean yourself up and make an account "
-                "first."
-            ]
+            self.sender_receipt += [StringId.AnonApplying]
         # Is already an Unlimited Admin
         elif self.sender_privilege >= Privilege.UnlimitedAdmin:
-            self.sender_receipt += [
-                "You're already a big shot Unlimited Admin! There's nothing left to apply to."
-            ]
+            self.sender_receipt += [StringId.UnlimitedAdminApplying]
 
         return not self.sender_receipt
 
@@ -55,7 +51,6 @@ class ApplyCommand(BaseCommand):
         Constructs strings to send back to the sender and to those who may hire them.
         """
 
-        print(self.sender)
         # Gather recipients
         if self.sender_privilege < Privilege.Admin:
             unlimited_admins = await async_filter(
@@ -70,25 +65,25 @@ class ApplyCommand(BaseCommand):
         self.valid_targets += [await async_get_owner(self.room)]
 
         # Construct strings
-        user_suffix = " [Admin]" if self.sender_privilege == Privilege.Admin else ""
-        position_prefix = "Unlimited " if self.sender_privilege == Privilege.Admin else ""
+        user_suffix = StringId.AdminSuffix if self.sender_privilege == Privilege.Admin else ""
+        position_prefix = StringId.Unlimited if self.sender_privilege == Privilege.Admin else ""
         application_message = " ".join(self.args) if self.args else None
 
         application_body = [
-            f"   User: {self.sender}{user_suffix}",
-            f"   Position: {position_prefix}Admin",
-            f"   Message: {application_message}"
+            f"   {StringId.User} {self.sender}{user_suffix}",
+            f"   {StringId.Position} {position_prefix}{StringId.Admin}",
+            f"   {StringId.Message} {application_message}"
         ]
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
-            [("\n" if self.sender_receipt else "") + "Application sent:"] +
+            [("\n" if self.sender_receipt else "") + StringId.ApplySenderReceiptPreface] +
             application_body +
-            ["Hopefully the response doesn't start with: \"After careful consideration...\""]
+            [StringId.ApplySenderReceiptNote]
         )
 
         self.targets_notification += (
-            ["Application Received"] +
+            [StringId.ApplyTargetsNotificationPreface] +
             application_body +
-            ["To hire this user, use /hire."]
+            [StringId.ApplyTargetsNotificationNote]
         )
