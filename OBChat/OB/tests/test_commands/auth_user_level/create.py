@@ -7,6 +7,7 @@ from pytest import mark
 from OB.communicators import OBCommunicator
 from OB.constants import GroupTypes
 from OB.models import Room
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 
@@ -32,27 +33,27 @@ class CreateTest(BaseCommandTest):
 
         # Test no arguments error
         message = "/create"
-        correct_response = "Usage: /create <name>"
+        correct_response = StringId.CreateSyntax
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test unauthenticated user error
         message = "/c anon_room"
-        correct_response = "Identify yourself! Must log in to create a room."
+        correct_response = StringId.AnonCreating
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test multiple arguments error
         message = "/c room 1"
-        correct_response = "Room name cannot contain spaces."
+        correct_response = StringId.CreateSyntaxError
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test existing room error
         message = "/c room"
-        correct_response = f"Someone beat you to it. {self.room} already exists."
+        correct_response = StringId.CreateExistingRoom.format(self.room)
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test room creation
         message = "/c room_1"
-        correct_response = "Sold! Check out your new room: room_1"
+        correct_response = StringId.CreateSenderReceipt.format("room_1")
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
