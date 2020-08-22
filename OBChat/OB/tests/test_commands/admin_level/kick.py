@@ -5,6 +5,7 @@ KickTest class container module.
 from pytest import mark
 
 from OB.models import OBUser
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_add_occupants, async_model_list, async_save, \
     async_try_get
@@ -54,68 +55,54 @@ class KickTest(BaseCommandTest):
 
         # Test unauthenticated user kicking error
         message = "/kick"
-        correct_response = (
-            "You're not even logged in! Try making an account first, then we can talk about "
-            "kicking people."
-        )
+        correct_response = StringId.AnonKicking
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test authenticated user kicking error
         message = "/k"
-        correct_response = (
-            "That's a little outside your pay-grade. Only admins may kick users. "
-            "Try to /apply to be an Admin."
-        )
+        correct_response = StringId.NonAdminKicking
         await self.test_isolated(self.auth_users[0], message, correct_response)
 
         # Test no arguments error
         message = "/k"
-        correct_response = "Usage: /kick <user1> <user2> ..."
+        correct_response = StringId.KickSyntax
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test absent target error
         message = "/k auth_user_0_1"
-        correct_response = "Nobody named auth_user_0_1 in this room. Are you seeing things?"
+        correct_response = StringId.UserNotPresent.format("auth_user_0_1")
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test self target error
         message = "/k limited_admin_0"
-        correct_response = (
-            "You can't kick yourself. Just leave the room. Or put yourself on time-out."
-        )
+        correct_response = StringId.KickSelf
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin kicking owner error
         message = "/k owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin kicking Unlimited Admin error
         message = "/k unlimited_admin_0"
-        correct_response = (
-            f"{self.unlimited_admins[0]} is an Unlimited Admin, so you can't kick them. Feel free "
-            "to /elevate your complaints to someone who has more authority."
-        )
+        correct_response = StringId.KickPeer.format(self.unlimited_admins[0], StringId.Unlimited + StringId.Admin)
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin kicking limited Admin error
         message = "/k limited_admin_1"
-        correct_response = (
-            f"{self.limited_admins[1]} is an Admin just like you, so you can't kick them. Feel "
-            "free to /elevate your complaints to someone who has more authority."
-        )
+        correct_response = StringId.KickPeer.format(self.limited_admins[1], StringId.Admin + StringId.JustLikeYou)
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin kicking owner error
         message = "/k owner"
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin kicking Unlimited Admin error
         message = "/k unlimited_admin_1"
-        correct_response = (
-            f"{self.unlimited_admins[1]} is an Unlimited Admin just like you, so you can't kick "
-            "them. Feel free to /elevate your complaints to someone who has more authority."
+        correct_response = StringId.KickPeer.format(
+            self.unlimited_admins[1],
+            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
@@ -132,16 +119,16 @@ class KickTest(BaseCommandTest):
 
         # Prepare the message and responses
         message = "/k"
-        sender_response = "Kicked:\n"
-        others_response = "One or more users have been kicked:\n"
+        sender_response = StringId.KickSenderReceiptPreface + "\n"
+        others_response = StringId.KickOccupantsNotificationPreface + "\n"
 
         for user in targets:
             message += f" {user.username}"
             sender_response += f"   {user}\n"
             others_response += f"   {user}\n"
 
-        sender_response += "That'll show them."
-        others_response += "Let this be a lesson to you all."
+        sender_response += StringId.KickSenderReceiptNote
+        others_response += StringId.KickOccupantsNotificationNote
 
         # Send the command message
         await self.communicators[sender.username].send(message)
