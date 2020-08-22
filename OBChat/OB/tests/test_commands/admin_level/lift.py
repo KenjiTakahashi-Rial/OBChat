@@ -117,3 +117,13 @@ class LiftTest(BaseCommandTest):
         ])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
+    async def test_success(self, sender, targets):
+        """
+        Tests a successful kick through the /kick command.
+
+        Arguments:
+            sender (OBUser): The user to send the /kick command.
+            targets (list[OBUser]): The users to try to kick.
+        """
+
+        # TODO: Implement this
