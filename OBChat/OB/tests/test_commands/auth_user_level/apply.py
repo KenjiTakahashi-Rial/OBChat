@@ -6,6 +6,7 @@ from pytest import mark
 
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_filter, async_get
@@ -32,15 +33,11 @@ class ApplyTest(BaseCommandTest):
 
         # Test unauthenticated user error
         message = "/apply"
-        correct_response = (
-            "You can't get hired looking like that! Clean yourself up and make an account first."
-        )
+        correct_response = StringId.AnonApplying
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test Unlimited Admin error
-        correct_response = (
-            "You're already a big shot Unlimited Admin! There's nothing left to apply to."
-        )
+        correct_response = StringId.UnlimitedAdminApplying
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner error
@@ -70,27 +67,26 @@ class ApplyTest(BaseCommandTest):
         await self.communicators[sender.username].send(f"/apply{command}")
 
         # Prepare the responses
-        user_suffix = " [Admin]" if sender_privilege == Privilege.Admin else ""
-        position_prefix = "Unlimited " if sender_privilege == Privilege.Admin else ""
+        user_suffix = StringId.AdminSuffix if sender_privilege == Privilege.Admin else ""
+        position_prefix = StringId.Unlimited if sender_privilege == Privilege.Admin else ""
         message = message if message else None
 
         application_body = [
-            f"   User: {sender}{user_suffix}",
-            f"   Position: {position_prefix}Admin",
-            f"   Message: {message}"
+            f"   {StringId.User} {sender}{user_suffix}",
+            f"   {StringId.Position} {position_prefix}{StringId.Admin}",
+            f"   {StringId.Message} {message}"
         ]
 
         sender_receipt = "\n".join(
-            # Add an exra newline to separate argument error messages from ban receipt
-            ["Application sent:"] +
+            [StringId.ApplySenderReceiptPreface] +
             application_body +
-            ["Hopefully the response doesn't start with: \"After careful consideration...\""]
+            [StringId.ApplySenderReceiptNote]
         )
 
         targets_notification = "\n".join(
-            ["Application Received"] +
+            [StringId.ApplyTargetsNotificationPreface] +
             application_body +
-            ["To hire this user, use /hire."]
+            [StringId.ApplyTargetsNotificationNote]
         )
 
         # Gather recipients
