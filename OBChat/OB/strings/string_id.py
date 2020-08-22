@@ -51,6 +51,6 @@ class StringId:
     NonAdminLifting = "A mere mortal like yourself does not have the power to lift bans. Try to /apply to be an Admin and perhaps you may obtain this power if you are worthy."
     LiftSyntax = "Usage: /lift <user1> <user2> ..."
     LiftInvalidTarget = "No user named {0} has been banned from this room. How can one lift that which has not been banned?"
-    LiftInsufficientPermission = "{0} was banned by {0}. You cannot lift a ban issued by a user of equal or higher privilege than yourself. If you REALLY want to lift this ban you can /elevate to a higher authority."
+    LiftInsufficientPermission = "{0} was banned by {1}. You cannot lift a ban issued by a user of equal or higher privilege than yourself. If you REALLY want to lift this ban you can /elevate to a higher authority."
     LiftSenderReceiptPreface = "Ban lifted:"
     LiftSenderReceiptNote = "Fully reformed and ready to integrate into society."
