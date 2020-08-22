@@ -65,7 +65,7 @@ class KickCommand(BaseCommand):
                 if arg_privilege == Privilege.UnlimitedAdmin:
                     job_title = StringId.Unlimited + job_title
 
-                self.sender_receipt += [StringId.BanPeer.format(arg_user, job_title)]
+                self.sender_receipt += [StringId.KickPeer.format(arg_user, job_title)]
             # Is valid kick
             else:
                 self.valid_targets += [arg_user]

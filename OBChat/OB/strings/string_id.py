@@ -42,6 +42,7 @@ class StringId:
     NonAdminKicking = "That's a little outside your pay-grade. Only admins may kick users. Try to /apply to be an Admin."
     KickSyntax = "Usage: /kick <user1> <user2> ..."
     KickSelf = "You can't kick yourself. Just leave the room. Or put yourself on time-out."
+    KickPeer = "{0} is an {1}, so you can't kick them. Feel free to /elevate your complaints to someone who has more authority."
     KickSenderReceiptPreface = "Kicked:"
     KickSenderReceiptNote = "We'll see if they come back."
     KickOccupantsNotificationPreface = "One or more users have been kicked:"
