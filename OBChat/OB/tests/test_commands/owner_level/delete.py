@@ -5,6 +5,7 @@ DeleteTest class container module.
 from pytest import mark
 
 from OB.models import Admin, Ban, Message, Room
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_filter, async_save, async_try_get
 
@@ -30,9 +31,7 @@ class DeleteTest(BaseCommandTest):
 
         # Test anonymous user deleting error
         message = "/d"
-        correct_response = (
-            "Trying to delete someone else's room? How rude. Only the room owner may delete a room"
-        )
+        correct_response = StringId.NonOwnerDeleting
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test authenticated user deleting error
@@ -45,7 +44,7 @@ class DeleteTest(BaseCommandTest):
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test no arguments error
-        correct_response = "Usage: /delete <room name> <owner username>"
+        correct_response = StringId.DeleteSyntax
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test too many arguments error
