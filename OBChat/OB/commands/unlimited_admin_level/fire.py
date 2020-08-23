@@ -5,6 +5,7 @@ FireCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
+from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_delete, async_save, async_try_get
 
@@ -22,13 +23,10 @@ class FireCommand(BaseCommand):
 
         # Is not an Unlimited Admin
         if self.sender_privilege < Privilege.UnlimitedAdmin:
-            self.sender_receipt = [
-                "That's a little outside your pay-grade. Only Unlimited Admins may fire admins. "
-                "Try to /apply to be Unlimited."
-            ]
+            self.sender_receipt = [StringId.NonUnlimitedAdminFiring]
         # Missing target arguments
         elif len(self.args) == 0:
-            self.sender_receipt = ["Usage: /fire <user1> <user2> ..."]
+            self.sender_receipt = [StringId.FireSytax]
 
         return not self.sender_receipt
 
@@ -46,31 +44,20 @@ class FireCommand(BaseCommand):
 
             # Target user does not exist
             if not arg_user:
-                self.sender_receipt += [
-                    f"{username} does not exist. You can't fire a ghost... can you?"
-                ]
+                self.sender_receipt += [StringId.FireUserNotPresent.format(username)]
             # Target user is the sender, themself
             elif arg_user == self.sender:
-                self.sender_receipt += [
-                    "You can't fire yourself. I don't care how bad your performance reviews are."
-                ]
+                self.sender_receipt += [StringId.FireSelf]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += ["That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += [StringId.TargetOwner]
             # Target user is not an Admin
             elif not arg_admin:
-                self.sender_receipt += [
-                    f"{username} is just a regular ol' user, so you can't fire them. You can /kick"
-                    " or /ban them if you want."
-                ]
+                self.sender_receipt += [StringId.FireNonAdmin.format(arg_user)]
             # Target user has higher privilege than sender
             elif not arg_admin.is_limited and self.sender_privilege < Privilege.Owner:
-                self.sender_receipt += [
-                    f"{username} is an Unlimited Admin, so you can't fire them. Please direct all "
-                    "complaints to your local room owner, I'm sure they'll love some more "
-                    "paperwork to do..."
-                ]
-            # Target user is a valid fire
+                self.sender_receipt += [StringId.FirePeer.format(arg_user)]
+            # Is a valid fire
             else:
                 self.valid_targets += [{"user": arg_user, "adminship": arg_admin}]
 
@@ -98,19 +85,19 @@ class FireCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an extra newline to separate argument error messages from fire receipt
-            [("\n" if self.sender_receipt else "") + "Fired:"] +
+            [("\n" if self.sender_receipt else "") + StringId.FireSenderReceiptPreface] +
             fire_message_body +
-            ["It had to be done."]
+            [StringId.FireSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            ["One or more users have been fired:"] +
+            [StringId.FireOccupantsNotificationPreface] +
             fire_message_body +
-            ["Those budget cuts are killer."]
+            [StringId.FireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            ["One or more users have been fired:"] +
+            [StringId.FireOccupantsNotificationPreface] +
             fire_message_body +
-            ["Clean out your desk."]
+            [StringId.FireTargetsNotificationNote]
         )
