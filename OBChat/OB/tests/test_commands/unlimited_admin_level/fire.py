@@ -66,3 +66,4 @@ class FireTest(BaseCommandTest):
         correct_response = StringId.FirePeer.format(self.unlimited_admins[1])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
+        # TODO: Test successes
