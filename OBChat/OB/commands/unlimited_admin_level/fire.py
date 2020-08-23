@@ -26,7 +26,7 @@ class FireCommand(BaseCommand):
             self.sender_receipt = [StringId.NonUnlimitedAdminFiring]
         # Missing target arguments
         elif len(self.args) == 0:
-            self.sender_receipt = [StringId.FireSytax]
+            self.sender_receipt = [StringId.FireSyntax]
 
         return not self.sender_receipt
 
