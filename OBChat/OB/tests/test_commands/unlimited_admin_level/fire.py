@@ -4,6 +4,7 @@ FireTest class container module.
 
 from pytest import mark
 
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 
 class FireTest(BaseCommandTest):
@@ -28,10 +29,7 @@ class FireTest(BaseCommandTest):
 
         # Test anon firing error
         message = "/fire"
-        correct_response = (
-            "That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to"
-            " /apply to be Unlimited."
-        )
+        correct_response = StringId.NonUnlimitedAdminFiring
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test auth user firing error
@@ -41,38 +39,30 @@ class FireTest(BaseCommandTest):
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test no arguments error
-        correct_response = "Usage: /fire <user1> <user2> ..."
+        correct_response = StringId.FireSyntax
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test invalid target error
         message = "/f nobody"
-        correct_response = f"nobody does not exist. You can't fire a ghost... can you?"
+        correct_response = StringId.FireUserNotPresent.format("nobody")
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner firing self
         message = "/f owner"
-        correct_response = (
-            "You can't fire yourself. I don't care how bad your performance reviews are."
-        )
+        correct_response = StringId.FireSelf
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test Unlimited Admin firing owner error
-        correct_response = ("That's the owner. You know, your BOSS. Nice try.")
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin firing non-Admin error
         message = "/f auth_user_0"
-        correct_response = (
-            "auth_user_0 is just a regular ol' user, so you can't fire them. You can /kick or /ban"
-            " them if you want."
-        )
+        correct_response = StringId.FireNonAdmin.format(self.auth_users[0])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin firing Unlmiited Admin error
         message = "/f unlimited_admin_1"
-        correct_response = (
-            "unlimited_admin_1 is an Unlimited Admin, so you can't fire them. Please direct all "
-            "complaints to your local room owner, I'm sure they'll love some more paperwork to "
-            "do..."
-        )
+        correct_response = StringId.FirePeer.format(self.unlimited_admins[1])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
+
