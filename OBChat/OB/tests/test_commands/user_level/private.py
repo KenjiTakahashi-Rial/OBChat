@@ -7,6 +7,7 @@ from pytest import mark
 from OB.communicators import OBCommunicator
 from OB.constants import GroupTypes
 from OB.models import Room
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 from OB.utilities.format import get_group_name
@@ -33,25 +34,22 @@ class PrivateTest(BaseCommandTest):
 
         # Test no arguments error
         message = "/private"
-        correct_response = "Usage: /private /<user> <message>"
+        correct_response = StringId.PrivateSyntax
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test missing "/" error
         message = "/p no_slash"
-        correct_response = "Looks like you forgot a \"/\" before the username. I'll let it slide."
+        correct_response = StringId.PrivateInvalidSyntax
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test nonexistent recipient error
         message = "/p /nonexistent_user"
-        correct_response = (
-            "nonexistent_user doesn't exist. Your private message will broadcasted into space "
-            "instead."
-        )
+        correct_response = StringId.PrivateInvalidTarget.format("nonexistent_user")
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test empty message error
         message = "/p /unlimited_admin_0"
-        correct_response = "No message specified. Did you give up at just the username?"
+        correct_response = StringId.PrivateNoMessage
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test private room auto-creation
