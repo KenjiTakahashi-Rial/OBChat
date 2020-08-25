@@ -4,6 +4,7 @@ PrivateCommand class container module.
 
 from OB.commands.base import BaseCommand
 from OB.models import OBUser
+from OB.strings import StringId
 from OB.utilities.database import async_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
@@ -21,12 +22,10 @@ class PrivateCommand(BaseCommand):
 
         # Missing target and message arguments
         if not self.args:
-            self.sender_receipt = ["Usage: /private /<user> <message>"]
+            self.sender_receipt = [StringId.PrivateSyntax]
         # Invalid syntax
         elif self.args[0][0] != '/':
-            self.sender_receipt = [
-                "Looks like you forgot a \"/\" before the username. I'll let it slide."
-            ]
+            self.sender_receipt = [StringId.PrivateInvalidSyntax]
 
         return not self.sender_receipt
 
@@ -38,12 +37,9 @@ class PrivateCommand(BaseCommand):
         self.valid_targets = [await async_try_get(OBUser, username=self.args[0][1:])]
 
         if not self.valid_targets[0]:
-            self.sender_receipt = [
-                f"{self.args[0][1:]} doesn't exist. Your private message will broadcasted into "
-                "space instead."
-            ]
+            self.sender_receipt = [StringId.PrivateInvalidTarget.format(self.args[0][1:])]
         elif len(self.args) == 1:
-            self.sender_receipt = ["No message specified. Did you give up at just the username?"]
+            self.sender_receipt = [StringId.PrivateNoMessage]
 
         return bool(self.valid_targets)
 
