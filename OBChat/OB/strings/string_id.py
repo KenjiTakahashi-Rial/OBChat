@@ -93,3 +93,7 @@ class StringId:
     HireOccupantsNotificationPreface = "One or more users have been hired:"
     HireOccupantsNotificationNote = "Drinks on them!"
     HireTargetsNotificationNote = "With great power comes great responsibility."
+    PrivateSyntax = "Usage: /private /<user> <message>"
+    PrivateInvalidSyntax = "Looks like you forgot a \"/\" before the username. I'll let it slide."
+    PrivateInvalidTarget = "{0} doesn't exist. Your private message will broadcasted into space instead."
+    PrivateNoMessage = "No message specified. Did you give up at just the username?"
