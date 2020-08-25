@@ -84,3 +84,5 @@ class PrivateTest(BaseCommandTest):
             await self.communicators["unlimited_admin_0_private"].receive() ==
             correct_response
         )
+
+    # TODO: Make a test_success method
