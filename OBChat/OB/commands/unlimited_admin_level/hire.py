@@ -5,6 +5,7 @@ HireCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
+from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
 
@@ -22,13 +23,10 @@ class HireCommand(BaseCommand):
 
         # Is not an Unlimited Admin
         if self.sender_privilege < Privilege.UnlimitedAdmin:
-            self.sender_receipt = [
-                "That's a little outside your pay-grade. Only Unlimited Admins may hire admins. "
-                "Try to /apply to be Unlimited."
-            ]
+            self.sender_receipt = [StringId.NonUnlimitedAdminHiring]
         # Missing target arguments
         elif len(self.args) == 0:
-            self.sender_receipt = ["Usage: /hire <user1> <user2> ..."]
+            self.sender_receipt = [StringId.HireSyntax]
 
         return not self.sender_receipt
 
@@ -46,37 +44,23 @@ class HireCommand(BaseCommand):
 
             # Target user does not exist
             if not arg_user:
-                self.sender_receipt += [
-                    f"{username} does not exist. Your imaginary friend needs an account before "
-                    "they can be an Admin."
-                ]
+                self.sender_receipt += [StringId.HireInvalidTarget.format(username)]
             # Target user is the sender, themself
             elif arg_user == self.sender:
-                self.sender_receipt += [
-                    "You can't hire yourself. I don't care how good your letter of recommendation "
-                    "is."
-                ]
+                self.sender_receipt += [StringId.HireSelf]
             # Target user is the owner
             elif arg_privilege == Privilege.Owner:
-                self.sender_receipt += ["That's the owner. You know, your BOSS. Nice try."]
+                self.sender_receipt += [StringId.TargetOwner]
             # Target user is an anonymous/unauthenticated
             elif not arg_user.is_authenticated or arg_user.is_anon:
-                self.sender_receipt += [
-                    f"{username} hasn't signed up yet. They cannot be trusted with the immense "
-                    "responsibility that is adminship."
-                ]
-            # Target user is an Unlimited Admin
-            elif arg_admin and not arg_admin.is_limited:
-                self.sender_receipt += [
-                    f"{username} is already an Unlimited Admin. There's nothing left to /hire them "
-                    "for."
-                ]
-            # Sender does not have permission to promote
-            elif arg_admin and self.sender_privilege < Privilege.Owner:
-                self.sender_receipt += [
-                    f"{username} is already an Admin. Only the owner may promote them to Unlimited "
-                    "Admin."
-                ]
+                self.sender_receipt += [StringId.HireAnon.format(arg_user)]
+            elif arg_admin:
+                # Target may not be promoted by sender
+                if self.sender_privilege < Privilege.Owner:
+                    self.sender_receipt += [StringId.HireInsufficientPrivilege.format(arg_user)]
+                # Target user is an Unlimited Admin
+                elif not arg_admin.is_limited:
+                    self.sender_receipt += [StringId.HireUnlimitedAdmin.format(arg_user)]
             # Target user is a valid hire
             else:
                 self.valid_targets += [(arg_user, arg_admin)]
@@ -111,21 +95,21 @@ class HireCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an extra newline to separate argument error messages from fire receipt
-            [("\n" if self.sender_receipt else "") + "Hired:"] +
+            [("\n" if self.sender_receipt else "") + StringId.HireSenderReceiptPreface] +
             hire_message_body +
-            ["Now for the three month evaluation period."]
+            [StringId.HireSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            ["One or more users have been hired:"] +
+            [StringId.HireOccupantsNotificationPreface] +
             hire_message_body +
-            ["Drinks on them!"]
+            [StringId.HireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            ["One or more users have been hired:"] +
+            [StringId.HireOccupantsNotificationPreface] +
             hire_message_body +
-            ["With great power comes great responsibility."]
+            [StringId.HireTargetsNotificationNote]
         )
 
     async def send_responses(self):
