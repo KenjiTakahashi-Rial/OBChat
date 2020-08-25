@@ -32,10 +32,7 @@ class HireTest(BaseCommandTest):
 
         # Test anon hiring error
         message = "/hire"
-        correct_response = (
-            "That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to"
-            " /apply to be Unlimited."
-        )
+        correct_response = StringId.NonUnlimitedAdminHiring
         await self.test_isolated(self.anon_users[0], message, correct_response)
 
         # Test auth user hiring error
@@ -45,58 +42,41 @@ class HireTest(BaseCommandTest):
         await self.test_isolated(self.limited_admins[1], message, correct_response)
 
         # Test no arguments error
-        correct_response = "Usage: /hire <user1> <user2> ..."
+        correct_response = StringId.HireSyntax
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test invalid target error
         message = "/h nobody"
-        correct_response = (
-            f"nobody does not exist. Your imaginary friend needs an account before they can be"
-            " an Admin."
-        )
+        correct_response = StringId.HireInvalidTarget.format("nobody")
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner hiring self error
         message = "/h owner"
-        correct_response = (
-            "You can't hire yourself. I don't care how good your letter of recommendation is."
-        )
+        correct_response = StringId.HireSelf
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test Unlimited Admin hiring owner error
-        correct_response = "That's the owner. You know, your BOSS. Nice try."
+        correct_response = StringId.TargetOwner
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring anonymous user error
         message = f"/h {StringId.AnonPrefix}0"
-        correct_response = (
-            f"{StringId.AnonPrefix}0 hasn't signed up yet. They cannot be trusted with the immense "
-            "responsibility that is adminship."
-        )
+        correct_response = StringId.HireAnon.format(self.anon_users[0])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test owner hiring Unlimited Admin error
         message = "/h unlimited_admin_0"
-        correct_response = (
-            "unlimited_admin_0 is already an Unlimited Admin. There's nothing left to /hire them"
-            " for."
-        )
+        correct_response = StringId.HireUnlimitedAdmin.format(self.unlimited_admins[0])
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test Unlimited Admin hiring Unlimited Admin error
         message = "/h unlimited_admin_1"
-        correct_response = (
-            "unlimited_admin_1 is already an Unlimited Admin. There's nothing left to /hire them"
-            " for."
-        )
+        correct_response = StringId.HireInsufficientPrivilege.format(self.unlimited_admins[1])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring Limited Admin error
         message = "/h limited_admin_0"
-        correct_response = (
-            "limited_admin_0 is already an Admin. Only the owner may promote them to Unlimited "
-            "Admin."
-        )
+        correct_response = StringId.HireInsufficientPrivilege.format(self.limited_admins[0])
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring authenticated user
@@ -121,9 +101,9 @@ class HireTest(BaseCommandTest):
 
         # Prepare the message and responses
         message = "/h"
-        sender_response = "Hired:\n"
-        targets_response = "One or more users have been hired:\n"
-        others_response = "One or more users have been hired:\n"
+        sender_response = StringId.HireSenderReceiptPreface + "\n"
+        targets_response = StringId.HireOccupantsNotificationPreface + "\n"
+        others_response = StringId.HireOccupantsNotificationPreface + "\n"
 
         for user in targets:
             message += f" {user.username}"
@@ -131,9 +111,9 @@ class HireTest(BaseCommandTest):
             sender_response += f"    {user}\n"
             others_response += f"    {user}\n"
 
-        sender_response += "Now for the three month evaluation period."
-        targets_response += "With great power comes great responsibility."
-        others_response += "Drinks on them!"
+        sender_response += StringId.HireSenderReceiptNote
+        targets_response += StringId.HireTargetsNotificationNote
+        others_response += StringId.HireOccupantsNotificationNote
 
         # Send the command message
         await self.communicators[sender.username].send(message)
