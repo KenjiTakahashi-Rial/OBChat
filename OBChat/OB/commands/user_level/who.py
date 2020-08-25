@@ -5,6 +5,7 @@ WhoCommand class container module.
 from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes
 from OB.models import Admin, Room
+from OB.strings import StringId
 from OB.utilities.database import async_get_owner, async_model_list, async_try_get
 
 class WhoCommand(BaseCommand):
@@ -39,9 +40,7 @@ class WhoCommand(BaseCommand):
             arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
             if not arg_room:
-                self.sender_receipt += [
-                    f"{room_name} doesn't exist, so that probably means nobody is in there."
-                ]
+                self.sender_receipt += [StringId.WhoInvalidTarget]
             else:
                 self.valid_targets += [arg_room]
 
@@ -57,19 +56,19 @@ class WhoCommand(BaseCommand):
             occupants = await async_model_list(room.occupants)
 
             if not occupants:
-                who_string = f"{room} is all empty!"
+                who_string = StringId.WhoEmpty.format(room)
             else:
-                who_string = f"Users in {room}:\n"
+                who_string = StringId.WhoPreface + "\n"
 
                 for user in occupants:
                     user_suffix = ""
 
                     if user == await async_get_owner(room):
-                        user_suffix += " [Owner]"
+                        user_suffix += StringId.OwnerSuffix
                     if await async_try_get(Admin, user=user, room=room):
-                        user_suffix += " [Admin]"
+                        user_suffix += StringId.AdminSuffix
                     if user == self.sender:
-                        user_suffix += " [you]"
+                        user_suffix += StringId.YouSuffix
 
                     who_string += f"    {user}{user_suffix}\n"
 
