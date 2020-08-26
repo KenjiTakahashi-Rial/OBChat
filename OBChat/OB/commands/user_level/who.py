@@ -14,6 +14,8 @@ class WhoCommand(BaseCommand):
     issuing user's current room.
     """
 
+    documentation = StringId.WhoDocumentation
+
     def __init__(self, args, sender, room):
         """
         When there are no arguments, the default is the current room.

@@ -10,7 +10,7 @@ from OB.utilities.event import send_system_room_message
 VALID_COMMANDS = "\n".join([
     "Valid commands:",
     f"    * {OB.commands.auth_user_level.create.CreateCommand.documentation}",
-    "    * /who <room1> <room2> ... - See who is in a room. Default: current room",
+    f"    * {OB.commands.user_level.who.WhoCommand.documentation}",
     "    * /private /<user> <message> - Send a private message",
     "    * /hire <user1> <user2> ... - Make user(s) Admin of your current room",
     "    * /fire <user1> <user2> ... - Revoke Admin privileges for user(s)",

@@ -101,5 +101,6 @@ class StringId:
     WhoInvalidTarget = "{0} doesn't exist, so that probably means nobody is in there."
     WhoEmpty = "{0} is all empty!"
     WhoPreface = "Users in {0}:"
+    WhoDocumentation = "/who <room name> <room name> ... - See who is in a room. Use with no arguments to see who is in the current room."
     OwnerSuffix = " [Owner]"
     YouSuffix = " [you]"
