@@ -40,7 +40,7 @@ class WhoCommand(BaseCommand):
             arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
             if not arg_room:
-                self.sender_receipt += [StringId.WhoInvalidTarget]
+                self.sender_receipt += [StringId.WhoInvalidTarget.format(room_name)]
             else:
                 self.valid_targets += [arg_room]
 
@@ -58,7 +58,7 @@ class WhoCommand(BaseCommand):
             if not occupants:
                 who_string = StringId.WhoEmpty.format(room)
             else:
-                who_string = StringId.WhoPreface + "\n"
+                who_string = StringId.WhoPreface.format(room) + "\n"
 
                 for user in occupants:
                     user_suffix = ""

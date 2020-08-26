@@ -31,7 +31,7 @@ class WhoTest(BaseCommandTest):
 
         # Test nonexistent room error
         message = "/who nonexistent_room"
-        correct_response = StringId.InvalidTarget.format("nonexistent_room")
+        correct_response = StringId.WhoInvalidTarget.format("nonexistent_room")
         await self.test_isolated(self.owner, message, correct_response)
 
         # Create empty room
@@ -74,8 +74,8 @@ class WhoTest(BaseCommandTest):
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
         correct_response = "\n".join([
-            StringId.InvalidTarget.format("nonexistent_room"),
-            {correct_response,
+            StringId.WhoInvalidTarget.format("nonexistent_room"),
+            correct_response,
             StringId.WhoEmpty.format(empty_room)
         ])
         await self.test_isolated(self.owner, message, correct_response)
