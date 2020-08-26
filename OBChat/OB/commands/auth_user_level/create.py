@@ -13,6 +13,8 @@ class CreateCommand(BaseCommand):
     Create a new chat room from a commandline instead of through the website GUI.
     """
 
+    documentation = StringId.CreateDocumentation
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().

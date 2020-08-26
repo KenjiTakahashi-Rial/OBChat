@@ -9,7 +9,7 @@ from OB.utilities.event import send_system_room_message
 # TODO: Rework this to be held inside each command module
 VALID_COMMANDS = "\n".join([
     "Valid commands:",
-    "    * /create - Create a new room",
+    f"    * {OB.commands.auth_user_level.create.CreateCommand.documentation}",
     "    * /who <room1> <room2> ... - See who is in a room. Default: current room",
     "    * /private /<user> <message> - Send a private message",
     "    * /hire <user1> <user2> ... - Make user(s) Admin of your current room",
