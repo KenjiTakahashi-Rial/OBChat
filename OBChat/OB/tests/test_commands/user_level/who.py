@@ -5,6 +5,7 @@ WhoTest class container module.
 from pytest import mark
 
 from OB.models import Room
+from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_save
 
@@ -30,9 +31,7 @@ class WhoTest(BaseCommandTest):
 
         # Test nonexistent room error
         message = "/who nonexistent_room"
-        correct_response = (
-            "nonexistent_room doesn't exist, so that probably means nobody is in there."
-        )
+        correct_response = StringId.InvalidTarget.format("nonexistent_room")
         await self.test_isolated(self.owner, message, correct_response)
 
         # Create empty room
@@ -45,18 +44,18 @@ class WhoTest(BaseCommandTest):
 
         # Test empty room error
         message = "/w empty_room"
-        correct_response = f"{empty_room} is all empty!"
+        correct_response = StringId.WhoEmpty.format(empty_room)
         await self.test_isolated(self.owner, message, correct_response)
 
         # Test current room with no argument
         message = "/w"
         correct_response = "\n".join([
-            f"Users in {self.room}:",
-            f"    {self.owner} [Owner] [you]",
-            f"    {self.unlimited_admins[0]} [Admin]",
-            f"    {self.unlimited_admins[1]} [Admin]",
-            f"    {self.limited_admins[0]} [Admin]",
-            f"    {self.limited_admins[1]} [Admin]",
+            StringId.WhoPreface.format(self.room),
+            f"    {self.owner}{StringId.OwnerSuffix}{StringId.YouSuffix}",
+            f"    {self.unlimited_admins[0]}{StringId.AdminSuffix}",
+            f"    {self.unlimited_admins[1]}{StringId.AdminSuffix}",
+            f"    {self.limited_admins[0]}{StringId.AdminSuffix}",
+            f"    {self.limited_admins[1]}{StringId.AdminSuffix}",
             f"    {self.auth_users[0]}",
             f"    {self.auth_users[1]}",
             f"    {self.anon_users[0]}",
@@ -75,8 +74,8 @@ class WhoTest(BaseCommandTest):
         # Test multiple arguments
         message = "/w room empty_room nonexistent_room"
         correct_response = "\n".join([
-            f"nonexistent_room doesn't exist, so that probably means nobody is in there.",
-            f"{correct_response}",
-            f"{empty_room} is all empty!"
+            StringId.InvalidTarget.format("nonexistent_room"),
+            {correct_response,
+            StringId.WhoEmpty.format(empty_room)
         ])
         await self.test_isolated(self.owner, message, correct_response)
