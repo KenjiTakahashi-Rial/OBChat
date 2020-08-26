@@ -53,7 +53,6 @@ class BanTest(BaseCommandTest):
         )
 
         # Test owner banning multiple users
-        # TODO: Testing banning anonymous users is causing database lock
         await self.test_success(
             self.owner,
             [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]]

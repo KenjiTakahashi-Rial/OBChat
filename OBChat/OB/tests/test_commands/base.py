@@ -224,8 +224,6 @@ class BaseCommandTest:
             response (string): The response that the sender should receive.
         """
 
-        # TODO: Change this to use a message and response instance variables
-
         await self.communicators[sender.username].send(message)
 
         all_users = (
