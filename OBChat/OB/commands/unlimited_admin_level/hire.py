@@ -54,13 +54,12 @@ class HireCommand(BaseCommand):
             # Target user is an anonymous/unauthenticated
             elif not arg_user.is_authenticated or arg_user.is_anon:
                 self.sender_receipt += [StringId.HireAnon.format(arg_user)]
-            elif arg_admin:
-                # Target may not be promoted by sender
-                if self.sender_privilege < Privilege.Owner:
-                    self.sender_receipt += [StringId.HireInsufficientPrivilege.format(arg_user)]
-                # Target user is an Unlimited Admin
-                elif not arg_admin.is_limited:
-                    self.sender_receipt += [StringId.HireUnlimitedAdmin.format(arg_user)]
+            # Target may not be promoted by sender
+            elif arg_admin and self.sender_privilege < Privilege.Owner:
+                self.sender_receipt += [StringId.HireInsufficientPrivilege.format(arg_user)]
+            # Target user is an Unlimited Admin
+            elif arg_admin and not arg_admin.is_limited:
+                self.sender_receipt += [StringId.HireUnlimitedAdmin.format(arg_user)]
             # Target user is a valid hire
             else:
                 self.valid_targets += [(arg_user, arg_admin)]
