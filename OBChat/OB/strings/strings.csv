@@ -17,6 +17,7 @@ BanSenderReceiptPreface,Banned:
 BanSenderReceiptNote,That'll show them.
 BanOccupantsNotificationPreface,One or more users have been banned:
 BanOccupantsNotificationNote,Fear the almighty ban-hammer.
+BanDocumentation,/ban <user1> <user2> ... - Ban user(s) from your current room
 AnonElevating,"Why don't you make an account or log in first? Call us old-fashioned, but anons have very little privileges around these parts."
 NonAdminElevating,Elevation is a skill that only Admins are capable of wielding. You have yet to reach the level of Admin - come back when you're ready!
 ElevateSyntax,Usage: /elevate (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)

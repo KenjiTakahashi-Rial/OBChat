@@ -16,6 +16,8 @@ class BanCommand(BaseCommand):
     to rejoin the group. Bans may be lifted (see lift()).
     """
 
+    documentation = StringId.BanDocumentation
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
