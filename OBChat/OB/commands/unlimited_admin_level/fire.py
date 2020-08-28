@@ -16,6 +16,8 @@ class FireCommand(BaseCommand):
     Unlimited Admins have their adminships limited.
     """
 
+    documentation = StringId.FireDocumentation
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().

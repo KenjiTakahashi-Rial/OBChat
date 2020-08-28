@@ -71,6 +71,7 @@ FireSenderReceiptNote,It had to be done.
 FireOccupantsNotificationPreface,One or more users have been fired:
 FireOccupantsNotificationNote,Those budget cuts are killer.
 FireTargetsNotificationNote,Clean out your desk.
+FireDocumentation,/fire <user1> <user2> ... - Revoke Admin privileges for user(s)
 NonUnlimitedAdminHiring,That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /apply to be Unlimited.
 HireSyntax,Usage: /hire <user1> <user2> ...
 HireInvalidTarget,{0} does not exist. Your imaginary friend needs an account before they can be an Admin.

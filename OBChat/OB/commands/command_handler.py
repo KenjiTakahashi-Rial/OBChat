@@ -12,12 +12,12 @@ VALID_COMMANDS = "\n".join([
     f"    * {OB.commands.auth_user_level.create.CreateCommand.documentation}",
     f"    * {OB.commands.user_level.who.WhoCommand.documentation}",
     f"    * {OB.commands.user_level.private.PrivateCommand.documentation}",
-    "    * /fire <user1> <user2> ... - Revoke Admin privileges for user(s)",
     "    * /kick <user1> <user2> ... - Kick user(s) from your current room",
     "    * /ban <user1> <user2> ... - Ban user(s) from your current room",
     "    * /lift <user1> <user2> ... - Lift ban on user(s) from your current room",
     "    * /delete <room1> <room2> ... - Delete a room. Default: current room",
     f"    * {OB.commands.unlimited_admin_level.hire.HireCommand.documentation}",
+    f"    * {OB.commands.unlimited_admin_level.fire.FireCommand.documentation}",
     "Type backslash with only the first letter of a command if you're in a hurry.",
     "To use backslash as the first character of a message: //"
 ])
