@@ -98,6 +98,7 @@ class StringId:
     PrivateInvalidSyntax = "Looks like you forgot a \"/\" before the username. I'll let it slide."
     PrivateInvalidTarget = "{0} doesn't exist. Your private message will broadcasted into space instead."
     PrivateNoMessage = "No message specified. Did you give up at just the username?"
+    PrivateDocumentation = "/private /<user> <message> - Send a private message to the specified user"
     WhoInvalidTarget = "{0} doesn't exist, so that probably means nobody is in there."
     WhoEmpty = "{0} is all empty!"
     WhoPreface = "Users in {0}:"

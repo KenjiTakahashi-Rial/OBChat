@@ -11,7 +11,7 @@ VALID_COMMANDS = "\n".join([
     "Valid commands:",
     f"    * {OB.commands.auth_user_level.create.CreateCommand.documentation}",
     f"    * {OB.commands.user_level.who.WhoCommand.documentation}",
-    "    * /private /<user> <message> - Send a private message",
+    f"    * {OB.commands.user_level.private.PrivateCommand.documentation}",
     "    * /hire <user1> <user2> ... - Make user(s) Admin of your current room",
     "    * /fire <user1> <user2> ... - Revoke Admin privileges for user(s)",
     "    * /kick <user1> <user2> ... - Kick user(s) from your current room",

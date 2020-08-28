@@ -15,6 +15,8 @@ class PrivateCommand(BaseCommand):
     messages.
     """
 
+    documentation = StringId.PrivateDocumentation
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
