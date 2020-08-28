@@ -16,6 +16,8 @@ class KickCommand(BaseCommand):
     Kicked users will not receive messages from the group until they rejoin the Room.
     """
 
+    documentation = StringId.KickDocumentation
+
     # TODO: Add an option to do this silently (without notifying everyone)
 
     async def check_initial_errors(self):

@@ -36,6 +36,7 @@ KickSenderReceiptPreface,Kicked:
 KickSenderReceiptNote,We'll see if they come back.
 KickOccupantsNotificationPreface,One or more users have been kicked:
 KickOccupantsNotificationNote,Let this be a lesson to you all.
+KickDocumentation,/kick <user1> <user2> ... - Kick user(s) from your current room
 AnonLifting,You are far from one who can lift bans. Log in and prove yourself an Admin.
 NonAdminLifting,A mere mortal like yourself does not have the power to lift bans. Try to /apply to be an Admin and perhaps you may obtain this power if you are worthy.
 LiftSyntax,Usage: /lift <user1> <user2> ...
