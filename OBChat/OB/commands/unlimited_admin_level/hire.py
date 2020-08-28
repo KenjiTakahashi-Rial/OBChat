@@ -16,6 +16,8 @@ class HireCommand(BaseCommand):
     Authenticated users receive a limited adminship.
     """
 
+    documentation = StringId.HireDocumentation
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
