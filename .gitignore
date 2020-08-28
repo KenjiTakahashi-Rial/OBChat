@@ -141,3 +141,4 @@ cython_debug/
 .vscode
 .vs
 *.code-workspace
+OBChat/OB/strings/.~lock.strings.csv#
