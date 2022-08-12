@@ -11,7 +11,7 @@ TargetOwner,"That's the owner. You know, your BOSS. Nice try."
 AlreadyBanned,That user is already banned. How unoriginal of you.
 Admin,Admin
 JustLikeYou, just like you
-Unlimited,Unlimited 
+Unlimited,Unlimited
 BanPeer,"{0} is an {1}, so you can't ban them. Feel free to /elevate your complaints to someone who has more authority."
 BanSenderReceiptPreface,Banned:
 BanSenderReceiptNote,That'll show them.
@@ -46,7 +46,7 @@ LiftSenderReceiptNote,Fully reformed and ready to integrate into society.
 AnonApplying,You can't get hired looking like that! Clean yourself up and make an account first.
 UnlimitedAdminApplying,You're already a big shot Unlimited Admin! There's nothing left to apply to.
 AdminSuffix, [Admin]
-User,User: 
+User,User:
 Position,Position:
 ApplySenderReceiptPreface,Application sent:
 ApplySenderReceiptNote,"Hopefully the response doesn't start with: \""After careful consideration...\"""

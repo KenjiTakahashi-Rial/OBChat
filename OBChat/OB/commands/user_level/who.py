@@ -8,6 +8,7 @@ from OB.models import Admin, Room
 from OB.strings import StringId
 from OB.utilities.database import async_get_owner, async_model_list, async_try_get
 
+
 class WhoCommand(BaseCommand):
     """
     Lists all the occupants in a room. Can be called without arguments to list the users of the
@@ -37,7 +38,9 @@ class WhoCommand(BaseCommand):
         """
 
         for room_name in self.args:
-            arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
+            arg_room = await async_try_get(
+                Room, group_type=GroupTypes.Room, name=room_name
+            )
 
             if not arg_room:
                 self.sender_receipt += [StringId.WhoInvalidTarget.format(room_name)]

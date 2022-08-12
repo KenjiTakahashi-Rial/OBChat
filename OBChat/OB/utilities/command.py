@@ -10,6 +10,7 @@ from OB.constants import Privilege
 from OB.models import Admin
 from OB.utilities.database import try_get
 
+
 def is_command_format(command):
     """
     Determines if a string is formatted as a command or normal message. Command format is any
@@ -23,9 +24,10 @@ def is_command_format(command):
     """
 
     if len(command) > 1:
-        return command[0] == '/' and command[1] != '/'
+        return command[0] == "/" and command[1] != "/"
 
-    return command and command[0] == '/'
+    return command and command[0] == "/"
+
 
 def is_valid_command(command):
     """
@@ -40,6 +42,7 @@ def is_valid_command(command):
     """
 
     return is_command_format(command) and command[1:] in OB.commands.COMMANDS
+
 
 @database_sync_to_async
 def async_get_privilege(user, room):

@@ -11,6 +11,7 @@ from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 
+
 class CreateTest(BaseCommandTest):
     """
     Class to test the /create command function (see OB.commands.auth_user_level.create).
@@ -22,7 +23,9 @@ class CreateTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -61,47 +64,41 @@ class CreateTest(BaseCommandTest):
 
         # Create WebsocketCommunicators to test new room
         self.communicators["owner_room_1"] = await OBCommunicator(
-            self.owner,
-            GroupTypes.Room,
-            room_1.name
+            self.owner, GroupTypes.Room, room_1.name
         ).connect()
 
         self.communicators["unlimited_admin_0_room_1"] = await OBCommunicator(
-            self.unlimited_admins[0],
-            GroupTypes.Room,
-            room_1.name
+            self.unlimited_admins[0], GroupTypes.Room, room_1.name
         ).connect()
 
         self.communicators["anon_room_1"] = await OBCommunicator(
-            self.anon_users[1],
-            GroupTypes.Room,
-            room_1.name
+            self.anon_users[1], GroupTypes.Room, room_1.name
         ).connect()
 
         # Test new room messaging
         message = "So I heard you made a new room."
         await self.communicators["unlimited_admin_0_room_1"].send(message)
         assert (
-            await self.communicators["owner_room_1"].receive() ==
-            await self.communicators["unlimited_admin_0_room_1"].receive() ==
-            await self.communicators["anon_room_1"].receive() ==
-            message
+            await self.communicators["owner_room_1"].receive()
+            == await self.communicators["unlimited_admin_0_room_1"].receive()
+            == await self.communicators["anon_room_1"].receive()
+            == message
         )
 
         message = "You heard right. How's the signal?"
         await self.communicators["owner_room_1"].send(message)
         assert (
-            await self.communicators["owner_room_1"].receive() ==
-            await self.communicators["unlimited_admin_0_room_1"].receive() ==
-            await self.communicators["anon_room_1"].receive() ==
-            message
+            await self.communicators["owner_room_1"].receive()
+            == await self.communicators["unlimited_admin_0_room_1"].receive()
+            == await self.communicators["anon_room_1"].receive()
+            == message
         )
 
         message = "Can I join in on the fun?"
         await self.communicators["anon_room_1"].send(message)
         assert (
-            await self.communicators["owner_room_1"].receive() ==
-            await self.communicators["unlimited_admin_0_room_1"].receive() ==
-            await self.communicators["anon_room_1"].receive() ==
-            message
+            await self.communicators["owner_room_1"].receive()
+            == await self.communicators["unlimited_admin_0_room_1"].receive()
+            == await self.communicators["anon_room_1"].receive()
+            == message
         )

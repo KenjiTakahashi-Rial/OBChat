@@ -9,8 +9,15 @@ from pytest import mark
 from OB.models import Ban, OBUser
 from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
-from OB.utilities.database import async_add_occupants, async_delete, async_get, async_model_list, \
-    async_save, async_try_get
+from OB.utilities.database import (
+    async_add_occupants,
+    async_delete,
+    async_get,
+    async_model_list,
+    async_save,
+    async_try_get,
+)
+
 
 class BanTest(BaseCommandTest):
     """
@@ -23,7 +30,9 @@ class BanTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -35,27 +44,18 @@ class BanTest(BaseCommandTest):
 
         # Test limited Admin banning authenticated user
         message = "/b auth_user_0"
-        await self.test_success(
-            self.limited_admins[0],
-            [self.auth_users[0]]
-        )
+        await self.test_success(self.limited_admins[0], [self.auth_users[0]])
 
         # Test Unlimited Admin banning limited admin
-        await self.test_success(
-            self.unlimited_admins[0],
-            [self.limited_admins[0]]
-        )
+        await self.test_success(self.unlimited_admins[0], [self.limited_admins[0]])
 
         # Test Unlimited Admin banning authenticated user
-        await self.test_success(
-            self.unlimited_admins[0],
-            [self.auth_users[0]]
-        )
+        await self.test_success(self.unlimited_admins[0], [self.auth_users[0]])
 
         # Test owner banning multiple users
         await self.test_success(
             self.owner,
-            [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]]
+            [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]],
         )
 
         # Test unauthenticated user banning error
@@ -91,16 +91,14 @@ class BanTest(BaseCommandTest):
         # Test limited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_0"
         correct_response = StringId.BanPeer.format(
-            f"{self.unlimited_admins[0]}",
-            StringId.Unlimited + StringId.Admin
+            f"{self.unlimited_admins[0]}", StringId.Unlimited + StringId.Admin
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin banning limited Admin error
         message = "/b limited_admin_1"
         correct_response = StringId.BanPeer.format(
-            f"{self.limited_admins[1]}",
-            StringId.Admin + StringId.JustLikeYou
+            f"{self.limited_admins[1]}", StringId.Admin + StringId.JustLikeYou
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
@@ -113,16 +111,13 @@ class BanTest(BaseCommandTest):
         message = "/b unlimited_admin_1"
         correct_response = StringId.BanPeer.format(
             f"{self.unlimited_admins[1]}",
-            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou
+            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou,
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Owner banning already banned user error
         await async_save(
-            Ban,
-            user=self.auth_users[0],
-            room=self.room,
-            issuer=self.owner
+            Ban, user=self.auth_users[0], room=self.room, issuer=self.owner
         )
 
         message = "/b auth_user_0"
@@ -165,15 +160,16 @@ class BanTest(BaseCommandTest):
 
         for user in occupants:
             if user not in targets and user != sender:
-                assert await self.communicators[user.username].receive() == others_response
+                assert (
+                    await self.communicators[user.username].receive() == others_response
+                )
 
         for user in targets:
             # Test auto-kick
             assert (await self.communicators[user.username].receive())["refresh"]
-            assert (
-                (await self.communicators[user.username].receive_output())["type"]
-                == "websocket.close"
-            )
+            assert (await self.communicators[user.username].receive_output())[
+                "type"
+            ] == "websocket.close"
             assert user not in occupants
 
             # Test ban
@@ -198,7 +194,7 @@ class BanTest(BaseCommandTest):
                     OBUser,
                     id=self.anon_users[i].id,
                     username=self.anon_users[i].username,
-                    is_anon=True
+                    is_anon=True,
                 )
         await async_add_occupants(self.room, self.anon_users)
         await async_add_occupants(self.room, self.auth_users)

@@ -8,6 +8,7 @@ from OB.models import Room
 from OB.strings import StringId
 from OB.utilities.database import async_save, async_try_get
 
+
 class CreateCommand(BaseCommand):
     """
     Create a new chat room from a commandline instead of through the website GUI.
@@ -36,9 +37,7 @@ class CreateCommand(BaseCommand):
         """
 
         existing_room = await async_try_get(
-            Room,
-            group_type=GroupTypes.Room,
-            name=self.args[0].lower()
+            Room, group_type=GroupTypes.Room, name=self.args[0].lower()
         )
 
         # Room with argument name already exists
@@ -63,7 +62,7 @@ class CreateCommand(BaseCommand):
             Room,
             name=self.args[0].lower(),
             owner=self.sender,
-            display_name=display_name
+            display_name=display_name,
         )
 
         self.sender_receipt += [StringId.CreateSenderReceipt.format(created_room)]

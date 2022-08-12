@@ -10,6 +10,7 @@ from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_model_list, async_try_get
 from OB.utilities.event import send_room_event
 
+
 class KickCommand(BaseCommand):
     """
     Remove one or more OBConsumers from the group a Room is associated with.
@@ -47,7 +48,9 @@ class KickCommand(BaseCommand):
                 arg_privilege = await async_get_privilege(arg_user, self.room)
 
             # Target user is not present in the room
-            if not arg_user or arg_user not in await async_model_list(self.room.occupants):
+            if not arg_user or arg_user not in await async_model_list(
+                self.room.occupants
+            ):
                 self.sender_receipt += [StringId.UserNotPresent.format(username)]
             # Target user is the sender
             elif arg_user == self.sender:
@@ -83,10 +86,7 @@ class KickCommand(BaseCommand):
 
         for kicked_user in self.valid_targets:
             # Kick the user
-            kick_event = {
-                "type": "kick",
-                "target_id": kicked_user.id
-            }
+            kick_event = {"type": "kick", "target_id": kicked_user.id}
             await send_room_event(self.room.id, kick_event)
 
             # Notify others that a user was kicked
@@ -94,12 +94,12 @@ class KickCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
-            [("\n" if self.sender_receipt else "") + StringId.KickSenderReceiptPreface] +
-            kick_message_body +
-            [StringId.KickSenderReceiptNote]
+            [("\n" if self.sender_receipt else "") + StringId.KickSenderReceiptPreface]
+            + kick_message_body
+            + [StringId.KickSenderReceiptNote]
         )
         self.occupants_notification += (
-            [StringId.KickOccupantsNotificationPreface] +
-            kick_message_body +
-            [StringId.KickOccupantsNotificationNote]
+            [StringId.KickOccupantsNotificationPreface]
+            + kick_message_body
+            + [StringId.KickOccupantsNotificationNote]
         )

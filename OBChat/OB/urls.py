@@ -19,24 +19,20 @@ urlpatterns = [
     url(
         "favicon.ico",
         RedirectView.as_view(
-            url=staticfiles_storage.url("favicon.ico"),
-            permanent=False
+            url=staticfiles_storage.url("favicon.ico"), permanent=False
         ),
-        name="favicon"
+        name="favicon",
     ),
-
     # Authentication
     path("log_in/", log_in, name="OB-log_in"),
     path("log_out/", log_out, name="OB-log_out"),
     path("sign_up/", sign_up, name="OB-sign_up"),
-
     # Room
     path("", chat, name="OB-/"),
     path("chat/", chat, name="OB-chat"),
     path("create_room/", create_room, name="OB-create_room"),
     url(r"^chat/(?P<room_name>[-\w]+)/$", room, name="OB-room"),
-
     # User
     url(r"^private/(?P<username>[-\w]+)/$", private, name="OB-private"),
-    url(r"^user/(?P<username>[-\w]+)/$", user, name="OB-user")
+    url(r"^user/(?P<username>[-\w]+)/$", user, name="OB-user"),
 ]

@@ -6,8 +6,14 @@ from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, Ban, Message
 from OB.strings import StringId
-from OB.utilities.database import async_delete, async_model_list, async_filter, async_get_owner
+from OB.utilities.database import (
+    async_delete,
+    async_model_list,
+    async_filter,
+    async_get_owner,
+)
 from OB.utilities.event import send_room_event
+
 
 class DeleteCommand(BaseCommand):
     """
@@ -33,9 +39,9 @@ class DeleteCommand(BaseCommand):
 
         # Missing or invalid target arguments
         if (
-            len(self.args) != 2 or
-            self.args[0] != self.room.name or
-            self.args[1] != (await async_get_owner(self.room)).username
+            len(self.args) != 2
+            or self.args[0] != self.room.name
+            or self.args[1] != (await async_get_owner(self.room)).username
         ):
             self.sender_receipt = [StringId.DeleteSyntax]
 
@@ -48,10 +54,7 @@ class DeleteCommand(BaseCommand):
 
         # Kick all users
         for user in await async_model_list(self.room.occupants):
-            kick_event = {
-                "type": "kick",
-                "target_id": user.id
-            }
+            kick_event = {"type": "kick", "target_id": user.id}
             await send_room_event(self.room.id, kick_event)
 
         # Delete all Admins

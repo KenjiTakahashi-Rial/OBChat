@@ -2,11 +2,23 @@
 Ban class container module.
 """
 
-from django.db.models import BooleanField, CASCADE, CharField, DateField, DateTimeField, \
-    ForeignKey, ManyToManyField, Model, IntegerField, SET_DEFAULT, TextField
+from django.db.models import (
+    BooleanField,
+    CASCADE,
+    CharField,
+    DateField,
+    DateTimeField,
+    ForeignKey,
+    ManyToManyField,
+    Model,
+    IntegerField,
+    SET_DEFAULT,
+    TextField,
+)
 
 from OB.models.ob_user import OBUser
 from OB.models.room import Room
+
 
 class Ban(Model):
     """
@@ -17,31 +29,22 @@ class Ban(Model):
 
     # TODO: Add support for timed bans
 
-    user = ForeignKey(
-        OBUser,
-        on_delete=CASCADE,
-        default=-1
-    )
-    room = ForeignKey(
-        Room,
-        on_delete=CASCADE,
-        default=-1
-    )
+    user = ForeignKey(OBUser, on_delete=CASCADE, default=-1)
+    room = ForeignKey(Room, on_delete=CASCADE, default=-1)
     issuer = ForeignKey(
-        OBUser,
-        related_name="ban_issued",
-        on_delete=SET_DEFAULT,
-        default=-1
+        OBUser, related_name="ban_issued", on_delete=SET_DEFAULT, default=-1
     )
     timestamp = DateTimeField(auto_now_add=True)
     is_lifted = BooleanField(default=False)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         super().save(
             force_insert=force_insert,
             force_update=force_update,
             using=using,
-            update_fields=update_fields
+            update_fields=update_fields,
         )
         return self
 
@@ -57,12 +60,14 @@ class Ban(Model):
         return display_string
 
     def __repr__(self):
-        return "\n".join([
-            f"Ban {{",
-            f"    user: {self.user}",
-            f"    room: {self.room}",
-            f"    issuer: {self.issuer}",
-            f"    timestamp: {self.timestamp}",
-            f"    is_lifted: {self.is_lifted}",
-            f"}}"
-        ])
+        return "\n".join(
+            [
+                f"Ban {{",
+                f"    user: {self.user}",
+                f"    room: {self.room}",
+                f"    issuer: {self.issuer}",
+                f"    timestamp: {self.timestamp}",
+                f"    is_lifted: {self.is_lifted}",
+                f"}}",
+            ]
+        )

@@ -13,6 +13,7 @@ from django.urls import reverse
 
 from OB.models import OBUser
 
+
 def sign_up(request):
     """
     Handles HTTP requests for the sign-up page.
@@ -61,14 +62,16 @@ def sign_up(request):
         # Return whichever info was valid to be put back in the form
         if "error_message" in context:
             template = "OB/sign_up.html"
-            context.update({
-                "username": username,
-                "email": email,
-                "display_name": display_name or None,
-                "first_name": first_name,
-                "last_name": last_name,
-                "birthday": birthday
-            })
+            context.update(
+                {
+                    "username": username,
+                    "email": email,
+                    "display_name": display_name or None,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "birthday": birthday,
+                }
+            )
             return render(request, template, context)
 
         # If no display_name is entered and the username was not all lowercase, make the
@@ -84,13 +87,14 @@ def sign_up(request):
             first_name=first_name,
             last_name=last_name,
             display_name=display_name,
-            birthday=birthday
+            birthday=birthday,
         ).save()
 
         return HttpResponseRedirect(reverse("OB:OB-log_in"))
 
     # Not GET or POST
     return HttpResponse()
+
 
 def log_in(request):
     """
@@ -126,7 +130,7 @@ def log_in(request):
         if auth_user is None:
             context = {
                 "username": username,
-                "error_message": "Invalid username or password."
+                "error_message": "Invalid username or password.",
             }
             return render(request, template, context)
 
@@ -136,6 +140,7 @@ def log_in(request):
 
     # Not GET or POST
     return HttpResponse()
+
 
 def log_out(request):
     """

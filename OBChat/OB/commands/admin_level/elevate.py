@@ -11,6 +11,7 @@ from OB.strings import StringId
 from OB.utilities.command import async_get_privilege, is_valid_command
 from OB.utilities.database import async_filter, async_model_list, async_try_get
 
+
 class ElevateCommand(BaseCommand):
     """
     Requests an action (e.g. /kick, /ban, /lift) be performed by a user with higher privilege.
@@ -71,9 +72,9 @@ class ElevateCommand(BaseCommand):
         while stage < Stage.Done:
             # Check for open parenthesis and valid commands
             if (
-                self.args[i][0] != '(' or
-                stage == Stage.Command and
-                not is_valid_command(self.args[0][1:])
+                self.args[i][0] != "("
+                or stage == Stage.Command
+                and not is_valid_command(self.args[0][1:])
             ):
                 self.sender_receipt += [StringId.ElevateSyntax]
                 return
@@ -87,11 +88,11 @@ class ElevateCommand(BaseCommand):
                 addition = self.args[i]
 
                 # Start parenthesis
-                if self.args[i][0] == '(':
+                if self.args[i][0] == "(":
                     addition = addition[1:]
 
                 # End parenthesis without command arguments
-                if self.args[i][-1] == ')':
+                if self.args[i][-1] == ")":
                     if i == 1:
                         self.sender_receipt += [StringId.ElevateSyntax]
                         return
@@ -121,7 +122,9 @@ class ElevateCommand(BaseCommand):
         if not self.valid_targets:
             # Get all users with higher privilege
             if self.sender_privilege < Privilege.UnlimitedAdmin:
-                unlimited_admins = await async_filter(Admin, room=self.room, is_limited=False)
+                unlimited_admins = await async_filter(
+                    Admin, room=self.room, is_limited=False
+                )
                 self.valid_elevations += unlimited_admins
             self.valid_elevations += [self.room.owner]
         else:
@@ -132,7 +135,9 @@ class ElevateCommand(BaseCommand):
                 if arg_user:
                     arg_privilege = await async_get_privilege(arg_user, self.room)
 
-                if not arg_user or arg_user not in await async_model_list(self.room.occupants):
+                if not arg_user or arg_user not in await async_model_list(
+                    self.room.occupants
+                ):
                     self.sender_receipt += [StringId.UserNotPresent.format(username)]
                 elif arg_user == self.sender:
                     self.sender_receipt += [StringId.ElevateSelf]
@@ -153,16 +158,18 @@ class ElevateCommand(BaseCommand):
         elevate_message_body = [
             f"    {StringId.Recipients}" + ", ".join(self.valid_elevations),
             f"    {StringId.CommandRequested} {self.command}",
-            f"    {StringId.Message} {self.message if self.message else None}"
+            f"    {StringId.Message} {self.message if self.message else None}",
         ]
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from request receipt
-            [("\n" if self.sender_receipt else "") + StringId.ElevateSenderReceiptPreface] +
-            elevate_message_body
+            [
+                ("\n" if self.sender_receipt else "")
+                + StringId.ElevateSenderReceiptPreface
+            ]
+            + elevate_message_body
         )
 
-        self.targets_notification += (
-            [StringId.ElevateTargetsNotificationPreface.format(self.sender)] +
-            elevate_message_body
-        )
+        self.targets_notification += [
+            StringId.ElevateTargetsNotificationPreface.format(self.sender)
+        ] + elevate_message_body

@@ -7,18 +7,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0025_auto_20200713_2020'),
+        ("OB", "0025_auto_20200713_2020"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='message',
-            name='exclusions',
-            field=models.ManyToManyField(default=None, related_name='message_excluded', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="exclusions",
+            field=models.ManyToManyField(
+                default=None,
+                related_name="message_excluded",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='recipients',
-            field=models.ManyToManyField(default=None, related_name='message_received', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="recipients",
+            field=models.ManyToManyField(
+                default=None,
+                related_name="message_received",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

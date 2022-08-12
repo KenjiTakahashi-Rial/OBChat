@@ -9,6 +9,7 @@ from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_filter, async_save, async_try_get
 
+
 class DeleteTest(BaseCommandTest):
     """
     Class to test the /delete command function (see OB.commands.owner_level.delete).
@@ -20,7 +21,9 @@ class DeleteTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -56,7 +59,9 @@ class DeleteTest(BaseCommandTest):
         await self.test_isolated(self.owner, message, correct_response)
 
         # Create test data
-        await async_save(Ban, user=self.auth_users[0], room=self.room, issuer=self.owner)
+        await async_save(
+            Ban, user=self.auth_users[0], room=self.room, issuer=self.owner
+        )
         await async_save(Message, message="message", sender=self.owner, room=self.room)
 
         # Test owner deleting

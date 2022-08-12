@@ -10,6 +10,7 @@ from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
 from OB.utilities.event import send_room_event
 
+
 class BanCommand(BaseCommand):
     """
     Remove one or more OBConsumers from the group a Room is associated with and do not allow them
@@ -43,7 +44,9 @@ class BanCommand(BaseCommand):
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
-                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
+                arg_ban = await async_try_get(
+                    Ban, user=arg_user, room=self.room, is_lifted=False
+                )
 
             # Target user does not exist
             if not arg_user:
@@ -85,18 +88,10 @@ class BanCommand(BaseCommand):
 
         for banned_user in self.valid_targets:
             # Save the ban to the database
-            await async_save(
-                Ban,
-                user=banned_user,
-                room=self.room,
-                issuer=self.sender
-            )
+            await async_save(Ban, user=banned_user, room=self.room, issuer=self.sender)
 
             # Kick the user
-            kick_event = {
-                "type": "kick",
-                "target_id": banned_user.id
-            }
+            kick_event = {"type": "kick", "target_id": banned_user.id}
             await send_room_event(self.room.id, kick_event)
 
             # Add the user's name to the sender receipt and occupants notification
@@ -104,13 +99,13 @@ class BanCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from ban receipt
-            [("\n" if self.sender_receipt else "") + StringId.BanSenderReceiptPreface] +
-            ban_message_body +
-            [StringId.BanSenderReceiptNote]
+            [("\n" if self.sender_receipt else "") + StringId.BanSenderReceiptPreface]
+            + ban_message_body
+            + [StringId.BanSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            [StringId.BanOccupantsNotificationPreface] +
-            ban_message_body +
-            [StringId.BanOccupantsNotificationNote]
+            [StringId.BanOccupantsNotificationPreface]
+            + ban_message_body
+            + [StringId.BanOccupantsNotificationNote]
         )

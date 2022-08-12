@@ -19,6 +19,7 @@ from OB.models import Ban, Message, OBUser, Room
 from OB.utilities.database import try_get
 from OB.utilities.format import get_datetime_string
 
+
 def chat(request):
     """
     Handles HTTP requests for the chat list page.
@@ -38,6 +39,7 @@ def chat(request):
 
     # Not GET
     return HttpResponse()
+
 
 def create_room(request):
     """
@@ -69,10 +71,7 @@ def create_room(request):
         display_name = request.POST["display_name"].strip() or None
         owner = OBUser.objects.get(username=request.user.username)
 
-        context = {
-            "room_name": room_name,
-            "display_name": display_name
-        }
+        context = {"room_name": room_name, "display_name": display_name}
 
         # Check for errors
         if not room_name:
@@ -95,16 +94,15 @@ def create_room(request):
             display_name = room_name
 
         # Save the room to the database
-        Room(
-            name=room_name.lower(),
-            display_name=display_name,
-            owner=owner
-        ).save()
+        Room(name=room_name.lower(), display_name=display_name, owner=owner).save()
 
-        return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
+        return HttpResponseRedirect(
+            reverse("OB:OB-room", kwargs={"room_name": room_name})
+        )
 
     # Not GET or POST
     return HttpResponse()
+
 
 def room(request, room_name):
     """
@@ -124,12 +122,14 @@ def room(request, room_name):
         room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         if room_object:
-            websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
+            websocket_url_json = mark_safe(
+                json.dumps(f"ws://{{0}}/OB/chat/{room_name}/")
+            )
 
             ban = try_get(
                 Ban,
                 user=request.user if request.user.is_authenticated else None,
-                room=room_object
+                room=room_object,
             )
             messages_timestrings = []
 
@@ -141,14 +141,16 @@ def room(request, room_name):
                 messages = Message.objects.filter(message_query)
 
                 for message in messages:
-                    messages_timestrings += [(message, get_datetime_string(message.timestamp))]
+                    messages_timestrings += [
+                        (message, get_datetime_string(message.timestamp))
+                    ]
 
             template = "OB/room.html"
             context = {
                 "room": room_object,
                 "websocket_url_json": websocket_url_json,
                 "messages": messages_timestrings,
-                "ban": ban
+                "ban": ban,
             }
         else:
             # Return the room does not exist page

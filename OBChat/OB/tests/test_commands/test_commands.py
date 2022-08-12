@@ -30,6 +30,7 @@ from OB.tests.test_commands.user_level.who import WhoTest
 # User Level                                                                                      #
 ###################################################################################################
 
+
 @mark.asyncio
 @mark.django_db()
 async def test_who():
@@ -39,6 +40,7 @@ async def test_who():
 
     who_test = WhoTest()
     await who_test.run()
+
 
 @mark.asyncio
 @mark.django_db()
@@ -50,9 +52,11 @@ async def test_private():
     private_test = PrivateTest()
     await private_test.run()
 
+
 ###################################################################################################
 # Authenticated User Level                                                                        #
 ###################################################################################################
+
 
 @mark.asyncio
 @mark.django_db()
@@ -64,6 +68,7 @@ async def test_create():
     create_test = CreateTest()
     await create_test.run()
 
+
 @mark.asyncio
 @mark.django_db()
 async def test_apply():
@@ -74,9 +79,11 @@ async def test_apply():
     apply_test = ApplyTest()
     await apply_test.run()
 
+
 ###################################################################################################
 # Admin Level                                                                                     #
 ###################################################################################################
+
 
 @mark.asyncio
 @mark.django_db()
@@ -88,6 +95,7 @@ async def test_kick():
     kick_test = KickTest()
     await kick_test.run()
 
+
 @mark.asyncio
 @mark.django_db()
 async def test_ban():
@@ -97,6 +105,7 @@ async def test_ban():
 
     ban_test = BanTest()
     await ban_test.run()
+
 
 @mark.asyncio
 @mark.django_db()
@@ -108,11 +117,13 @@ async def test_lift():
     lift_test = LiftTest()
     await lift_test.run()
 
+
 # TODO: /elevate tests
 
 ###################################################################################################
 # Unlimited Admin Level                                                                           #
 ###################################################################################################
+
 
 @mark.asyncio
 @mark.django_db()
@@ -124,6 +135,7 @@ async def test_hire():
     hire_test = HireTest()
     await hire_test.run()
 
+
 @mark.asyncio
 @mark.django_db()
 async def test_fire():
@@ -134,9 +146,11 @@ async def test_fire():
     fire_test = FireTest()
     await fire_test.run()
 
+
 ###################################################################################################
 # Owner Level                                                                                     #
 ###################################################################################################
+
 
 @mark.asyncio
 @mark.django_db()

@@ -16,13 +16,17 @@ from OB.models import Admin, Ban, Message, OBUser, Room
 from OB.strings import StringId
 from OB.utilities.database import async_model_list
 
+
 class BaseCommandTest:
     """
     A superclass for all command tests.
     Command tests follow require specific database and Communicator setup because of their effects
     on the database and use of WebSockets.
     """
-    def __init__(self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0):
+
+    def __init__(
+        self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0
+    ):
         """
         Declares the instance variables that be used for testing, includes communicators and
         database objects.
@@ -50,23 +54,17 @@ class BaseCommandTest:
         """
 
         OBUser(
-            username=StringId.SystemUsername,
-            email="ob-sys@ob.ob",
-            password="ob-sys"
+            username=StringId.SystemUsername, email="ob-sys@ob.ob", password="ob-sys"
         ).save()
 
         self.owner = OBUser.objects.create_user(
             username="owner",
             email="owner@ob.ob",
             password="owner",
-            display_name="Owner"
+            display_name="Owner",
         ).save()
 
-        self.room = Room(
-            name="room",
-            display_name="Room",
-            owner=self.owner
-        ).save()
+        self.room = Room(name="room", display_name="Room", owner=self.owner).save()
 
         self.room.occupants.add(self.owner)
 
@@ -75,14 +73,14 @@ class BaseCommandTest:
                 username=f"unlimited_admin_{i}",
                 email=f"unlimited_admin_{i}@ob.ob",
                 password=f"unlimited_admin_{i}",
-                display_name=f"UnlimitedAdmin{i}"
+                display_name=f"UnlimitedAdmin{i}",
             ).save()
 
             Admin(
                 user=self.unlimited_admins[i],
                 room=self.room,
                 issuer=self.owner,
-                is_limited=False
+                is_limited=False,
             ).save()
 
             self.room.occupants.add(self.unlimited_admins[i])
@@ -92,14 +90,14 @@ class BaseCommandTest:
                 username=f"limited_admin_{i}",
                 email=f"limited_admin_{i}@ob.ob",
                 password=f"limited_admin_{i}",
-                display_name=f"LimitedAdmin{i}"
+                display_name=f"LimitedAdmin{i}",
             ).save()
 
             Admin(
                 user=self.limited_admins[i],
                 room=self.room,
                 issuer=self.owner,
-                is_limited=True
+                is_limited=True,
             ).save()
 
             self.room.occupants.add(self.limited_admins[i])
@@ -109,15 +107,14 @@ class BaseCommandTest:
                 username=f"auth_user_{i}",
                 email=f"auth_user_{i}@ob.ob",
                 password=f"auth_user_{i}",
-                display_name=f"AuthUser{i}"
+                display_name=f"AuthUser{i}",
             ).save()
 
             self.room.occupants.add(self.auth_users[i])
 
         for i in range(len(self.anon_users)):
             self.anon_users[i] = OBUser.objects.create_user(
-                username=f"{StringId.AnonPrefix}{i}",
-                is_anon=True
+                username=f"{StringId.AnonPrefix}{i}", is_anon=True
             ).save()
 
             self.room.occupants.add(self.anon_users[i])
@@ -152,9 +149,7 @@ class BaseCommandTest:
 
         for user in await async_model_list(self.room.occupants):
             self.communicators[user.username] = await OBCommunicator(
-                user,
-                GroupTypes.Room,
-                self.room.name
+                user, GroupTypes.Room, self.room.name
             ).connect()
 
     async def communicator_teardown(self, safe=True):
@@ -227,11 +222,11 @@ class BaseCommandTest:
         await self.communicators[sender.username].send(message)
 
         all_users = (
-            self.anon_users +
-            self.auth_users +
-            self.limited_admins +
-            self.unlimited_admins +
-            [self.owner]
+            self.anon_users
+            + self.auth_users
+            + self.limited_admins
+            + self.unlimited_admins
+            + [self.owner]
         )
 
         for user in all_users:

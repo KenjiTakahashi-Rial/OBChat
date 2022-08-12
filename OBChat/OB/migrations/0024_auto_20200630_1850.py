@@ -7,17 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0023_remove_admin_is_revoked'),
+        ("OB", "0023_remove_admin_is_revoked"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='message',
-            name='recipient',
+            model_name="message",
+            name="recipient",
         ),
         migrations.AddField(
-            model_name='message',
-            name='recipients',
-            field=models.ManyToManyField(default=None, null=True, related_name='message_received', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="recipients",
+            field=models.ManyToManyField(
+                default=None,
+                null=True,
+                related_name="message_received",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

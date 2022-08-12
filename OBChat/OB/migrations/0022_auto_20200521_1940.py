@@ -8,18 +8,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0021_auto_20200521_1928'),
+        ("OB", "0021_auto_20200521_1928"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='admin',
-            name='issuer',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.SET_DEFAULT, related_name='admin_hired', to=settings.AUTH_USER_MODEL),
+            model_name="admin",
+            name="issuer",
+            field=models.ForeignKey(
+                default=-1,
+                on_delete=django.db.models.deletion.SET_DEFAULT,
+                related_name="admin_hired",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='ban',
-            name='issuer',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.SET_DEFAULT, related_name='ban_issued', to=settings.AUTH_USER_MODEL),
+            model_name="ban",
+            name="issuer",
+            field=models.ForeignKey(
+                default=-1,
+                on_delete=django.db.models.deletion.SET_DEFAULT,
+                related_name="ban_issued",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

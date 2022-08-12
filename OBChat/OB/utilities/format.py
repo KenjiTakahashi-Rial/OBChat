@@ -4,6 +4,7 @@ Useful format functions.
 
 from OB.constants import GroupTypes
 
+
 def get_group_name(group_type, target_id, second_id=-1):
     """
     Gets the correctly formatted name of a group as a string.
@@ -19,17 +20,14 @@ def get_group_name(group_type, target_id, second_id=-1):
     """
 
     switch = {
-        GroupTypes.Invalid:
-            target_id,
-        GroupTypes.Line:
-            f"{target_id}_OB-Sys",
-        GroupTypes.Room:
-            f"room_{target_id}",
-        GroupTypes.Private:
-            f"{min(target_id, second_id)}_{max(target_id, second_id)}"
+        GroupTypes.Invalid: target_id,
+        GroupTypes.Line: f"{target_id}_OB-Sys",
+        GroupTypes.Room: f"room_{target_id}",
+        GroupTypes.Private: f"{min(target_id, second_id)}_{max(target_id, second_id)}",
     }
 
     return switch[group_type]
+
 
 def get_datetime_string(date_time):
     """

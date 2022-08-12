@@ -7,8 +7,14 @@ from pytest import mark
 from OB.models import Admin
 from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
-from OB.utilities.database import async_delete, async_get, async_model_list, async_save, \
-    async_try_get
+from OB.utilities.database import (
+    async_delete,
+    async_get,
+    async_model_list,
+    async_save,
+    async_try_get,
+)
+
 
 class HireTest(BaseCommandTest):
     """
@@ -21,7 +27,9 @@ class HireTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -71,12 +79,16 @@ class HireTest(BaseCommandTest):
 
         # Test Unlimited Admin hiring Unlimited Admin error
         message = "/h unlimited_admin_1"
-        correct_response = StringId.HireInsufficientPrivilege.format(self.unlimited_admins[1])
+        correct_response = StringId.HireInsufficientPrivilege.format(
+            self.unlimited_admins[1]
+        )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring Limited Admin error
         message = "/h limited_admin_0"
-        correct_response = StringId.HireInsufficientPrivilege.format(self.limited_admins[0])
+        correct_response = StringId.HireInsufficientPrivilege.format(
+            self.limited_admins[0]
+        )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Unlimited Admin hiring authenticated user
@@ -86,7 +98,9 @@ class HireTest(BaseCommandTest):
         await self.test_success(self.owner, [self.auth_users[0], self.auth_users[1]])
 
         # Test Owner hiring Limited Admins
-        await self.test_success(self.owner, [self.limited_admins[0], self.limited_admins[1]])
+        await self.test_success(
+            self.owner, [self.limited_admins[0], self.limited_admins[1]]
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -120,13 +134,17 @@ class HireTest(BaseCommandTest):
         assert await self.communicators[sender.username].receive() == message
 
         for user in targets:
-            was_already_admin = bool(await async_try_get(Admin, user=user, is_limited=False))
+            was_already_admin = bool(
+                await async_try_get(Admin, user=user, is_limited=False)
+            )
 
             # Test target response
             assert await self.communicators[user.username].receive() == targets_response
 
             # Test new adminships
-            adminship = await async_get(Admin, user=user, is_limited=not was_already_admin)
+            adminship = await async_get(
+                Admin, user=user, is_limited=not was_already_admin
+            )
 
             # Undo changes
             if was_already_admin:
@@ -144,4 +162,6 @@ class HireTest(BaseCommandTest):
         occupants = await async_model_list(self.room.occupants)
         for user in occupants:
             if user not in targets and user != sender:
-                assert await self.communicators[user.username].receive() == others_response
+                assert (
+                    await self.communicators[user.username].receive() == others_response
+                )

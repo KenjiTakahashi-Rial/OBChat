@@ -6,6 +6,7 @@ from channels.db import database_sync_to_async
 
 from OB.models import OBUser
 
+
 def try_get(model, **kwargs):
     """
     A safe function to attempt to retrieve a single match of a database object without raising an
@@ -27,6 +28,7 @@ def try_get(model, **kwargs):
     except model.DoesNotExist:
         return None
 
+
 @database_sync_to_async
 def async_try_get(model, **kwargs):
     """
@@ -42,6 +44,7 @@ def async_try_get(model, **kwargs):
 
     return try_get(model, **kwargs)
 
+
 @database_sync_to_async
 def async_get(model, **kwargs):
     """
@@ -56,6 +59,7 @@ def async_get(model, **kwargs):
     """
 
     return model.objects.get(**kwargs)
+
 
 @database_sync_to_async
 def async_filter(model, **kwargs):
@@ -75,6 +79,7 @@ def async_filter(model, **kwargs):
     #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     return [obj for obj in model.objects.filter(**kwargs)]
     # pylint: enable=unnecessary-comprehension
+
 
 @database_sync_to_async
 def async_save(model_or_object, **kwargs):
@@ -102,6 +107,7 @@ def async_save(model_or_object, **kwargs):
     new_object.save()
     return new_object
 
+
 @database_sync_to_async
 def async_delete(delete_object):
     """
@@ -128,6 +134,7 @@ def async_add(field, add_object):
 
     field.add(add_object)
 
+
 @database_sync_to_async
 def async_remove(field, remove_object):
     """
@@ -141,6 +148,7 @@ def async_remove(field, remove_object):
     """
 
     field.remove(remove_object)
+
 
 @database_sync_to_async
 def async_len_all(query_set):
@@ -157,6 +165,7 @@ def async_len_all(query_set):
     """
 
     return len(query_set.all())
+
 
 @database_sync_to_async
 def async_model_list(model):
@@ -181,6 +190,7 @@ def async_model_list(model):
         # ManyRelatedManager types do not have an objects attribute
         return [obj for obj in model.all()]
 
+
 @database_sync_to_async
 def async_get_owner(room):
     """
@@ -196,6 +206,7 @@ def async_get_owner(room):
 
     return room.owner
 
+
 def add_occupants(room, occupants):
     """
     Adds a list of users to the occupants of room if they are not already in it.
@@ -209,6 +220,7 @@ def add_occupants(room, occupants):
         if user not in room.occupants.all():
             room.occupants.add(user)
 
+
 @database_sync_to_async
 def async_add_occupants(room, occupants):
     """
@@ -221,6 +233,7 @@ def async_add_occupants(room, occupants):
     """
 
     add_occupants(room, occupants)
+
 
 @database_sync_to_async
 def async_repr(repr_object):

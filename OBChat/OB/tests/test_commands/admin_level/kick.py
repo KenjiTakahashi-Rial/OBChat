@@ -7,8 +7,13 @@ from pytest import mark
 from OB.models import OBUser
 from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
-from OB.utilities.database import async_add_occupants, async_model_list, async_save, \
-    async_try_get
+from OB.utilities.database import (
+    async_add_occupants,
+    async_model_list,
+    async_save,
+    async_try_get,
+)
+
 
 class KickTest(BaseCommandTest):
     """
@@ -21,7 +26,9 @@ class KickTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -42,15 +49,14 @@ class KickTest(BaseCommandTest):
 
         # Test Unlimited Admin kicking multiple users
         await self.test_success(
-            self.unlimited_admins[0],
-            [self.limited_admins[0], self.auth_users[0]]
+            self.unlimited_admins[0], [self.limited_admins[0], self.auth_users[0]]
         )
 
         # Test owner kicking multiple users
         # TODO: Testing kicking anonymous users is causing database lock
         await self.test_success(
             self.owner,
-            [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]]
+            [self.unlimited_admins[0], self.limited_admins[0], self.auth_users[0]],
         )
 
         # Test unauthenticated user kicking error
@@ -85,12 +91,16 @@ class KickTest(BaseCommandTest):
 
         # Test limited Admin kicking Unlimited Admin error
         message = "/k unlimited_admin_0"
-        correct_response = StringId.KickPeer.format(self.unlimited_admins[0], StringId.Unlimited + StringId.Admin)
+        correct_response = StringId.KickPeer.format(
+            self.unlimited_admins[0], StringId.Unlimited + StringId.Admin
+        )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin kicking limited Admin error
         message = "/k limited_admin_1"
-        correct_response = StringId.KickPeer.format(self.limited_admins[1], StringId.Admin + StringId.JustLikeYou)
+        correct_response = StringId.KickPeer.format(
+            self.limited_admins[1], StringId.Admin + StringId.JustLikeYou
+        )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin kicking owner error
@@ -102,7 +112,7 @@ class KickTest(BaseCommandTest):
         message = "/k unlimited_admin_1"
         correct_response = StringId.KickPeer.format(
             self.unlimited_admins[1],
-            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou
+            StringId.Unlimited + StringId.Admin + StringId.JustLikeYou,
         )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
@@ -141,15 +151,16 @@ class KickTest(BaseCommandTest):
         occupants = await async_model_list(self.room.occupants)
         for user in occupants:
             if user not in targets and user != sender:
-                assert await self.communicators[user.username].receive() == others_response
+                assert (
+                    await self.communicators[user.username].receive() == others_response
+                )
 
         # Test kicks
         for user in targets:
             assert (await self.communicators[user.username].receive())["refresh"]
-            assert (
-                (await self.communicators[user.username].receive_output())["type"]
-                == "websocket.close"
-            )
+            assert (await self.communicators[user.username].receive_output())[
+                "type"
+            ] == "websocket.close"
             assert user not in occupants
 
         # Add kicked users back to room occupants and reset Communicators
@@ -161,7 +172,7 @@ class KickTest(BaseCommandTest):
                     OBUser,
                     id=self.anon_users[i].id,
                     username=self.anon_users[i].username,
-                    is_anon=True
+                    is_anon=True,
                 )
         await async_add_occupants(self.room, self.anon_users)
         await async_add_occupants(self.room, self.auth_users)

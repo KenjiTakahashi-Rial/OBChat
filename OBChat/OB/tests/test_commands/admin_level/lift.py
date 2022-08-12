@@ -11,6 +11,7 @@ from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_save
 
+
 class LiftTest(BaseCommandTest):
     """
     Class to test the /lift command function (see OB.commands.admin_level.lift).
@@ -22,7 +23,9 @@ class LiftTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -53,17 +56,13 @@ class LiftTest(BaseCommandTest):
 
         # Create test ban
         await async_save(
-            Ban,
-            user=self.auth_users[1],
-            room=self.room,
-            issuer=self.owner
+            Ban, user=self.auth_users[1], room=self.room, issuer=self.owner
         )
 
         # Test limited Admin lifting owner-issued ban error
         message = "/l auth_user_1"
         correct_response = StringId.LiftInsufficientPermission.format(
-            self.auth_users[1],
-            self.owner
+            self.auth_users[1], self.owner
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
@@ -73,18 +72,18 @@ class LiftTest(BaseCommandTest):
 
         # Test owner lifting ban
         message = "/l auth_user_1"
-        correct_response = "\n".join([
-            StringId.LiftSenderReceiptPreface,
-            f"   {self.auth_users[1]}",
-            StringId.LiftSenderReceiptNote
-        ])
+        correct_response = "\n".join(
+            [
+                StringId.LiftSenderReceiptPreface,
+                f"   {self.auth_users[1]}",
+                StringId.LiftSenderReceiptNote,
+            ]
+        )
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert await self.communicators["owner"].receive() == correct_response
         self.communicators["auth_user_1"] = await OBCommunicator(
-            self.auth_users[1],
-            GroupTypes.Room,
-            self.room.name
+            self.auth_users[1], GroupTypes.Room, self.room.name
         ).connect()
         await self.communicators["auth_user_1"].disconnect()
 
@@ -93,14 +92,13 @@ class LiftTest(BaseCommandTest):
             Ban,
             user=self.auth_users[1],
             room=self.room,
-            issuer=self.unlimited_admins[0]
+            issuer=self.unlimited_admins[0],
         )
 
         # Test limited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
         correct_response = StringId.LiftInsufficientPermission.format(
-            self.auth_users[1],
-            self.unlimited_admins[0]
+            self.auth_users[1], self.unlimited_admins[0]
         )
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
@@ -110,11 +108,13 @@ class LiftTest(BaseCommandTest):
 
         # Test Unlimited Admin lifting ban
         message = "/l auth_user_1"
-        correct_response = "\n".join([
-            StringId.LiftSenderReceiptPreface,
-            f"   {self.auth_users[1]}",
-            StringId.LiftSenderReceiptNote
-        ])
+        correct_response = "\n".join(
+            [
+                StringId.LiftSenderReceiptPreface,
+                f"   {self.auth_users[1]}",
+                StringId.LiftSenderReceiptNote,
+            ]
+        )
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
     async def test_success(self, sender, targets):

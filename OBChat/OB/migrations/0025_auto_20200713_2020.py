@@ -8,18 +8,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0024_auto_20200630_1850'),
+        ("OB", "0024_auto_20200630_1850"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='exclusions',
-            field=models.ManyToManyField(default=None, null=True, related_name='message_excluded', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="exclusions",
+            field=models.ManyToManyField(
+                default=None,
+                null=True,
+                related_name="message_excluded",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='admin',
-            name='user',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, related_name='adminship', to=settings.AUTH_USER_MODEL),
+            model_name="admin",
+            name="user",
+            field=models.ForeignKey(
+                default=-1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="adminship",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

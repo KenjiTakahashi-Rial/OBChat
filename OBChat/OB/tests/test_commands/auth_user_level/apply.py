@@ -11,6 +11,7 @@ from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_filter, async_get
 
+
 class ApplyTest(BaseCommandTest):
     """
     Class to test the /apply command function (see OB.commands.auth_user_level.apply).
@@ -22,7 +23,9 @@ class ApplyTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -67,40 +70,49 @@ class ApplyTest(BaseCommandTest):
         await self.communicators[sender.username].send(f"/apply{command}")
 
         # Prepare the responses
-        user_suffix = StringId.AdminSuffix if sender_privilege == Privilege.Admin else ""
-        position_prefix = StringId.Unlimited if sender_privilege == Privilege.Admin else ""
+        user_suffix = (
+            StringId.AdminSuffix if sender_privilege == Privilege.Admin else ""
+        )
+        position_prefix = (
+            StringId.Unlimited if sender_privilege == Privilege.Admin else ""
+        )
         message = message if message else None
 
         application_body = [
             f"   {StringId.User} {sender}{user_suffix}",
             f"   {StringId.Position} {position_prefix}{StringId.Admin}",
-            f"   {StringId.Message} {message}"
+            f"   {StringId.Message} {message}",
         ]
 
         sender_receipt = "\n".join(
-            [StringId.ApplySenderReceiptPreface] +
-            application_body +
-            [StringId.ApplySenderReceiptNote]
+            [StringId.ApplySenderReceiptPreface]
+            + application_body
+            + [StringId.ApplySenderReceiptNote]
         )
 
         targets_notification = "\n".join(
-            [StringId.ApplyTargetsNotificationPreface] +
-            application_body +
-            [StringId.ApplyTargetsNotificationNote]
+            [StringId.ApplyTargetsNotificationPreface]
+            + application_body
+            + [StringId.ApplyTargetsNotificationNote]
         )
 
         # Gather recipients
         recipients = []
 
         if sender_privilege < Privilege.Admin:
-            for adminship in await async_filter(Admin, room=self.room, is_limited=False):
+            for adminship in await async_filter(
+                Admin, room=self.room, is_limited=False
+            ):
                 recipients += [await async_get(OBUser, adminship=adminship)]
 
         recipients += [self.owner]
 
         # Test recipient response
         for user in recipients:
-            assert await self.communicators[user.username].receive() == targets_notification
+            assert (
+                await self.communicators[user.username].receive()
+                == targets_notification
+            )
 
         # Test sender response
         assert await self.communicators[sender.username].receive() == f"/apply{command}"

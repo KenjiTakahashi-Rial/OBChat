@@ -9,55 +9,84 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('OB', '0001_initial'),
+        ("OB", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='admin',
-            name='room',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="admin",
+            name="room",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.AlterField(
-            model_name='ban',
-            name='room',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="ban",
+            name="room",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='room',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="message",
+            name="room",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.CreateModel(
-            name='OBUser',
+            name="OBUser",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_ob', models.BooleanField(default=False)),
-                ('is_expelled', models.BooleanField(default=False)),
-                ('user', models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_ob", models.BooleanField(default=False)),
+                ("is_expelled", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        default=0,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AlterField(
-            model_name='admin',
-            name='user',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.OBUser'),
+            model_name="admin",
+            name="user",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.OBUser"
+            ),
         ),
         migrations.AlterField(
-            model_name='ban',
-            name='user',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.OBUser'),
+            model_name="ban",
+            name="user",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.OBUser"
+            ),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='sender',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.OBUser'),
+            model_name="message",
+            name="sender",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.OBUser"
+            ),
         ),
         migrations.AlterField(
-            model_name='room',
-            name='owner',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='OB.OBUser'),
+            model_name="room",
+            name="owner",
+            field=models.ForeignKey(
+                default=0, on_delete=django.db.models.deletion.CASCADE, to="OB.OBUser"
+            ),
         ),
         migrations.DeleteModel(
-            name='User',
+            name="User",
         ),
     ]

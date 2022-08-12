@@ -15,6 +15,7 @@ from django.urls import reverse
 
 from OB.models import OBUser
 
+
 def setup_function():
     """
     Sets up the database objects required to test the views.
@@ -29,20 +30,22 @@ def setup_function():
         email="ob@ob.ob",
         password="ob",
         first_name="Kenji",
-        last_name="Takahashi-Rial"
+        last_name="Takahashi-Rial",
     ).save()
+
 
 def teardown_function():
     """
-        Cleans up the database objects used to test the views.
-        This is a built-in pytest fixture that runs after every function.
+    Cleans up the database objects used to test the views.
+    This is a built-in pytest fixture that runs after every function.
 
-        See the pytest documentation on xunit-style setup for more information.
-        https://docs.pytest.org/en/latest/xunit_setup.html
+    See the pytest documentation on xunit-style setup for more information.
+    https://docs.pytest.org/en/latest/xunit_setup.html
     """
 
     for user in OBUser.objects.all():
         user.delete()
+
 
 @mark.django_db()
 def test_sign_up():
@@ -65,7 +68,7 @@ def test_sign_up():
         "password": "",
         "display_name": "",
         "real_name": "",
-        "birthday": ""
+        "birthday": "",
     }
 
     response = client.post(reverse("OB:OB-sign_up"), sign_up_data)
@@ -83,7 +86,6 @@ def test_sign_up():
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Username may not contain spaces."
-
 
     # Test POST with in-use username
     sign_up_data["username"] = "OB"
@@ -124,6 +126,7 @@ def test_sign_up():
     assert OBUser.objects.get(username="mafdtfafobtmf").first_name == "Kenji"
     assert OBUser.objects.get(username="mafdtfafobtmf").last_name == "Takahashi-Rial"
 
+
 @mark.django_db()
 def test_log_in():
     """
@@ -138,10 +141,7 @@ def test_log_in():
     assert response.status_code == 200
 
     # Test POST with empty form data
-    log_in_data = {
-        "username": "",
-        "password": ""
-    }
+    log_in_data = {"username": "", "password": ""}
 
     response = client.post(reverse("OB:OB-log_in"), log_in_data)
 

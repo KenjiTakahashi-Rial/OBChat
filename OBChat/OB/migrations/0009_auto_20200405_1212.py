@@ -9,18 +9,25 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('OB', '0008_auto_20200324_2055'),
+        ("OB", "0008_auto_20200324_2055"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='room',
-            name='occupants',
-            field=models.ManyToManyField(related_name='occupied_room', to=settings.AUTH_USER_MODEL),
+            model_name="room",
+            name="occupants",
+            field=models.ManyToManyField(
+                related_name="occupied_room", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AlterField(
-            model_name='room',
-            name='owner',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='owned_room', to=settings.AUTH_USER_MODEL),
+            model_name="room",
+            name="owner",
+            field=models.ForeignKey(
+                default=0,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="owned_room",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

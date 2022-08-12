@@ -99,19 +99,15 @@ class BaseCommand:
         """
 
         await send_system_room_message(
-            "\n".join(self.sender_receipt),
-            self.room,
-            [self.sender]
+            "\n".join(self.sender_receipt), self.room, [self.sender]
         )
 
         await send_system_room_message(
             "\n".join(self.occupants_notification),
             self.room,
-            exclusions=[self.sender] + self.valid_targets
+            exclusions=[self.sender] + self.valid_targets,
         )
 
         await send_system_room_message(
-            "\n".join(self.targets_notification),
-            self.room,
-            self.valid_targets
+            "\n".join(self.targets_notification), self.room, self.valid_targets
         )

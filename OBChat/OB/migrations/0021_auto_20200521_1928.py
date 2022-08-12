@@ -8,38 +8,52 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0020_auto_20200511_2147'),
+        ("OB", "0020_auto_20200511_2147"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='admin',
-            name='room',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="admin",
+            name="room",
+            field=models.ForeignKey(
+                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.AlterField(
-            model_name='admin',
-            name='user',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="admin",
+            name="user",
+            field=models.ForeignKey(
+                default=-1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='ban',
-            name='room',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="ban",
+            name="room",
+            field=models.ForeignKey(
+                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.AlterField(
-            model_name='ban',
-            name='user',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="ban",
+            name="user",
+            field=models.ForeignKey(
+                default=-1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='room',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to='OB.Room'),
+            model_name="message",
+            name="room",
+            field=models.ForeignKey(
+                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
+            ),
         ),
         migrations.AlterField(
-            model_name='room',
-            name='name',
+            model_name="room",
+            name="name",
             field=models.CharField(default=None, max_length=15),
         ),
     ]

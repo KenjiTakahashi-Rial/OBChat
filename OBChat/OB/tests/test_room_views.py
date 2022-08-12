@@ -16,6 +16,7 @@ from django.urls import reverse
 from OB.constants import GroupTypes
 from OB.models import OBUser, Room
 
+
 def setup_function():
     """
     Sets up the database objects required to test the views.
@@ -30,13 +31,11 @@ def setup_function():
         email="ob@ob.ob",
         password="ob",
         first_name="Kenji",
-        last_name="Takahashi-Rial"
+        last_name="Takahashi-Rial",
     ).save()
 
-    Room(
-        name="obchat",
-        owner=ob_user
-    ).save()
+    Room(name="obchat", owner=ob_user).save()
+
 
 def teardown_function():
     """
@@ -53,6 +52,7 @@ def teardown_function():
     for room in Room.objects.all():
         room.delete()
 
+
 @mark.django_db()
 def test_chat():
     """
@@ -66,6 +66,7 @@ def test_chat():
 
     assert response.status_code == 200
     assert "error_message" not in response.context
+
 
 @mark.django_db()
 def test_create_room():
@@ -90,10 +91,7 @@ def test_create_room():
     assert "error_message" not in response.context
 
     # Test POST with empty form data
-    create_room_data = {
-        "room_name": "",
-        "display_name": ""
-    }
+    create_room_data = {"room_name": "", "display_name": ""}
 
     response = client.post(reverse("OB:OB-create_room"), create_room_data)
 
@@ -162,6 +160,7 @@ def test_create_room():
 
     # Test display name saving correctly
     assert Room.objects.get(name="jobchat").display_name == "ChobChat"
+
 
 @mark.django_db()
 def test_room():

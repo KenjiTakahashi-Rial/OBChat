@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0002_auto_20200222_1714'),
+        ("OB", "0002_auto_20200222_1714"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='obuser',
-            name='display_name',
+            model_name="obuser",
+            name="display_name",
             field=models.CharField(default=0, max_length=15),
         ),
         migrations.AlterField(
-            model_name='room',
-            name='name',
+            model_name="room",
+            name="name",
             field=models.CharField(default=0, max_length=15),
         ),
     ]

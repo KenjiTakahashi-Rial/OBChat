@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0013_auto_20200424_0020'),
+        ("OB", "0013_auto_20200424_0020"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='obuser',
-            name='display_name',
-            field=models.CharField(default='', max_length=15),
+            model_name="obuser",
+            name="display_name",
+            field=models.CharField(default="", max_length=15),
             preserve_default=False,
         ),
     ]

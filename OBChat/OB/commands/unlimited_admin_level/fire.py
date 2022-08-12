@@ -9,6 +9,7 @@ from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_delete, async_save, async_try_get
 
+
 class FireCommand(BaseCommand):
     """
     Reduces the privilege of an Admin or Unlimited Admin user by 1.
@@ -85,19 +86,19 @@ class FireCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an extra newline to separate argument error messages from fire receipt
-            [("\n" if self.sender_receipt else "") + StringId.FireSenderReceiptPreface] +
-            fire_message_body +
-            [StringId.FireSenderReceiptNote]
+            [("\n" if self.sender_receipt else "") + StringId.FireSenderReceiptPreface]
+            + fire_message_body
+            + [StringId.FireSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            [StringId.FireOccupantsNotificationPreface] +
-            fire_message_body +
-            [StringId.FireOccupantsNotificationNote]
+            [StringId.FireOccupantsNotificationPreface]
+            + fire_message_body
+            + [StringId.FireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            [StringId.FireOccupantsNotificationPreface] +
-            fire_message_body +
-            [StringId.FireTargetsNotificationNote]
+            [StringId.FireOccupantsNotificationPreface]
+            + fire_message_body
+            + [StringId.FireTargetsNotificationNote]
         )

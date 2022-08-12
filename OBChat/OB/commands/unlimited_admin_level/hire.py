@@ -9,6 +9,7 @@ from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
 
+
 class HireCommand(BaseCommand):
     """
     Increases the privilege of an Admin or authenticated user by 1.
@@ -56,7 +57,9 @@ class HireCommand(BaseCommand):
                 self.sender_receipt += [StringId.HireAnon.format(arg_user)]
             # Target may not be promoted by sender
             elif arg_admin and self.sender_privilege < Privilege.Owner:
-                self.sender_receipt += [StringId.HireInsufficientPrivilege.format(arg_user)]
+                self.sender_receipt += [
+                    StringId.HireInsufficientPrivilege.format(arg_user)
+                ]
             # Target user is an Unlimited Admin
             elif arg_admin and not arg_admin.is_limited:
                 self.sender_receipt += [StringId.HireUnlimitedAdmin.format(arg_user)]
@@ -84,31 +87,28 @@ class HireCommand(BaseCommand):
             else:
                 # Make an adminship for the user
                 await async_save(
-                    Admin,
-                    user=hired_user,
-                    room=self.room,
-                    issuer=self.sender
+                    Admin, user=hired_user, room=self.room, issuer=self.sender
                 )
 
             hire_message_body += [f"    {hired_user}"]
 
         self.sender_receipt += (
             # Add an extra newline to separate argument error messages from fire receipt
-            [("\n" if self.sender_receipt else "") + StringId.HireSenderReceiptPreface] +
-            hire_message_body +
-            [StringId.HireSenderReceiptNote]
+            [("\n" if self.sender_receipt else "") + StringId.HireSenderReceiptPreface]
+            + hire_message_body
+            + [StringId.HireSenderReceiptNote]
         )
 
         self.occupants_notification += (
-            [StringId.HireOccupantsNotificationPreface] +
-            hire_message_body +
-            [StringId.HireOccupantsNotificationNote]
+            [StringId.HireOccupantsNotificationPreface]
+            + hire_message_body
+            + [StringId.HireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            [StringId.HireOccupantsNotificationPreface] +
-            hire_message_body +
-            [StringId.HireTargetsNotificationNote]
+            [StringId.HireOccupantsNotificationPreface]
+            + hire_message_body
+            + [StringId.HireTargetsNotificationNote]
         )
 
     async def send_responses(self):
@@ -116,5 +116,7 @@ class HireCommand(BaseCommand):
         Change the valid_targets list to be a list of OBUsers instead of a list of tuples.
         """
 
-        self.valid_targets = [hired_user for hired_user, existing_adminship in self.valid_targets]
+        self.valid_targets = [
+            hired_user for hired_user, existing_adminship in self.valid_targets
+        ]
         await super().send_responses()

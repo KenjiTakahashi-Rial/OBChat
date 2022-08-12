@@ -9,6 +9,7 @@ from OB.strings import StringId
 from OB.utilities.command import async_get_privilege
 from OB.utilities.database import async_save, async_try_get
 
+
 class LiftCommand(BaseCommand):
     """
     Allow one or more OBConsumers from a group a Room is associated with to rejoin a Room after
@@ -42,7 +43,9 @@ class LiftCommand(BaseCommand):
             arg_user = await async_try_get(OBUser, username=username)
 
             if arg_user:
-                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
+                arg_ban = await async_try_get(
+                    Ban, user=arg_user, room=self.room, is_lifted=False
+                )
                 issuer = await async_try_get(OBUser, ban_issued=arg_ban)
                 issuer_privilege = await async_get_privilege(issuer, self.room)
                 sender_privilege = await async_get_privilege(self.sender, self.room)
@@ -82,7 +85,7 @@ class LiftCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an extra newline to separate argument error messages from lift receipt
-            [("\n" if self.sender_receipt else "") + StringId.LiftSenderReceiptPreface] +
-            lift_message_body +
-            [StringId.LiftSenderReceiptNote]
+            [("\n" if self.sender_receipt else "") + StringId.LiftSenderReceiptPreface]
+            + lift_message_body
+            + [StringId.LiftSenderReceiptNote]
         )

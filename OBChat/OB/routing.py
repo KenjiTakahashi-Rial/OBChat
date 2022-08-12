@@ -11,5 +11,5 @@ from OB.consumers import OBConsumer
 
 URL_PATTERNS = [
     url(r"^OB/chat/(?P<room_name>[-\w]+)/$", OBConsumer, name="OB-room-route"),
-    url(r"^OB/private/(?P<username>[-\w]+)/$", OBConsumer, name="OB-private-route")
+    url(r"^OB/private/(?P<username>[-\w]+)/$", OBConsumer, name="OB-private-route"),
 ]

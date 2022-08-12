@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0015_auto_20200426_1943'),
+        ("OB", "0015_auto_20200426_1943"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='room',
-            name='group_type',
-            field=models.SmallIntegerField(default=OB.constants.GroupTypes['Room']),
+            model_name="room",
+            name="group_type",
+            field=models.SmallIntegerField(default=OB.constants.GroupTypes["Room"]),
         ),
     ]

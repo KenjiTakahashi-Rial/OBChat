@@ -7,6 +7,7 @@ from pytest import mark
 from OB.strings import StringId
 from OB.tests.test_commands.base import BaseCommandTest
 
+
 class FireTest(BaseCommandTest):
     """
     Class to test the /fire command function (see OB.commands.unlimited_admin_level.fire).
@@ -18,7 +19,9 @@ class FireTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
+        super().__init__(
+            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
+        )
 
     @mark.asyncio
     @mark.django_db()

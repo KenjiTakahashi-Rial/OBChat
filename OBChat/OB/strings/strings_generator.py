@@ -10,21 +10,25 @@ from csv import reader
 # Justification: This is a script, so the variables do not need to be UPPER_SNAKE_CASE
 string_id_module = open("string_id.py", "w")
 
-string_id_module.write("\n".join([
-    "\"\"\"",
-    "StringId enum container module.",
-    "Do not modify this file directly. It is generated from OB.strings.strings_generator.",
-    "\"\"\"",
-    "",
-    "class StringId:",
-    "    \"\"\"",
-    "    IDs used to get strings the string map (see OB.strings.strings_map).",
-    "    \"\"\"",
-    "",
-    "    # pylint: disable=line-too-long",
-    "    # Justification: This is just storage, it does not need to be readable.",
-    ""
-]))
+string_id_module.write(
+    "\n".join(
+        [
+            '"""',
+            "StringId enum container module.",
+            "Do not modify this file directly. It is generated from OB.strings.strings_generator.",
+            '"""',
+            "",
+            "class StringId:",
+            '    """',
+            "    IDs used to get strings the string map (see OB.strings.strings_map).",
+            '    """',
+            "",
+            "    # pylint: disable=line-too-long",
+            "    # Justification: This is just storage, it does not need to be readable.",
+            "",
+        ]
+    )
+)
 
 strings_spreadsheet = open("strings.csv", "r")
 
@@ -46,7 +50,7 @@ for row in csv_reader:
     if string in strings:
         print(f"WARNING: Duplicate string at row {i + 2}. {string}")
 
-    string_id_module.write(f"    {string_id} = \"{string}\"\n")
+    string_id_module.write(f'    {string_id} = "{string}"\n')
     string_ids.add(string_id)
     strings.add(string)
     i += 1

@@ -11,11 +11,20 @@ from OB.constants import GroupTypes
 from OB.models import Ban, Message, OBUser, Room
 from OB.strings import StringId
 from OB.utilities.command import is_command_format
-from OB.utilities.database import async_add, async_delete, async_filter, async_get, \
-    async_model_list, async_remove, async_save, async_try_get
+from OB.utilities.database import (
+    async_add,
+    async_delete,
+    async_filter,
+    async_get,
+    async_model_list,
+    async_remove,
+    async_save,
+    async_try_get,
+)
 from OB.utilities.event import send_room_message
 from OB.utilities.format import get_datetime_string, get_group_name
 from OB.utilities.session import async_cycle_key
+
 
 class OBConsumer(AsyncWebsocketConsumer):
     """
@@ -59,13 +68,15 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = self.scope["user"]
         else:
             # Make an OBUser object for this anonymous user's session
-            while await async_try_get(OBUser, username=f"{StringId.AnonPrefix}{self.session.session_key}"):
+            while await async_try_get(
+                OBUser, username=f"{StringId.AnonPrefix}{self.session.session_key}"
+            ):
                 await async_cycle_key(self.session)
 
             self.user = await async_save(
                 OBUser,
                 username=f"{StringId.AnonPrefix}{self.session.session_key}",
-                is_anon=True
+                is_anon=True,
             )
 
         # Chat room
@@ -89,8 +100,7 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         # Add to room group
         await self.channel_layer.group_add(
-            get_group_name(GroupTypes.Room, self.room.id),
-            self.channel_name
+            get_group_name(GroupTypes.Room, self.room.id), self.channel_name
         )
 
         # Add to the occupants list for this room
@@ -117,8 +127,7 @@ class OBConsumer(AsyncWebsocketConsumer):
 
         # Leave room group
         await self.channel_layer.group_discard(
-            get_group_name(GroupTypes.Room, self.room.id),
-            self.channel_name
+            get_group_name(GroupTypes.Room, self.room.id), self.channel_name
         )
 
         print(f"WebSocket disconnected with code {code}.")
@@ -179,21 +188,26 @@ class OBConsumer(AsyncWebsocketConsumer):
             message=message_text,
             sender=self.user if not self.user.is_anon else None,
             room=self.room,
-            anon_username=self.user.username if self.user.is_anon else None
+            anon_username=self.user.username if self.user.is_anon else None,
         )
 
         # Add sender as the only recipient if message is a command
-        await async_add(new_message.recipients, self.user if is_command_format(message_text) else None)
+        await async_add(
+            new_message.recipients,
+            self.user if is_command_format(message_text) else None,
+        )
         recipients = await async_model_list(new_message.recipients)
 
         # Encode the message data and metadata
-        message_json = json.dumps({
-            "text": message_text,
-            "sender_name": self.user.display_name or self.user.username,
-            "has_recipients": bool(recipients),
-            "has_exclusions": False,
-            "timestamp": get_datetime_string(new_message.timestamp)
-        })
+        message_json = json.dumps(
+            {
+                "text": message_text,
+                "sender_name": self.user.display_name or self.user.username,
+                "has_recipients": bool(recipients),
+                "has_exclusions": False,
+                "timestamp": get_datetime_string(new_message.timestamp),
+            }
+        )
 
         # Send message to room group
         await send_room_message(message_json, self.room.id, recipients)

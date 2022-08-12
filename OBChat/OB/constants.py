@@ -4,6 +4,7 @@ Constants used in various places throughout the app.
 
 from enum import IntEnum
 
+
 class GroupTypes(IntEnum):
     """
     The GroupType of a Consumer determines the format of the Consumer's group name, which
@@ -22,6 +23,7 @@ class GroupTypes(IntEnum):
         """
 
         return tuple((i.name, i.value) for i in cls)
+
 
 class Privilege(IntEnum):
     """

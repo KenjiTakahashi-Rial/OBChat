@@ -12,6 +12,7 @@ from OB.tests.test_commands.base import BaseCommandTest
 from OB.utilities.database import async_get
 from OB.utilities.format import get_group_name
 
+
 class PrivateTest(BaseCommandTest):
     """
     Class to test the /private command function (see OB.commands.user_level.private).
@@ -23,7 +24,9 @@ class PrivateTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(unlimited_admins=1, limited_admins=1, auth_users=1, anon_users=1)
+        super().__init__(
+            unlimited_admins=1, limited_admins=1, auth_users=1, anon_users=1
+        )
 
     @mark.asyncio
     @mark.django_db()
@@ -59,19 +62,17 @@ class PrivateTest(BaseCommandTest):
         await async_get(
             Room,
             group_type=GroupTypes.Private,
-            name=get_group_name(GroupTypes.Private, self.owner.id, self.unlimited_admins[0].id)
+            name=get_group_name(
+                GroupTypes.Private, self.owner.id, self.unlimited_admins[0].id
+            ),
         )
 
         # Create WebsocketCommunicators to test private messaging
         self.communicators["owner_private"] = await OBCommunicator(
-            self.owner,
-            GroupTypes.Private,
-            self.unlimited_admins[0].username
+            self.owner, GroupTypes.Private, self.unlimited_admins[0].username
         ).connect()
         self.communicators["unlimited_admin_0_private"] = await OBCommunicator(
-            self.unlimited_admins[0],
-            GroupTypes.Private,
-            self.owner.username
+            self.unlimited_admins[0], GroupTypes.Private, self.owner.username
         ).connect()
 
         # Test private messaging
@@ -80,9 +81,9 @@ class PrivateTest(BaseCommandTest):
         await self.communicators["owner"].send(message)
         assert await self.communicators["owner"].receive() == message
         assert (
-            await self.communicators["owner_private"].receive() ==
-            await self.communicators["unlimited_admin_0_private"].receive() ==
-            correct_response
+            await self.communicators["owner_private"].receive()
+            == await self.communicators["unlimited_admin_0_private"].receive()
+            == correct_response
         )
 
     # TODO: Make a test_success method

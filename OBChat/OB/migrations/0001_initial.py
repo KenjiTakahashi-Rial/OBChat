@@ -8,61 +8,149 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=12)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('is_super', models.BooleanField(default=False)),
-                ('is_ob', models.BooleanField(default=False)),
-                ('is_expelled', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=12)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("is_super", models.BooleanField(default=False)),
+                ("is_ob", models.BooleanField(default=False)),
+                ("is_expelled", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='Room',
+            name="Room",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=12)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('is_suspended', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=12)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("is_suspended", models.BooleanField(default=False)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.User",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.TextField(max_length=100)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('is_edited', models.BooleanField(verbose_name=False)),
-                ('is_deleted', models.BooleanField(verbose_name=False)),
-                ('room', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.Room')),
-                ('sender', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.TextField(max_length=100)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("is_edited", models.BooleanField(verbose_name=False)),
+                ("is_deleted", models.BooleanField(verbose_name=False)),
+                (
+                    "room",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.Room",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.User",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Ban',
+            name="Ban",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('is_lifted', models.BooleanField(default=False)),
-                ('room', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.Room')),
-                ('user', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("is_lifted", models.BooleanField(default=False)),
+                (
+                    "room",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.Room",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.User",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Admin',
+            name="Admin",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_limited', models.BooleanField(default=True)),
-                ('is_revoked', models.BooleanField(default=False)),
-                ('room', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.Room')),
-                ('user', models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='OB.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_limited", models.BooleanField(default=True)),
+                ("is_revoked", models.BooleanField(default=False)),
+                (
+                    "room",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.Room",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        default=0,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="OB.User",
+                    ),
+                ),
             ],
         ),
     ]

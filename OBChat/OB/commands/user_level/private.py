@@ -8,6 +8,7 @@ from OB.strings import StringId
 from OB.utilities.database import async_try_get
 from OB.utilities.event import send_private_message, send_system_room_message
 
+
 class PrivateCommand(BaseCommand):
     """
     Sends a private message from the user parameter to another OBUser.
@@ -24,7 +25,7 @@ class PrivateCommand(BaseCommand):
         if not self.args:
             self.sender_receipt = [StringId.PrivateSyntax]
         # Invalid syntax
-        elif self.args[0][0] != '/':
+        elif self.args[0][0] != "/":
             self.sender_receipt = [StringId.PrivateInvalidSyntax]
 
         return not self.sender_receipt
@@ -37,7 +38,9 @@ class PrivateCommand(BaseCommand):
         self.valid_targets = [await async_try_get(OBUser, username=self.args[0][1:])]
 
         if not self.valid_targets[0]:
-            self.sender_receipt = [StringId.PrivateInvalidTarget.format(self.args[0][1:])]
+            self.sender_receipt = [
+                StringId.PrivateInvalidTarget.format(self.args[0][1:])
+            ]
         elif len(self.args) == 1:
             self.sender_receipt = [StringId.PrivateNoMessage]
 
@@ -58,13 +61,9 @@ class PrivateCommand(BaseCommand):
 
         if self.sender_receipt:
             await send_system_room_message(
-                "\n".join(self.sender_receipt),
-                self.room,
-                [self.sender]
+                "\n".join(self.sender_receipt), self.room, [self.sender]
             )
         elif self.targets_notification:
             await send_private_message(
-                self.targets_notification[0],
-                self.sender,
-                self.valid_targets[0]
+                self.targets_notification[0], self.sender, self.valid_targets[0]
             )

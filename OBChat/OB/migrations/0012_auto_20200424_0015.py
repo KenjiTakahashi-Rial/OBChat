@@ -8,18 +8,23 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0011_room_display_name'),
+        ("OB", "0011_room_display_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='anonymous_username',
+            model_name="message",
+            name="anonymous_username",
             field=models.CharField(default=None, max_length=48, null=True),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='sender',
-            field=models.ForeignKey(default=0, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="sender",
+            field=models.ForeignKey(
+                default=0,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

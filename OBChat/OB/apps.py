@@ -5,6 +5,7 @@ Defines the apps within the OBChat project.
 from django.apps import AppConfig
 from django.db.utils import OperationalError
 
+
 class OBConfig(AppConfig):
     """
     Defines the OBConfig app within the OBChat project.
@@ -23,6 +24,7 @@ class OBConfig(AppConfig):
         # Justification: The Django documentation recommends importing here because you cannot
         #   import models at the module-level.
         from OB.models import OBUser, Room
+
         # pylint: enable=import-outside-toplevel
 
         try:

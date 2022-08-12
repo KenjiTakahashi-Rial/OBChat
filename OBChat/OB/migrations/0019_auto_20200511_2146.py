@@ -8,18 +8,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('OB', '0018_auto_20200503_2228'),
+        ("OB", "0018_auto_20200503_2228"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='recipient',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='message_received', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="recipient",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="message_received",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='message',
-            name='sender',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='message_sent', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="sender",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="message_sent",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
