@@ -3,6 +3,7 @@ Defines the apps within the OBChat project.
 """
 
 from django.apps import AppConfig
+from django.db.utils import OperationalError
 
 class OBConfig(AppConfig):
     """
@@ -24,10 +25,14 @@ class OBConfig(AppConfig):
         from OB.models import OBUser, Room
         # pylint: enable=import-outside-toplevel
 
-        # Remove all occupants from all rooms
-        for room in Room.objects.all():
-            room.occupants.clear()
+        try:
+            # Remove all occupants from all rooms
+            for room in Room.objects.all():
+                room.occupants.clear()
 
-        # Remove all stray anon users
-        for anon_user in OBUser.objects.filter(is_anon=True):
-            anon_user.delete()
+            # Remove all stray anon users
+            for anon_user in OBUser.objects.filter(is_anon=True):
+                anon_user.delete()
+        except OperationalError as e:  # If the DB hasn't been created yet, these fail
+            print(f"WARNING: {e}. Has the DB been created?")
+            # TODO: Use a logger instead of print()

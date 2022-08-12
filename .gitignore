@@ -142,3 +142,9 @@ cython_debug/
 .vs
 *.code-workspace
 OBChat/OB/strings/.~lock.strings.csv#
+
+# IDEA
+.idea
+
+# Redis
+dump.rdb
