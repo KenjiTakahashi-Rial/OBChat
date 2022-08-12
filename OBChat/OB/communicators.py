@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from OB.constants import GroupTypes
 from OB.consumers import OBConsumer
@@ -36,12 +36,10 @@ class OBCommunicator(WebsocketCommunicator):
         """
 
         if group_type == GroupTypes.Room:
-            application = URLRouter([url(r"^chat/(?P<room_name>[-\w]+)/$", OBConsumer)])
+            application = URLRouter([re_path(r"^chat/(?P<room_name>[-\w]+)/$", OBConsumer.as_asgi())])
             super().__init__(application, f"/chat/{url_arg}/")
         elif group_type == GroupTypes.Private:
-            application = URLRouter(
-                [url(r"^private/(?P<username>[-\w]+)/$", OBConsumer)]
-            )
+            application = URLRouter([re_path(r"^private/(?P<username>[-\w]+)/$", OBConsumer.as_asgi())])
             super().__init__(application, f"/private/{url_arg}/")
         else:
             raise TypeError("OBCommunicator.__init__ received an invalid GroupType.")

@@ -5,7 +5,7 @@ See the Django documentation on the URL dispatcher for more information.
 https://docs.djangoproject.com/en/3.0/topics/http/urls/
 """
 
-from django.conf.urls import url
+from django.urls import re_path
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path
 from django.views.generic.base import RedirectView
@@ -16,11 +16,9 @@ from OB.views.user import private, user
 
 app_name = "OB"
 urlpatterns = [
-    url(
+    re_path(
         "favicon.ico",
-        RedirectView.as_view(
-            url=staticfiles_storage.url("favicon.ico"), permanent=False
-        ),
+        RedirectView.as_view(url=staticfiles_storage.url("favicon.ico"), permanent=False),
         name="favicon",
     ),
     # Authentication
@@ -31,8 +29,8 @@ urlpatterns = [
     path("", chat, name="OB-/"),
     path("chat/", chat, name="OB-chat"),
     path("create_room/", create_room, name="OB-create_room"),
-    url(r"^chat/(?P<room_name>[-\w]+)/$", room, name="OB-room"),
+    re_path(r"^chat/(?P<room_name>[-\w]+)/$", room, name="OB-room"),
     # User
-    url(r"^private/(?P<username>[-\w]+)/$", private, name="OB-private"),
-    url(r"^user/(?P<username>[-\w]+)/$", user, name="OB-user"),
+    re_path(r"^private/(?P<username>[-\w]+)/$", private, name="OB-private"),
+    re_path(r"^user/(?P<username>[-\w]+)/$", user, name="OB-user"),
 ]
