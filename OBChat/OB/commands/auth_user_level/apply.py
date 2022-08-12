@@ -49,14 +49,12 @@ class ApplyCommand(BaseCommand):
     async def execute_implementation(self):
         """
         Gathers recipients for the application.
-        Constructs strings to send back to the sender and to those who may hire them.
+        Construct strings to send back to the sender and to those who may hire them.
         """
 
         # Gather recipients
         if self.sender_privilege < Privilege.Admin:
-            unlimited_admins = await async_filter(
-                Admin, room=self.room, is_limited=False
-            )
+            unlimited_admins = await async_filter(Admin, room=self.room, is_limited=False)
 
             for adminship in unlimited_admins:
                 self.valid_targets += [await async_get(OBUser, adminship=adminship)]
@@ -64,12 +62,8 @@ class ApplyCommand(BaseCommand):
         self.valid_targets += [await async_get_owner(self.room)]
 
         # Construct strings
-        user_suffix = (
-            StringId.AdminSuffix if self.sender_privilege == Privilege.Admin else ""
-        )
-        position_prefix = (
-            StringId.Unlimited if self.sender_privilege == Privilege.Admin else ""
-        )
+        user_suffix = StringId.AdminSuffix if self.sender_privilege == Privilege.Admin else ""
+        position_prefix = StringId.Unlimited if self.sender_privilege == Privilege.Admin else ""
         application_message = " ".join(self.args) if self.args else None
 
         application_body = [
@@ -79,14 +73,12 @@ class ApplyCommand(BaseCommand):
         ]
 
         self.sender_receipt += (
-            # Add an exra newline to separate argument error messages from ban receipt
+            # Add an extra newline to separate argument error messages from ban receipt
             [("\n" if self.sender_receipt else "") + StringId.ApplySenderReceiptPreface]
             + application_body
             + [StringId.ApplySenderReceiptNote]
         )
 
         self.targets_notification += (
-            [StringId.ApplyTargetsNotificationPreface]
-            + application_body
-            + [StringId.ApplyTargetsNotificationNote]
+            [StringId.ApplyTargetsNotificationPreface] + application_body + [StringId.ApplyTargetsNotificationNote]
         )

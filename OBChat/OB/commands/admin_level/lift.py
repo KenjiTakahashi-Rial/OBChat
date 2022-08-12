@@ -69,7 +69,7 @@ class LiftCommand(BaseCommand):
         """
         Lifts the ban.
         Note that a lifted ban is not deleted, but it is marked as lifted (see OB.models.ban).
-        Constructs strings to send back to the sender.
+        Construct strings to send back to the sender.
         The sender receipt includes per-argument error messages.
         """
 

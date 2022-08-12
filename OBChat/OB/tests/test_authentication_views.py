@@ -50,7 +50,7 @@ def teardown_function():
 @mark.django_db()
 def test_sign_up():
     """
-    Tests the sign up page (see OB.views.authentication.sign_up()).
+    Tests the sign-up page (see OB.views.authentication.sign_up()).
     """
 
     client = Client()

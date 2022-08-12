@@ -14,7 +14,7 @@ from OB.utilities.event import send_system_room_message
 class BaseCommand:
     """
     A superclass for all commands.
-    Allows commands to be carried out generically by OB.commands.command_handler.
+    Allow commands to be carried out generically by OB.commands.command_handler.
     """
 
     def __init__(self, args, sender, room):

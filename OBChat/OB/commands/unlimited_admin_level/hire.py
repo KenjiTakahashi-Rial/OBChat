@@ -73,7 +73,7 @@ class HireCommand(BaseCommand):
         """
         Add adminships for targets who are not already an Admin.
         Un-limit the adminships for targets who are already an Admin.
-        Constructs strings to send back to the sender and to the other occupants of the room.
+        Construct strings to send back to the sender and to the other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 

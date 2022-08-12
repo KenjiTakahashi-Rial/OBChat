@@ -24,9 +24,7 @@ class BaseCommandTest:
     on the database and use of WebSockets.
     """
 
-    def __init__(
-        self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0
-    ):
+    def __init__(self, unlimited_admins=0, limited_admins=0, auth_users=0, anon_users=0):
         """
         Declares the instance variables that be used for testing, includes communicators and
         database objects.
@@ -53,9 +51,7 @@ class BaseCommandTest:
         Creates users based on the number of users specified from __init__().
         """
 
-        OBUser(
-            username=StringId.SystemUsername, email="ob-sys@ob.ob", password="ob-sys"
-        ).save()
+        OBUser(username=StringId.SystemUsername, email="ob-sys@ob.ob", password="ob-sys").save()
 
         self.owner = OBUser.objects.create_user(
             username="owner",
@@ -113,9 +109,7 @@ class BaseCommandTest:
             self.room.occupants.add(self.auth_users[i])
 
         for i in range(len(self.anon_users)):
-            self.anon_users[i] = OBUser.objects.create_user(
-                username=f"{StringId.AnonPrefix}{i}", is_anon=True
-            ).save()
+            self.anon_users[i] = OBUser.objects.create_user(username=f"{StringId.AnonPrefix}{i}", is_anon=True).save()
 
             self.room.occupants.add(self.anon_users[i])
 
@@ -148,9 +142,7 @@ class BaseCommandTest:
         """
 
         for user in await async_model_list(self.room.occupants):
-            self.communicators[user.username] = await OBCommunicator(
-                user, GroupTypes.Room, self.room.name
-            ).connect()
+            self.communicators[user.username] = await OBCommunicator(user, GroupTypes.Room, self.room.name).connect()
 
     async def communicator_teardown(self, safe=True):
         """
@@ -169,7 +161,7 @@ class BaseCommandTest:
                 # OB.consumers.disconnect() raises an AttributeError because OBConsumer.room is None
                 pass
             except (django.db.utils.OperationalError, sqlite3.OperationalError):
-                # The database is locked, but he current communicator disconnected before the error
+                # The database is locked, but the current communicator disconnected before the error
                 pass
 
         self.communicators.clear()
@@ -215,19 +207,13 @@ class BaseCommandTest:
 
         Arguments:
             sender (OBUser): The user who sends the message and the only user who should receive a
-                a response.
+                response.
             response (string): The response that the sender should receive.
         """
 
         await self.communicators[sender.username].send(message)
 
-        all_users = (
-            self.anon_users
-            + self.auth_users
-            + self.limited_admins
-            + self.unlimited_admins
-            + [self.owner]
-        )
+        all_users = self.anon_users + self.auth_users + self.limited_admins + self.unlimited_admins + [self.owner]
 
         for user in all_users:
             if user == sender:

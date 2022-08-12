@@ -80,7 +80,7 @@ class BanCommand(BaseCommand):
     async def execute_implementation(self):
         """
         Kick and ban users from the room.
-        Constructs strings to send back to the sender and to the other occupants of the room.
+        Construct strings to send back to the sender and to the other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 
@@ -98,7 +98,7 @@ class BanCommand(BaseCommand):
             ban_message_body += [f"   {banned_user}"]
 
         self.sender_receipt += (
-            # Add an exra newline to separate argument error messages from ban receipt
+            # Add an extra newline to separate argument error messages from ban receipt
             [("\n" if self.sender_receipt else "") + StringId.BanSenderReceiptPreface]
             + ban_message_body
             + [StringId.BanSenderReceiptNote]

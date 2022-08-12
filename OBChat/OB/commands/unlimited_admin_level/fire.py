@@ -69,7 +69,7 @@ class FireCommand(BaseCommand):
     async def execute_implementation(self):
         """
         Removes adminships of targets.
-        Constructs strings to send back to the sender and other occupants of the room.
+        Construct strings to send back to the sender and other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 

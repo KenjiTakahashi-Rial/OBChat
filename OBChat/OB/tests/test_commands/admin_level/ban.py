@@ -30,9 +30,7 @@ class BanTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(
-            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
-        )
+        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
 
     @mark.asyncio
     @mark.django_db()
@@ -90,16 +88,12 @@ class BanTest(BaseCommandTest):
 
         # Test limited Admin banning Unlimited Admin error
         message = "/b unlimited_admin_0"
-        correct_response = StringId.BanPeer.format(
-            f"{self.unlimited_admins[0]}", StringId.Unlimited + StringId.Admin
-        )
+        correct_response = StringId.BanPeer.format(f"{self.unlimited_admins[0]}", StringId.Unlimited + StringId.Admin)
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test limited Admin banning limited Admin error
         message = "/b limited_admin_1"
-        correct_response = StringId.BanPeer.format(
-            f"{self.limited_admins[1]}", StringId.Admin + StringId.JustLikeYou
-        )
+        correct_response = StringId.BanPeer.format(f"{self.limited_admins[1]}", StringId.Admin + StringId.JustLikeYou)
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin banning owner error
@@ -116,9 +110,7 @@ class BanTest(BaseCommandTest):
         await self.test_isolated(self.unlimited_admins[0], message, correct_response)
 
         # Test Owner banning already banned user error
-        await async_save(
-            Ban, user=self.auth_users[0], room=self.room, issuer=self.owner
-        )
+        await async_save(Ban, user=self.auth_users[0], room=self.room, issuer=self.owner)
 
         message = "/b auth_user_0"
         correct_response = StringId.AlreadyBanned
@@ -160,22 +152,18 @@ class BanTest(BaseCommandTest):
 
         for user in occupants:
             if user not in targets and user != sender:
-                assert (
-                    await self.communicators[user.username].receive() == others_response
-                )
+                assert await self.communicators[user.username].receive() == others_response
 
         for user in targets:
             # Test auto-kick
             assert (await self.communicators[user.username].receive())["refresh"]
-            assert (await self.communicators[user.username].receive_output())[
-                "type"
-            ] == "websocket.close"
+            assert (await self.communicators[user.username].receive_output())["type"] == "websocket.close"
             assert user not in occupants
 
             # Test ban
             ban = await async_get(Ban, user=user)
             try:
-                # This should time-out because the user is banned, so they cannot connect
+                # This should be a time-out because the user is banned, so they cannot connect
                 await self.communicators[user.username].connect()
                 assert False
             except asyncio.TimeoutError:

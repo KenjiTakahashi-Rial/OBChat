@@ -60,7 +60,7 @@ Shows user information and allows a user to edit their own information
     var originalChangedInfo = {};
     var unsavedChanges = {};
 
-    // A user may only edit if this is their page and they are not expelled
+    // A user may only edit if this is their page, and they are not expelled
     if (
         "{{ user.is_expelled }}" === "False"
         && {{ user.id }} ===

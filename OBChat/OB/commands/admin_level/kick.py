@@ -77,7 +77,7 @@ class KickCommand(BaseCommand):
     async def execute_implementation(self):
         """
         Kick users from the room.
-        Constructs strings to send back to the sender and to the other occupants of the room.
+        Construct strings to send back to the sender and to the other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 
