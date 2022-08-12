@@ -18,9 +18,6 @@ from OB.commands.unlimited_admin_level import HireCommand
 from OB.commands.user_level import PrivateCommand
 from OB.commands.user_level import WhoCommand
 
-# pylint: disable=bad-whitespace
-# Justification: Commands mapped to the same function are put into columns for readability.
-# The values of this dict are command functions
 COMMANDS = {
     "/apply": ApplyCommand,
     "/a": ApplyCommand,
@@ -45,4 +42,3 @@ COMMANDS = {
     "/who": WhoCommand,
     "/w": WhoCommand,
 }
-# pylint: enable=bad-whitespace

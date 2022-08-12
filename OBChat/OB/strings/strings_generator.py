@@ -6,8 +6,6 @@ Script that generate the string ID module from strings.csv
 
 from csv import reader
 
-# pylint: disable=invalid-name
-# Justification: This is a script, so the variables do not need to be UPPER_SNAKE_CASE
 string_id_module = open("string_id.py", "w")
 
 string_id_module.write(
@@ -22,9 +20,6 @@ string_id_module.write(
             '    """',
             "    IDs used to get strings the string map (see OB.strings.strings_map).",
             '    """',
-            "",
-            "    # pylint: disable=line-too-long",
-            "    # Justification: This is just storage, it does not need to be readable.",
             "",
         ]
     )

@@ -74,11 +74,7 @@ def async_filter(model, **kwargs):
         list[obj]: A list of database objects whose class variable values match the kwargs.
     """
 
-    # pylint: disable=unnecessary-comprehension
-    # Justification: These comprehensions are necessary to make a list of database objects. If
-    #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     return [obj for obj in model.objects.filter(**kwargs)]
-    # pylint: enable=unnecessary-comprehension
 
 
 @database_sync_to_async
@@ -179,13 +175,9 @@ def async_model_list(model):
         list[obj]: A list of database objects from the model's QuerySet.
     """
 
-    # pylint: disable=unnecessary-comprehension
-    # Justification: These comprehensions are necessary to make a list of database objects. If
-    #   [model.objects.all()] is used, the list will contain QuerySets, not database objects.
     try:
         return [obj for obj in model.objects.all()]
     except AttributeError:
-        # ManyRelatedManager types do not have an objects attribute
         return [obj for obj in model.all()]
 
 

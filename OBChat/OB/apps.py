@@ -20,12 +20,8 @@ class OBConfig(AppConfig):
         This method runs one time when the Django app starts.
         """
 
-        # pylint: disable=import-outside-toplevel
-        # Justification: The Django documentation recommends importing here because you cannot
-        #   import models at the module-level.
+        # The Django documentation recommends importing here because you cannot import models at the module-level.
         from OB.models import OBUser, Room
-
-        # pylint: enable=import-outside-toplevel
 
         try:
             # Remove all occupants from all rooms
