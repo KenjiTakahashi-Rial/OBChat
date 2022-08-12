@@ -41,17 +41,17 @@ class BanCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
+            arg_privilege = Privilege.Invalid
+            arg_ban = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
-                arg_ban = await async_try_get(
-                    Ban, user=arg_user, room=self.room, is_lifted=False
-                )
+                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
 
             # Target user does not exist
             if not arg_user:
                 self.sender_receipt += [StringId.UserNotPresent.format(username)]
-            # Target user is the sender, themself
+            # Target user is the sender, themselves
             elif arg_user == self.sender:
                 self.sender_receipt += [StringId.BanSelf]
             # Target user is the owner
@@ -105,7 +105,5 @@ class BanCommand(BaseCommand):
         )
 
         self.occupants_notification += (
-            [StringId.BanOccupantsNotificationPreface]
-            + ban_message_body
-            + [StringId.BanOccupantsNotificationNote]
+            [StringId.BanOccupantsNotificationPreface] + ban_message_body + [StringId.BanOccupantsNotificationNote]
         )

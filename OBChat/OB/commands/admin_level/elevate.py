@@ -18,13 +18,13 @@ class ElevateCommand(BaseCommand):
     Can request generally to all users with higher privilege or to a specific user.
     """
 
-    def __init__(self):
+    def __init__(self, args, sender, room):
         """
         Elevate requires more instance variables than other commands because of its more complex
         syntax.
         """
 
-        super().__init__()
+        super().__init__(args, sender, room)
         self.command = ""
         self.message = ""
         self.valid_elevations = []
@@ -42,7 +42,7 @@ class ElevateCommand(BaseCommand):
             self.sender_receipt += [StringId.NonAdminElevating]
         # Is a valid elevation
         else:
-            self.parse()
+            await self.parse()
 
         return not self.sender_receipt
 
@@ -71,11 +71,7 @@ class ElevateCommand(BaseCommand):
 
         while stage < Stage.Done:
             # Check for open parenthesis and valid commands
-            if (
-                self.args[i][0] != "("
-                or stage == Stage.Command
-                and not is_valid_command(self.args[0][1:])
-            ):
+            if self.args[i][0] != "(" or stage == Stage.Command and not is_valid_command(self.args[0][1:]):
                 self.sender_receipt += [StringId.ElevateSyntax]
                 return
 
@@ -122,22 +118,19 @@ class ElevateCommand(BaseCommand):
         if not self.valid_targets:
             # Get all users with higher privilege
             if self.sender_privilege < Privilege.UnlimitedAdmin:
-                unlimited_admins = await async_filter(
-                    Admin, room=self.room, is_limited=False
-                )
+                unlimited_admins = await async_filter(Admin, room=self.room, is_limited=False)
                 self.valid_elevations += unlimited_admins
             self.valid_elevations += [self.room.owner]
         else:
             # Check for per-argument errors
             for username in self.valid_targets:
                 arg_user = await async_try_get(OBUser, username=username)
+                arg_privilege = Privilege.Invalid
 
                 if arg_user:
                     arg_privilege = await async_get_privilege(arg_user, self.room)
 
-                if not arg_user or arg_user not in await async_model_list(
-                    self.room.occupants
-                ):
+                if not arg_user or arg_user not in await async_model_list(self.room.occupants):
                     self.sender_receipt += [StringId.UserNotPresent.format(username)]
                 elif arg_user == self.sender:
                     self.sender_receipt += [StringId.ElevateSelf]
@@ -163,10 +156,7 @@ class ElevateCommand(BaseCommand):
 
         self.sender_receipt += (
             # Add an exra newline to separate argument error messages from request receipt
-            [
-                ("\n" if self.sender_receipt else "")
-                + StringId.ElevateSenderReceiptPreface
-            ]
+            [("\n" if self.sender_receipt else "") + StringId.ElevateSenderReceiptPreface]
             + elevate_message_body
         )
 

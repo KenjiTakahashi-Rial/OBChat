@@ -21,7 +21,7 @@ async def send_event(event, group_name):
         event (dict): Contains the event type and variant event data. Each event type must have a
             corresponding handling method of the same name defined in the consumer class (see
             OB.consumers.OBConsumer).
-        group (string): The name of the group to send the event to, as a string (see
+        group_name (string): The name of the group to send the event to, as a string (see
             get_group_name()).
     """
 
@@ -68,9 +68,7 @@ async def send_room_message(message_json, room_id, recipients=None, exclusions=N
     await send_room_event(room_id, event)
 
 
-async def send_system_room_message(
-    message_text, room, recipients=None, exclusions=None
-):
+async def send_system_room_message(message_text, room, recipients=None, exclusions=None):
     """
     Sends a message from the server to a specified room's group (see send_room_message()) with the
     server's OBUser database object as the sender.
@@ -92,9 +90,7 @@ async def send_system_room_message(
 
     # Save message to database
     system_user = await async_get(OBUser, username=StringId.SystemUsername)
-    new_message = await async_save(
-        Message, message=message_text, sender=system_user, room=room
-    )
+    new_message = await async_save(Message, message=message_text, sender=system_user, room=room)
 
     if recipients:
         for user in recipients:
@@ -127,14 +123,13 @@ async def send_private_message(message_text, sender, recipient):
     Sends a private message between two users.
 
     Arguments:
+        message_text (string): The text of the message to send.
         sender (OBUser): The user sending the private message.
         recipient (OBUser): The user to send the private message to.
     """
 
     # Get the Room object for the private messages
-    private_message_room = await async_try_get(
-        Room, name=get_group_name(GroupTypes.Private, sender.id, recipient.id)
-    )
+    private_message_room = await async_try_get(Room, name=get_group_name(GroupTypes.Private, sender.id, recipient.id))
 
     # Create the database object if it doesn't exist
     if not private_message_room:
@@ -145,9 +140,7 @@ async def send_private_message(message_text, sender, recipient):
         )
 
     # Save message to database
-    new_message = await async_save(
-        Message, message=message_text, sender=sender, room=private_message_room
-    )
+    new_message = await async_save(Message, message=message_text, sender=sender, room=private_message_room)
 
     # Encode the message data and metadata
     message_json = json.dumps(

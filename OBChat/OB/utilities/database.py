@@ -156,9 +156,7 @@ def async_len_all(query_set):
     Allows an asynchronous function to get the length of a database table.
 
     Arguments:
-        table: A database table to find the length of.
-               May be in the form QuerySet, OneToManyField, ManyToManyField, etc., as long as there
-               exists a corresponding table in the database.
+        query_set: A query set to find the length of.
 
     Return values:
         int: The length of the table.
@@ -243,7 +241,6 @@ def async_repr(repr_object):
     additional database query, which can only be performed synchronously.
 
     Arguments:
-        room (Room): The room to add users to the occupants of.
-        occupants (list[OBUser]): The list of users to add to the room's occupants list.
+        repr_object (Object): Any database object to represent
     """
     return repr_object.__repr__()

@@ -41,11 +41,12 @@ class LiftCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
+            issuer = None
+            issuer_privilege = Privilege.Invalid
+            sender_privilege = Privilege.Invalid
 
             if arg_user:
-                arg_ban = await async_try_get(
-                    Ban, user=arg_user, room=self.room, is_lifted=False
-                )
+                arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
                 issuer = await async_try_get(OBUser, ban_issued=arg_ban)
                 issuer_privilege = await async_get_privilege(issuer, self.room)
                 sender_privilege = await async_get_privilege(self.sender, self.room)
@@ -57,9 +58,7 @@ class LiftCommand(BaseCommand):
                 self.sender_receipt += [StringId.LiftInvalidTarget.format(username)]
             # Target user was banned by someone with higher privilege
             elif issuer_privilege >= sender_privilege and issuer != self.sender:
-                self.sender_receipt += [
-                    StringId.LiftInsufficientPermission.format(arg_user, issuer)
-                ]
+                self.sender_receipt += [StringId.LiftInsufficientPermission.format(arg_user, issuer)]
             # Is a valid lift
             else:
                 self.valid_targets += [(arg_ban, arg_user)]

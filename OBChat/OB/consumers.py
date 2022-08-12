@@ -68,9 +68,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             self.user = self.scope["user"]
         else:
             # Make an OBUser object for this anonymous user's session
-            while await async_try_get(
-                OBUser, username=f"{StringId.AnonPrefix}{self.session.session_key}"
-            ):
+            while await async_try_get(OBUser, username=f"{StringId.AnonPrefix}{self.session.session_key}"):
                 await async_cycle_key(self.session)
 
             self.user = await async_save(
@@ -99,9 +97,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             return
 
         # Add to room group
-        await self.channel_layer.group_add(
-            get_group_name(GroupTypes.Room, self.room.id), self.channel_name
-        )
+        await self.channel_layer.group_add(get_group_name(GroupTypes.Room, self.room.id), self.channel_name)
 
         # Add to the occupants list for this room
         room = await async_get(Room, group_type=group_type, name=room_name)
@@ -126,9 +122,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             return
 
         # Leave room group
-        await self.channel_layer.group_discard(
-            get_group_name(GroupTypes.Room, self.room.id), self.channel_name
-        )
+        await self.channel_layer.group_discard(get_group_name(GroupTypes.Room, self.room.id), self.channel_name)
 
         print(f"WebSocket disconnected with code {code}.")
 
@@ -246,7 +240,7 @@ class OBConsumer(AsyncWebsocketConsumer):
             event (dict): Contains the message JSON
         """
 
-        has_recipients = all(id >= 0 for id in event["recipient_ids"])
+        has_recipients = all(r_id >= 0 for r_id in event["recipient_ids"])
         is_user_recipient = self.user.id in event["recipient_ids"]
         is_user_excluded = self.user.id in event["exclusion_ids"]
 

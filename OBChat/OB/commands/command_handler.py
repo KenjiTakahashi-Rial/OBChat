@@ -32,7 +32,7 @@ async def handle_command(command, sender, room):
     OB.utilities.command.is_command_format()).
 
     Arguments:
-        data (string): A space-separated string of a command with arguments.
+        command (string): A space-separated string of a command with arguments.
             ex: "/command arg1 arg2"
         sender (OBUser): The OBUser who issued the command.
         room (Room): The Room the command was sent from.

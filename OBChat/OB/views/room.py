@@ -96,9 +96,7 @@ def create_room(request):
         # Save the room to the database
         Room(name=room_name.lower(), display_name=display_name, owner=owner).save()
 
-        return HttpResponseRedirect(
-            reverse("OB:OB-room", kwargs={"room_name": room_name})
-        )
+        return HttpResponseRedirect(reverse("OB:OB-room", kwargs={"room_name": room_name}))
 
     # Not GET or POST
     return HttpResponse()
@@ -122,9 +120,7 @@ def room(request, room_name):
         room_object = try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
         if room_object:
-            websocket_url_json = mark_safe(
-                json.dumps(f"ws://{{0}}/OB/chat/{room_name}/")
-            )
+            websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/chat/{room_name}/"))
 
             ban = try_get(
                 Ban,
@@ -137,13 +133,11 @@ def room(request, room_name):
                 # Get the messages
                 message_query = Q(recipients=None)
                 if request.user.is_authenticated:
-                    message_query |= Q(recipients=(request.user))
+                    message_query |= Q(recipients=request.user)
                 messages = Message.objects.filter(message_query)
 
                 for message in messages:
-                    messages_timestrings += [
-                        (message, get_datetime_string(message.timestamp))
-                    ]
+                    messages_timestrings += [(message, get_datetime_string(message.timestamp))]
 
             template = "OB/room.html"
             context = {

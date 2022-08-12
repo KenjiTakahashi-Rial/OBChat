@@ -38,6 +38,8 @@ class FireCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
+            arg_privilege = Privilege.Invalid
+            arg_admin = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -46,7 +48,7 @@ class FireCommand(BaseCommand):
             # Target user does not exist
             if not arg_user:
                 self.sender_receipt += [StringId.FireUserNotPresent.format(username)]
-            # Target user is the sender, themself
+            # Target user is the sender, themselves
             elif arg_user == self.sender:
                 self.sender_receipt += [StringId.FireSelf]
             # Target user is the owner
@@ -92,13 +94,9 @@ class FireCommand(BaseCommand):
         )
 
         self.occupants_notification += (
-            [StringId.FireOccupantsNotificationPreface]
-            + fire_message_body
-            + [StringId.FireOccupantsNotificationNote]
+            [StringId.FireOccupantsNotificationPreface] + fire_message_body + [StringId.FireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            [StringId.FireOccupantsNotificationPreface]
-            + fire_message_body
-            + [StringId.FireTargetsNotificationNote]
+            [StringId.FireOccupantsNotificationPreface] + fire_message_body + [StringId.FireTargetsNotificationNote]
         )

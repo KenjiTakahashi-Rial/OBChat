@@ -38,6 +38,8 @@ class HireCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
+            arg_privilege = Privilege.Invalid
+            arg_admin = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -46,7 +48,7 @@ class HireCommand(BaseCommand):
             # Target user does not exist
             if not arg_user:
                 self.sender_receipt += [StringId.HireInvalidTarget.format(username)]
-            # Target user is the sender, themself
+            # Target user is the sender, themselves
             elif arg_user == self.sender:
                 self.sender_receipt += [StringId.HireSelf]
             # Target user is the owner
@@ -57,9 +59,7 @@ class HireCommand(BaseCommand):
                 self.sender_receipt += [StringId.HireAnon.format(arg_user)]
             # Target may not be promoted by sender
             elif arg_admin and self.sender_privilege < Privilege.Owner:
-                self.sender_receipt += [
-                    StringId.HireInsufficientPrivilege.format(arg_user)
-                ]
+                self.sender_receipt += [StringId.HireInsufficientPrivilege.format(arg_user)]
             # Target user is an Unlimited Admin
             elif arg_admin and not arg_admin.is_limited:
                 self.sender_receipt += [StringId.HireUnlimitedAdmin.format(arg_user)]
@@ -86,9 +86,7 @@ class HireCommand(BaseCommand):
                 await async_save(target_adminship)
             else:
                 # Make an adminship for the user
-                await async_save(
-                    Admin, user=hired_user, room=self.room, issuer=self.sender
-                )
+                await async_save(Admin, user=hired_user, room=self.room, issuer=self.sender)
 
             hire_message_body += [f"    {hired_user}"]
 
@@ -100,15 +98,11 @@ class HireCommand(BaseCommand):
         )
 
         self.occupants_notification += (
-            [StringId.HireOccupantsNotificationPreface]
-            + hire_message_body
-            + [StringId.HireOccupantsNotificationNote]
+            [StringId.HireOccupantsNotificationPreface] + hire_message_body + [StringId.HireOccupantsNotificationNote]
         )
 
         self.targets_notification += (
-            [StringId.HireOccupantsNotificationPreface]
-            + hire_message_body
-            + [StringId.HireTargetsNotificationNote]
+            [StringId.HireOccupantsNotificationPreface] + hire_message_body + [StringId.HireTargetsNotificationNote]
         )
 
     async def send_responses(self):
@@ -116,7 +110,5 @@ class HireCommand(BaseCommand):
         Change the valid_targets list to be a list of OBUsers instead of a list of tuples.
         """
 
-        self.valid_targets = [
-            hired_user for hired_user, existing_adminship in self.valid_targets
-        ]
+        self.valid_targets = [hired_user for hired_user, existing_adminship in self.valid_targets]
         await super().send_responses()

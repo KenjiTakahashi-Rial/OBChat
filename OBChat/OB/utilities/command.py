@@ -50,7 +50,7 @@ def async_get_privilege(user, room):
     Determines the highest privilege level of a user for a room.
 
     Arguments:
-        username (string): The username of the OBUser to find the privilege of.
+        user (string): The username of the OBUser to find the privilege of.
         room (Room): The database object of the room to find privilege for.
 
     Return values:

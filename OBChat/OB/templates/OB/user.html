@@ -61,8 +61,15 @@ Shows user information and allows a user to edit their own information
     var unsavedChanges = {};
 
     // A user may only edit if this is their page and they are not expelled
-    if ("{{ user.is_expelled }}" === "False" && {{ user.id }} ===
-      {% if request.user.id >= 0 %}{{ request.user.id }}{% else %}-1{% endif %}) {
+    if (
+        "{{ user.is_expelled }}" === "False"
+        && {{ user.id }} ===
+            {% if request.user.id >= 0 %}
+                {{ request.user.id }}
+            {% else %}
+                -1
+            {% endif %}
+    ) {
       // Click to edit
       $("p[name=\"can-edit\"]").on("click", function(event) {
         var editInput = $("input[id^=" + event.target.id + "]");

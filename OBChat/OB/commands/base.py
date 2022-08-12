@@ -6,6 +6,7 @@ from OB.constants import Privilege
 from OB.utilities.command import async_get_privilege
 from OB.utilities.event import send_system_room_message
 
+
 # pylint: disable=too-few-public-methods
 # Justification: The only method that needs to be publicly visible is execute()
 # pylint: disable=too-many-instance-attributes
@@ -98,9 +99,7 @@ class BaseCommand:
         Joins the sender receipt and occupants notification lists by \n.
         """
 
-        await send_system_room_message(
-            "\n".join(self.sender_receipt), self.room, [self.sender]
-        )
+        await send_system_room_message("\n".join(self.sender_receipt), self.room, [self.sender])
 
         await send_system_room_message(
             "\n".join(self.occupants_notification),
@@ -108,6 +107,4 @@ class BaseCommand:
             exclusions=[self.sender] + self.valid_targets,
         )
 
-        await send_system_room_message(
-            "\n".join(self.targets_notification), self.room, self.valid_targets
-        )
+        await send_system_room_message("\n".join(self.targets_notification), self.room, self.valid_targets)

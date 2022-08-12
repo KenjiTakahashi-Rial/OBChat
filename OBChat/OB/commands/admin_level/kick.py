@@ -43,14 +43,13 @@ class KickCommand(BaseCommand):
 
         for username in self.args:
             arg_user = await async_try_get(OBUser, username=username)
+            arg_privilege = Privilege.Invalid
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
 
             # Target user is not present in the room
-            if not arg_user or arg_user not in await async_model_list(
-                self.room.occupants
-            ):
+            if not arg_user or arg_user not in await async_model_list(self.room.occupants):
                 self.sender_receipt += [StringId.UserNotPresent.format(username)]
             # Target user is the sender
             elif arg_user == self.sender:
@@ -99,7 +98,5 @@ class KickCommand(BaseCommand):
             + [StringId.KickSenderReceiptNote]
         )
         self.occupants_notification += (
-            [StringId.KickOccupantsNotificationPreface]
-            + kick_message_body
-            + [StringId.KickOccupantsNotificationNote]
+            [StringId.KickOccupantsNotificationPreface] + kick_message_body + [StringId.KickOccupantsNotificationNote]
         )

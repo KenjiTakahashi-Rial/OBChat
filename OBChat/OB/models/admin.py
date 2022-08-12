@@ -5,15 +5,9 @@ Admin class container module.
 from django.db.models import (
     BooleanField,
     CASCADE,
-    CharField,
-    DateField,
-    DateTimeField,
     ForeignKey,
-    ManyToManyField,
     Model,
-    IntegerField,
     SET_DEFAULT,
-    TextField,
 )
 
 from OB.models.ob_user import OBUser
@@ -29,14 +23,10 @@ class Admin(Model):
 
     user = ForeignKey(OBUser, on_delete=CASCADE, default=-1, related_name="adminship")
     room = ForeignKey(Room, on_delete=CASCADE, default=-1)
-    issuer = ForeignKey(
-        OBUser, related_name="admin_hired", on_delete=SET_DEFAULT, default=-1
-    )
+    issuer = ForeignKey(OBUser, related_name="admin_hired", on_delete=SET_DEFAULT, default=-1)
     is_limited = BooleanField(default=True)
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
             force_insert=force_insert,
             force_update=force_update,
