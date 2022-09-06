@@ -148,3 +148,6 @@ OBChat/OB/strings/.~lock.strings.csv#
 
 # Redis
 dump.rdb
+
+# pyenv
+.python-version
