@@ -16,8 +16,8 @@ class ApplyCommand(BaseCommand):
     Optionally includes a message.
     """
 
-    CALLERS = ["apply", "a"]
-    MANUAL = f"/{CALLERS[0]} <message> - Request to be hired as an Admin or promoted to Unlimited Admin"
+    CALLERS = [StringId.ApplyCaller, StringId.ApplyCallerShort]
+    MANUAL = StringId.ApplyManual
 
     def __init__(self, args, sender, room):
         """

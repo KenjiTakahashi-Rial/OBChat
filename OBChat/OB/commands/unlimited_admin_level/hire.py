@@ -17,8 +17,8 @@ class HireCommand(BaseCommand):
     Authenticated users receive a limited adminship.
     """
 
-    CALLERS = ["hire", "h"]
-    MANUAL = "/hire <user1> <user2> ... - Make user(s) Admin of your current room"
+    CALLERS = [StringId.HireCaller, StringId.HireCallerShort]
+    MANUAL = StringId.HireManual
 
     async def check_initial_errors(self):
         """

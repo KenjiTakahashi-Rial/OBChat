@@ -14,8 +14,8 @@ class CreateCommand(BaseCommand):
     Create a new chat room from a commandline instead of through the website GUI.
     """
 
-    CALLERS = ["create", "c"]
-    MANUAL = f"/{CALLERS[0]} - Create a new room"
+    CALLERS = [StringId.CreateCaller, StringId.CreateCallerShort]
+    MANUAL = StringId.CreateManual
 
     async def check_initial_errors(self):
         """
@@ -55,7 +55,7 @@ class CreateCommand(BaseCommand):
         """
 
         # If there are capitalized letters in the argument room name, set the argument room name
-        # as the display name and the lowecase version of it as the room name
+        # as the display name and the lowercase version of it as the room name
         display_name = self.args[0] if not self.args[0].islower() else None
 
         # Save the new room

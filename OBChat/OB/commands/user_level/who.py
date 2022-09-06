@@ -15,8 +15,8 @@ class WhoCommand(BaseCommand):
     issuing user's current room.
     """
 
-    CALLERS = ["who", "w"]
-    MANUAL = f"/{CALLERS[0]} <room1> <room2> ... - See who is in a room. Default: current room"
+    CALLERS = [StringId.WhoCaller, StringId.WhoCallerShort]
+    MANUAL = StringId.WhoManual
 
     def __init__(self, args, sender, room):
         """

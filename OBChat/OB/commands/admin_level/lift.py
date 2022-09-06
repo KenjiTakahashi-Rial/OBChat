@@ -17,8 +17,8 @@ class LiftCommand(BaseCommand):
     TODO: Viewing a user from inside the Room will show they have been banned before.
     """
 
-    CALLERS = ["lift", "l"]
-    MANUAL = f"/{CALLERS[0]} <user1> <user2> ... - Lift ban on user(s) from your current room"
+    CALLERS = [StringId.LiftCaller, StringId.LiftCallerShort]
+    MANUAL = StringId.LiftManual
 
     async def check_initial_errors(self):
         """

@@ -2,9 +2,42 @@ StringId,en-US
 Invalid,!@#$%^&*()
 SystemUsername,OB-Sys
 AnonPrefix,OB-Anon-
+BanCaller,ban
+BanCallerShort,b
+BanManual,/{BanCaller} <user1> <user2> ... - Ban user(s) from your current room
+ElevateCaller,elevate
+ElevateCallerShort,e
+ElevateManual,/{ElevateCaller} <command> <arg1> <arg2> ... <user> - Request an action be performed by a user with higher privilege
+KickCaller,kick
+KickCallerShort,k
+KickManual,/{KickCaller} <user1> <user2> ... - Kick user(s) from your current room
+LiftCaller,lift
+LiftCallerShort,l
+LiftManual,/{LiftCaller} <user1> <user2> ... - Lift ban on user(s) from your current room
+ApplyCaller,apply
+ApplyCallerShort,a
+ApplyManual,/{ApplyCaller} <message> - Request to be hired as an Admin or promoted to Unlimited Admin
+CreateCaller,create
+CreateCallerShort,c
+CreateManual,/{CreateCaller} - Create a new room
+DeleteCaller,delete
+DeleteCallerShort,d
+DeleteManual,/{DeleteCaller} <room1> <room2> ... - Delete a room. Default: current room
+FireCaller,fire
+FireCallerShort,f
+FireManual,/{FireCaller} <user1> <user2> ... - Reduces the privilege of an Admin or Unlimited Admin
+HireCaller,hire
+HireCallerShort,h
+HireManual,/{HireCaller} <user1> <user2> ... - Make user(s) Admin of your current room
+PrivateCaller,private
+PrivateCallerShort,p
+PrivateManual,/{PrivateCaller} /<user> <message> - Send a private message
+WhoCaller,who
+WhoCallerShort,w
+WhoManual,/{WhoCaller} <room1> <room2> ... - See who is in a room. Default: current room
 AnonBanning,"You're not even logged in! Try making an account first, then we can talk about banning people."
-NonAdminBanning,That's a little outside your pay-grade. Only admins may ban users. Try to /apply to be an Admin.
-BanSyntax,Usage: /ban <user1> <user2> ...
+NonAdminBanning,That's a little outside your pay-grade. Only admins may ban users. Try to /{ApplyCaller} to be an Admin.
+BanSyntax,Usage: /{BanCaller} <user1> <user2> ...,BanCaller
 UserNotPresent,Nobody named {0} in this room. Are you seeing things?
 BanSelf,You can't ban yourself. Just leave the room. Or put yourself on time-out.
 TargetOwner,"That's the owner. You know, your BOSS. Nice try."
@@ -12,35 +45,35 @@ AlreadyBanned,That user is already banned. How unoriginal of you.
 Admin,Admin
 JustLikeYou, just like you
 Unlimited,Unlimited
-BanPeer,"{0} is an {1}, so you can't ban them. Feel free to /elevate your complaints to someone who has more authority."
+BanPeer,"{0} is an {1}, so you can't ban them. Feel free to /{ElevateCaller} your complaints to someone who has more authority."
 BanSenderReceiptPreface,Banned:
 BanSenderReceiptNote,That'll show them.
 BanOccupantsNotificationPreface,One or more users have been banned:
 BanOccupantsNotificationNote,Fear the almighty ban-hammer.
 AnonElevating,"Why don't you make an account or log in first? Call us old-fashioned, but anons have very little privileges around these parts."
 NonAdminElevating,Elevation is a skill that only Admins are capable of wielding. You have yet to reach the level of Admin - come back when you're ready!
-ElevateSyntax,Usage: /elevate (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)
+ElevateSyntax,Usage: /{ElevateCaller} (<command> <arg1> <arg2> ...) (<user1> <user2> ...) (<message>)
 ElevateSelf,You can't elevate to yourself. Who do you think you are?
-ElevatePeer,{0} does not have more privileges than you. What's the point of /elevate -ing to them?
+ElevatePeer,{0} does not have more privileges than you. What's the point of /{ElevateCaller} -ing to them?
 ElevateSenderReceiptPreface,Sent an elevation request:
 ElevateTargetsNotificationPreface,Received an elevation request from {0}
 Recipients,Recipients:
 CommandRequested,Command requested:
 Message,Message:
 AnonKicking,"You're not even logged in! Try making an account first, then we can talk about kicking people."
-NonAdminKicking,That's a little outside your pay-grade. Only admins may kick users. Try to /apply to be an Admin.
-KickSyntax,Usage: /kick <user1> <user2> ...
+NonAdminKicking,That's a little outside your pay-grade. Only admins may kick users. Try to /{ApplyCaller} to be an Admin.
+KickSyntax,Usage: /{KickCaller} <user1> <user2> ...
 KickSelf,You can't kick yourself. Just leave the room. Or put yourself on time-out.
-KickPeer,"{0} is an {1}, so you can't kick them. Feel free to /elevate your complaints to someone who has more authority."
+KickPeer,"{0} is an {1}, so you can't kick them. Feel free to /{ElevateCaller} your complaints to someone who has more authority."
 KickSenderReceiptPreface,Kicked:
 KickSenderReceiptNote,We'll see if they come back.
 KickOccupantsNotificationPreface,One or more users have been kicked:
 KickOccupantsNotificationNote,Let this be a lesson to you all.
 AnonLifting,You are far from one who can lift bans. Log in and prove yourself an Admin.
-NonAdminLifting,A mere mortal like yourself does not have the power to lift bans. Try to /apply to be an Admin and perhaps you may obtain this power if you are worthy.
-LiftSyntax,Usage: /lift <user1> <user2> ...
+NonAdminLifting,A mere mortal like yourself does not have the power to lift bans. Try to /{ApplyCaller} to be an Admin and perhaps you may obtain this power if you are worthy.
+LiftSyntax,Usage: /{LiftCaller} <user1> <user2> ...
 LiftInvalidTarget,No user named {0} has been banned from this room. How can one lift that which has not been banned?
-LiftInsufficientPermission,{0} was banned by {1}. You cannot lift a ban issued by a user of equal or higher privilege than yourself. If you REALLY want to lift this ban you can /elevate to a higher authority.
+LiftInsufficientPermission,{0} was banned by {1}. You cannot lift a ban issued by a user of equal or higher privilege than yourself. If you REALLY want to lift this ban you can /{ElevateCaller} to a higher authority.
 LiftSenderReceiptPreface,Ban lifted:
 LiftSenderReceiptNote,Fully reformed and ready to integrate into society.
 AnonApplying,You can't get hired looking like that! Clean yourself up and make an account first.
@@ -51,38 +84,38 @@ Position,Position:
 ApplySenderReceiptPreface,Application sent:
 ApplySenderReceiptNote,"Hopefully the response doesn't start with: \""After careful consideration...\"""
 ApplyTargetsNotificationPreface,Application Received:
-ApplyTargetsNotificationNote,"To hire this user, use /hire."
+ApplyTargetsNotificationNote,"To hire this user, use /{HireCaller}."
 AnonCreating,Identify yourself! Must log in to create a room.
-CreateSyntax,Usage: /create <name>
+CreateSyntax,Usage: /{CreateCaller} <name>
 CreateSyntaxError,Room name cannot contain spaces.
 CreateExistingRoom,Someone beat you to it. {0} already exists.
 CreateSenderReceipt,Sold! Check out your new room: {0}
 NonOwnerDeleting,Trying to delete someone else's room? How rude. Only the room owner may delete a room
-DeleteSyntax,Usage: /delete <room name> <owner username>
-NonUnlimitedAdminFiring,That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /apply to be Unlimited.
-FireSyntax,Usage: /fire <user1> <user2> ...
+DeleteSyntax,Usage: /{DeleteCaller} <room name> <owner username>
+NonUnlimitedAdminFiring,That's a little outside your pay-grade. Only Unlimited Admins may fire admins. Try to /{ApplyCaller} to be Unlimited.
+FireSyntax,Usage: /{FireCaller} <user1> <user2> ...
 FireUserNotPresent,{0} does not exist. You can't fire a ghost... can you?
 FireSelf,You can't fire yourself. I don't care how bad your performance reviews are.
-FireNonAdmin,"{0} is just a regular ol' user, so you can't fire them. You can /kick or /ban them if you want."
+FireNonAdmin,"{0} is just a regular ol' user, so you can't fire them. You can /{1} or /{2} them if you want."
 FirePeer,"{0} is an Unlimited Admin, so you can't fire them. Please direct all complaints to your local room owner, I'm sure they'll love some more paperwork to do..."
 FireSenderReceiptPreface,Fired:
 FireSenderReceiptNote,It had to be done.
 FireOccupantsNotificationPreface,One or more users have been fired:
 FireOccupantsNotificationNote,Those budget cuts are killer.
 FireTargetsNotificationNote,Clean out your desk.
-NonUnlimitedAdminHiring,That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /apply to be Unlimited.
-HireSyntax,Usage: /hire <user1> <user2> ...
+NonUnlimitedAdminHiring,That's a little outside your pay-grade. Only Unlimited Admins may hire admins. Try to /{ApplyCaller} to be Unlimited.
+HireSyntax,Usage: /{HireCaller} <user1> <user2> ...
 HireInvalidTarget,{0} does not exist. Your imaginary friend needs an account before they can be an Admin.
 HireSelf,You can't hire yourself. I don't care how good your letter of recommendation is.
 HireAnon,{0} hasn't signed up yet. They cannot be trusted with the immense responsibility that is adminship.
-HireUnlimitedAdmin,{0} is already an Unlimited Admin. There's nothing left to /hire them for.
+HireUnlimitedAdmin,{0} is already an Unlimited Admin. There's nothing left to /{1} them for.
 HireInsufficientPrivilege,{0} is already an Admin. Only the owner may promote them to Unlimited Admin
 HireSenderReceiptPreface,Hired:
 HireSenderReceiptNote,Now for the three-month evaluation period
 HireOccupantsNotificationPreface,One or more users have been hired:
 HireOccupantsNotificationNote,Drinks on them!
 HireTargetsNotificationNote,With great power comes great responsibility.
-PrivateSyntax,Usage: /private /<user> <message>
+PrivateSyntax,Usage: /{PrivateCaller} /<user> <message>
 PrivateInvalidSyntax,"Looks like you forgot a \""/\"" before the username. I'll let it slide."
 PrivateInvalidTarget,{0} doesn't exist. Your private message will broadcasted into space instead.
 PrivateNoMessage,No message specified. Did you give up at just the username?

@@ -18,11 +18,8 @@ class ElevateCommand(BaseCommand):
     Can request generally to all users with higher privilege or to a specific user.
     """
 
-    CALLERS = ["elevate", "e"]
-    MANUAL = (
-        f"/{CALLERS[0]} <command> <arg1> <arg2> ... <user> - Request an action be performed by a user with higher "
-        f"privilege"
-    )
+    CALLERS = [StringId.ElevateCaller, StringId.ElevateCallerShort]
+    MANUAL = StringId.ElevateManual
 
     def __init__(self, args, sender, room):
         """

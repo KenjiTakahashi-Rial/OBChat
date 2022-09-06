@@ -16,8 +16,8 @@ class PrivateCommand(BaseCommand):
     messages.
     """
 
-    CALLERS = ["private", "p"]
-    MANUAL = f"/{CALLERS[0]} /<user> <message> - Send a private message"
+    CALLERS = [StringId.PrivateCaller, StringId.PrivateCallerShort]
+    MANUAL = StringId.PrivateManual
 
     async def check_initial_errors(self):
         """

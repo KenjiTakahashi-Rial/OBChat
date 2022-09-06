@@ -17,8 +17,8 @@ class KickCommand(BaseCommand):
     Kicked users will not receive messages from the group until they rejoin the Room.
     """
 
-    CALLERS = ["kick", "k"]
-    MANUAL = f"/{CALLERS[0]} <user1> <user2> ... - Kick user(s) from your current room"
+    CALLERS = [StringId.KickCaller, StringId.KickCallerShort]
+    MANUAL = StringId.KickManual
 
     # TODO: Add an option to do this silently (without notifying everyone)
 
