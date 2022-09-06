@@ -16,6 +16,9 @@ class PrivateCommand(BaseCommand):
     messages.
     """
 
+    CALLERS = ["private", "p"]
+    MANUAL = f"/{CALLERS[0]} /<user> <message> - Send a private message"
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
@@ -38,9 +41,7 @@ class PrivateCommand(BaseCommand):
         self.valid_targets = [await async_try_get(OBUser, username=self.args[0][1:])]
 
         if not self.valid_targets[0]:
-            self.sender_receipt = [
-                StringId.PrivateInvalidTarget.format(self.args[0][1:])
-            ]
+            self.sender_receipt = [StringId.PrivateInvalidTarget.format(self.args[0][1:])]
         elif len(self.args) == 1:
             self.sender_receipt = [StringId.PrivateNoMessage]
 
@@ -60,10 +61,6 @@ class PrivateCommand(BaseCommand):
         """
 
         if self.sender_receipt:
-            await send_system_room_message(
-                "\n".join(self.sender_receipt), self.room, [self.sender]
-            )
+            await send_system_room_message("\n".join(self.sender_receipt), self.room, [self.sender])
         elif self.targets_notification:
-            await send_private_message(
-                self.targets_notification[0], self.sender, self.valid_targets[0]
-            )
+            await send_private_message(self.targets_notification[0], self.sender, self.valid_targets[0])

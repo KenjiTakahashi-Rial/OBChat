@@ -16,6 +16,9 @@ class ApplyCommand(BaseCommand):
     Optionally includes a message.
     """
 
+    CALLERS = ["apply", "a"]
+    MANUAL = f"/{CALLERS[0]} <message> - Request to be hired as an Admin or promoted to Unlimited Admin"
+
     def __init__(self, args, sender, room):
         """
         Arguments of /apply are a message, so do not remove duplicates.

@@ -17,6 +17,9 @@ class FireCommand(BaseCommand):
     Unlimited Admins have their adminships limited.
     """
 
+    CALLERS = ["fire", "f"]
+    MANUAL = f"/{CALLERS[0]} <user1> <user2> ... - Reduces the privilege of an Admin or Unlimited Admin"
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().

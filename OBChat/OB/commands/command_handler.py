@@ -2,26 +2,16 @@
 Handles when a command is issued from a user and redirects to the appropriate command function.
 """
 
-import OB.commands
-
+from OB.commands.commands import CALLER_MAP
+from OB.commands.commands import COMMANDS
 from OB.utilities.event import send_system_room_message
 
-# TODO: Rework this to be held inside each command module
-VALID_COMMANDS = "\n".join(
-    [
-        "Valid commands:",
-        "    * /create - Create a new room",
-        "    * /who <room1> <room2> ... - See who is in a room. Default: current room",
-        "    * /private /<user> <message> - Send a private message",
-        "    * /hire <user1> <user2> ... - Make user(s) Admin of your current room",
-        "    * /fire <user1> <user2> ... - Revoke Admin privileges for user(s)",
-        "    * /kick <user1> <user2> ... - Kick user(s) from your current room",
-        "    * /ban <user1> <user2> ... - Ban user(s) from your current room",
-        "    * /lift <user1> <user2> ... - Lift ban on user(s) from your current room",
-        "    * /delete <room1> <room2> ... - Delete a room. Default: current room",
-        "Type backslash with only the first letter of a command if you're in a hurry.",
-        "To use backslash as the first character of a message: //",
-    ]
+MANUAL_ENTRIES = "\n\t* ".join([command.MANUAL for command in COMMANDS])
+VALID_COMMANDS = (
+    f"Valid commands:\n"
+    f"\t* {MANUAL_ENTRIES}\n"
+    f"Type backslash with only the first letter of a command if you're in a hurry.\n"
+    f"To use backslash as the first character of a message: //"
 )
 
 
@@ -40,11 +30,13 @@ async def handle_command(command, sender, room):
 
     # Separate by whitespace to get arguments
     separated = command.split()
-    command_name = separated[0]
+    caller = separated[0]
     arguments = separated[1:]
 
-    try:
-        await OB.commands.COMMANDS[command_name](arguments, sender, room).execute()
-    except KeyError:
+    if caller in CALLER_MAP:
+        command_class = CALLER_MAP[caller]
+        command_instance = command_class(arguments, sender, room)
+        await command_instance.execute()
+    else:
         # Invalid command, send the list of valid commands
         await send_system_room_message(VALID_COMMANDS, room, [sender])

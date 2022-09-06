@@ -13,6 +13,12 @@ class BaseCommand:
     Allow commands to be carried out generically by OB.commands.command_handler.
     """
 
+    # The different ways the command can be called
+    CALLERS = []
+    # The message describing how to use the command
+    # TODO: Change these to use string IDs instead
+    MANUAL = ""
+
     def __init__(self, args, sender, room):
         """
         Declares the instance variables that will be used for the command execution.

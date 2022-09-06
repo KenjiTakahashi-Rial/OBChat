@@ -14,6 +14,9 @@ class CreateCommand(BaseCommand):
     Create a new chat room from a commandline instead of through the website GUI.
     """
 
+    CALLERS = ["create", "c"]
+    MANUAL = f"/{CALLERS[0]} - Create a new room"
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().
@@ -36,9 +39,7 @@ class CreateCommand(BaseCommand):
         See BaseCommand.check_arguments()
         """
 
-        existing_room = await async_try_get(
-            Room, group_type=GroupTypes.Room, name=self.args[0].lower()
-        )
+        existing_room = await async_try_get(Room, group_type=GroupTypes.Room, name=self.args[0].lower())
 
         # Room with argument name already exists
         if existing_room:

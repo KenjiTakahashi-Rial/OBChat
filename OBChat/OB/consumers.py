@@ -6,7 +6,7 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from OB.commands import handle_command
+from OB.commands.command_handler import handle_command
 from OB.constants import GroupTypes
 from OB.models import Ban, Message, OBUser, Room
 from OB.strings import StringId

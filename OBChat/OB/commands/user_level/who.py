@@ -15,6 +15,9 @@ class WhoCommand(BaseCommand):
     issuing user's current room.
     """
 
+    CALLERS = ["who", "w"]
+    MANUAL = f"/{CALLERS[0]} <room1> <room2> ... - See who is in a room. Default: current room"
+
     def __init__(self, args, sender, room):
         """
         When there are no arguments, the default is the current room.
@@ -38,9 +41,7 @@ class WhoCommand(BaseCommand):
         """
 
         for room_name in self.args:
-            arg_room = await async_try_get(
-                Room, group_type=GroupTypes.Room, name=room_name
-            )
+            arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
             if not arg_room:
                 self.sender_receipt += [StringId.WhoInvalidTarget.format(room_name)]

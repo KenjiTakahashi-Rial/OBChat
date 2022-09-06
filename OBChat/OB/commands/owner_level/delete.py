@@ -21,6 +21,9 @@ class DeleteCommand(BaseCommand):
     All Admin, Ban, and Message objects will be deleted as well.
     """
 
+    CALLERS = ["delete", "d"]
+    MANUAL = f"/{CALLERS[0]} <room1> <room2> ... - Delete a room. Default: current room"
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().

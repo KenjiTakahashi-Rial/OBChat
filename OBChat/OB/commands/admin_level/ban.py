@@ -17,6 +17,9 @@ class BanCommand(BaseCommand):
     to rejoin the group. Bans may be lifted (see lift()).
     """
 
+    CALLERS = ["ban", "b"]
+    MANUAL = f"/{CALLERS[0]} <user1> <user2> ... - Ban user(s) from your current room"
+
     async def check_initial_errors(self):
         """
         See BaseCommand.check_initial_errors().

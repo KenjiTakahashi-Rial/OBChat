@@ -18,6 +18,12 @@ class ElevateCommand(BaseCommand):
     Can request generally to all users with higher privilege or to a specific user.
     """
 
+    CALLERS = ["elevate", "e"]
+    MANUAL = (
+        f"/{CALLERS[0]} <command> <arg1> <arg2> ... <user> - Request an action be performed by a user with higher "
+        f"privilege"
+    )
+
     def __init__(self, args, sender, room):
         """
         Elevate requires more instance variables than other commands because of its more complex
