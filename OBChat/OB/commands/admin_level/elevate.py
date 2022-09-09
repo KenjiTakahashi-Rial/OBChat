@@ -18,7 +18,7 @@ class ElevateCommand(BaseCommand):
     Can request generally to all users with higher privilege or to a specific user.
     """
 
-    CALLERS = [StringId.ElevateCaller, StringId.ElevateCallerShort]
+    CALLERS = (StringId.ElevateCaller, StringId.ElevateCallerShort)
     MANUAL = StringId.ElevateManual
 
     def __init__(self, args, sender, room):

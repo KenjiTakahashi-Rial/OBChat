@@ -14,7 +14,7 @@ class CreateCommand(BaseCommand):
     Create a new chat room from a commandline instead of through the website GUI.
     """
 
-    CALLERS = [StringId.CreateCaller, StringId.CreateCallerShort]
+    CALLERS = (StringId.CreateCaller, StringId.CreateCallerShort)
     MANUAL = StringId.CreateManual
 
     async def check_initial_errors(self):

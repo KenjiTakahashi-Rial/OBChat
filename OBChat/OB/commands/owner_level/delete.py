@@ -21,7 +21,7 @@ class DeleteCommand(BaseCommand):
     All Admin, Ban, and Message objects will be deleted as well.
     """
 
-    CALLERS = [StringId.DeleteCaller, StringId.DeleteCallerShort]
+    CALLERS = (StringId.DeleteCaller, StringId.DeleteCallerShort)
     MANUAL = StringId.DeleteManual
 
     async def check_initial_errors(self):

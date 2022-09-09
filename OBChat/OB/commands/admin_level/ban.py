@@ -17,7 +17,7 @@ class BanCommand(BaseCommand):
     to rejoin the group. Bans may be lifted (see lift()).
     """
 
-    CALLERS = [StringId.BanCaller, StringId.BanCallerShort]
+    CALLERS = (StringId.BanCaller, StringId.BanCallerShort)
     MANUAL = StringId.BanManual
 
     async def check_initial_errors(self):

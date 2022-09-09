@@ -17,7 +17,7 @@ class FireCommand(BaseCommand):
     Unlimited Admins have their adminships limited.
     """
 
-    CALLERS = [StringId.FireCaller, StringId.FireCallerShort]
+    CALLERS = (StringId.FireCaller, StringId.FireCallerShort)
     MANUAL = StringId.FireManual
 
     async def check_initial_errors(self):

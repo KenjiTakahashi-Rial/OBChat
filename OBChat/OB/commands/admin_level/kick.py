@@ -17,7 +17,7 @@ class KickCommand(BaseCommand):
     Kicked users will not receive messages from the group until they rejoin the Room.
     """
 
-    CALLERS = [StringId.KickCaller, StringId.KickCallerShort]
+    CALLERS = (StringId.KickCaller, StringId.KickCallerShort)
     MANUAL = StringId.KickManual
 
     # TODO: Add an option to do this silently (without notifying everyone)

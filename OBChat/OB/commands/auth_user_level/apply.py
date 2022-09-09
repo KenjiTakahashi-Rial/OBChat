@@ -16,7 +16,7 @@ class ApplyCommand(BaseCommand):
     Optionally includes a message.
     """
 
-    CALLERS = [StringId.ApplyCaller, StringId.ApplyCallerShort]
+    CALLERS = (StringId.ApplyCaller, StringId.ApplyCallerShort)
     MANUAL = StringId.ApplyManual
 
     def __init__(self, args, sender, room):

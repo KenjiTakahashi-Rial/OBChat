@@ -14,10 +14,9 @@ class BaseCommand:
     """
 
     # The different ways the command can be called
-    CALLERS = []
+    CALLERS: tuple[str, ...]
     # The message describing how to use the command
-    # TODO: Change these to use string IDs instead
-    MANUAL = ""
+    MANUAL: str
 
     def __init__(self, args, sender, room):
         """
