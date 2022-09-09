@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+set -e
+
 cd "$(dirname -- "$0";)" || exit 1
 
-if [[ "$(python3 --version)" != "Python 3.8.9" ]]; then
-  echo "Python version must be 3.8.9"
+if [[ "$(python3 --version)" != "Python 3.10.6" ]]; then
+  echo "Python version must be 3.10.6"
   exit 1
 fi
 

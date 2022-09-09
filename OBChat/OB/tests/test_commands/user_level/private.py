@@ -24,9 +24,7 @@ class PrivateTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(
-            unlimited_admins=1, limited_admins=1, auth_users=1, anon_users=1
-        )
+        super().__init__(unlimited_admins=1, limited_admins=1, auth_users=1, anon_users=1)
 
     @mark.asyncio
     @mark.django_db()
@@ -62,9 +60,7 @@ class PrivateTest(BaseCommandTest):
         await async_get(
             Room,
             group_type=GroupTypes.Private,
-            name=get_group_name(
-                GroupTypes.Private, self.owner.id, self.unlimited_admins[0].id
-            ),
+            name=get_group_name(GroupTypes.Private, self.owner.id, self.unlimited_admins[0].id),
         )
 
         # Create WebsocketCommunicators to test private messaging

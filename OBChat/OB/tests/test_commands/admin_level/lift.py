@@ -23,9 +23,7 @@ class LiftTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(
-            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
-        )
+        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
 
     @mark.asyncio
     @mark.django_db()
@@ -55,15 +53,11 @@ class LiftTest(BaseCommandTest):
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Create test ban
-        await async_save(
-            Ban, user=self.auth_users[1], room=self.room, issuer=self.owner
-        )
+        await async_save(Ban, user=self.auth_users[1], room=self.room, issuer=self.owner)
 
         # Test limited Admin lifting owner-issued ban error
         message = "/l auth_user_1"
-        correct_response = StringId.LiftInsufficientPermission.format(
-            self.auth_users[1], self.owner
-        )
+        correct_response = StringId.LiftInsufficientPermission.format(self.auth_users[1], self.owner)
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin lifting owner-issued ban error
@@ -97,9 +91,7 @@ class LiftTest(BaseCommandTest):
 
         # Test limited Admin lifting unlimited-admin-issued ban error
         message = "/l auth_user_1"
-        correct_response = StringId.LiftInsufficientPermission.format(
-            self.auth_users[1], self.unlimited_admins[0]
-        )
+        correct_response = StringId.LiftInsufficientPermission.format(self.auth_users[1], self.unlimited_admins[0])
         await self.test_isolated(self.limited_admins[0], message, correct_response)
 
         # Test Unlimited Admin lifting unlimited-admin-issued ban error

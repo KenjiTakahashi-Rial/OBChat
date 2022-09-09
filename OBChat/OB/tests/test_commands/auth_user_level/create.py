@@ -23,9 +23,7 @@ class CreateTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(
-            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
-        )
+        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
 
     @mark.asyncio
     @mark.django_db()
@@ -63,9 +61,7 @@ class CreateTest(BaseCommandTest):
         room_1 = await async_get(Room, group_type=GroupTypes.Room, name="room_1")
 
         # Create WebsocketCommunicators to test new room
-        self.communicators["owner_room_1"] = await OBCommunicator(
-            self.owner, GroupTypes.Room, room_1.name
-        ).connect()
+        self.communicators["owner_room_1"] = await OBCommunicator(self.owner, GroupTypes.Room, room_1.name).connect()
 
         self.communicators["unlimited_admin_0_room_1"] = await OBCommunicator(
             self.unlimited_admins[0], GroupTypes.Room, room_1.name

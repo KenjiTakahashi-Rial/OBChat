@@ -31,9 +31,7 @@ def setup_function():
 
     OBUser.objects.create_user(username="ob", email="ob@ob.ob", password="ob").save()
 
-    OBUser.objects.create_user(
-        username="obtmf", email="obtmf@ob.ob", password="ob"
-    ).save()
+    OBUser.objects.create_user(username="obtmf", email="obtmf@ob.ob", password="ob").save()
 
 
 def teardown_function():
@@ -102,18 +100,14 @@ def test_user():
 
     user_edit_data = {"display-name": "", "real-name": "", "birthday": ""}
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
 
     # Test POST with invalid display name
     user_edit_data["display-name"] = "O B"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     assert response.context["error_message"] == "Display name may not contain spaces."
@@ -121,9 +115,7 @@ def test_user():
     # Test POST with display name only
     user_edit_data["display-name"] = "OBT"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     assert OBUser.objects.get(username="ob").display_name == "OBT"
@@ -131,9 +123,7 @@ def test_user():
     # Test POST with different display name only
     user_edit_data["display-name"] = "OBTMF"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     assert OBUser.objects.get(username="ob").display_name == "OBTMF"
@@ -141,9 +131,7 @@ def test_user():
     # Test POST with first name only
     user_edit_data["real-name"] = "Kenji"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     ob_user = OBUser.objects.get(username="ob")
@@ -153,9 +141,7 @@ def test_user():
     # Test POST with first and last name
     user_edit_data["real-name"] = "Kenji TR"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     ob_user = OBUser.objects.get(username="ob")
@@ -165,9 +151,7 @@ def test_user():
     # Test POST with different first and last name
     user_edit_data["real-name"] = "Kenji Takahashi-Rial-La"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     ob_user = OBUser.objects.get(username="ob")
@@ -177,9 +161,7 @@ def test_user():
     # Test POST with birthday only
     user_edit_data["birthday"] = "2020-05-01"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     assert OBUser.objects.get(username="ob").birthday == date(2020, 5, 1)
@@ -187,9 +169,7 @@ def test_user():
     # Test POST with different birthday
     user_edit_data["birthday"] = "1987-10-14"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     assert OBUser.objects.get(username="ob").birthday == date(1987, 10, 14)
@@ -199,9 +179,7 @@ def test_user():
     user_edit_data["real-name"] = "Kenji Takahashi-Rial"
     user_edit_data["birthday"] = "1997-10-14"
 
-    response = client.post(
-        reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data
-    )
+    response = client.post(reverse("OB:OB-user", kwargs={"username": "ob"}), user_edit_data)
 
     assert response.status_code == 200
     ob_user = OBUser.objects.get(username="ob")
@@ -223,16 +201,11 @@ def test_private():
     response = client.get(reverse("OB:OB-private", kwargs={"username": "ob"}))
 
     assert response.status_code == 200
-    assert (
-        response.context["error_message"]
-        == "Must be logged in to send private messages."
-    )
+    assert response.context["error_message"] == "Must be logged in to send private messages."
 
     # Test invalid user GET
     client.login(username="ob", password="ob")
-    response = client.get(
-        reverse("OB:OB-private", kwargs={"username": "mafdtfafobtmf"})
-    )
+    response = client.get(reverse("OB:OB-private", kwargs={"username": "mafdtfafobtmf"}))
 
     assert response.status_code == 200
     assert "error_message" not in response.context
@@ -243,9 +216,7 @@ def test_private():
     assert response.status_code == 200
     ob_id = OBUser.objects.get(username="ob").id
     obtmf_id = OBUser.objects.get(username="obtmf").id
-    assert response.context["room_name"] == get_group_name(
-        GroupTypes.Private, ob_id, obtmf_id
-    )
+    assert response.context["room_name"] == get_group_name(GroupTypes.Private, ob_id, obtmf_id)
     assert "messages" in response.context and "websocket_url_json" in response.context
 
     # Test private message Room created

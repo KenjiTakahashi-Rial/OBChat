@@ -115,25 +115,16 @@ def private(request, username):
         elif not target_user:
             template = "OB/not_user.html"
         else:
-            private_room_name = get_group_name(
-                GroupTypes.Private, request.user.id, target_user.id
-            )
+            private_room_name = get_group_name(GroupTypes.Private, request.user.id, target_user.id)
             room = try_get(Room, group_type=GroupTypes.Private, name=private_room_name)
 
             if not room:
-                room = Room(
-                    group_type=GroupTypes.Private, name=private_room_name
-                ).save()
+                room = Room(group_type=GroupTypes.Private, name=private_room_name).save()
 
             # Get the messages
-            websocket_url_json = mark_safe(
-                json.dumps(f"ws://{{0}}/OB/private/{username}/")
-            )
+            websocket_url_json = mark_safe(json.dumps(f"ws://{{0}}/OB/private/{username}/"))
             messages = Message.objects.filter(room=room)
-            messages_timestrings = [
-                (message, get_datetime_string(message.timestamp))
-                for message in messages
-            ]
+            messages_timestrings = [(message, get_datetime_string(message.timestamp)) for message in messages]
 
             template = "OB/room.html"
             context = {

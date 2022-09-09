@@ -19,9 +19,7 @@ class FireTest(BaseCommandTest):
         database objects.
         """
 
-        super().__init__(
-            unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2
-        )
+        super().__init__(unlimited_admins=2, limited_admins=2, auth_users=2, anon_users=2)
 
     @mark.asyncio
     @mark.django_db()

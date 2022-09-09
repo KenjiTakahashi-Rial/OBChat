@@ -15,9 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="admin",
             name="room",
-            field=models.ForeignKey(
-                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
-            ),
+            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"),
         ),
         migrations.AlterField(
             model_name="admin",
@@ -31,9 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="ban",
             name="room",
-            field=models.ForeignKey(
-                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
-            ),
+            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"),
         ),
         migrations.AlterField(
             model_name="ban",
@@ -47,9 +43,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="message",
             name="room",
-            field=models.ForeignKey(
-                default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"
-            ),
+            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to="OB.Room"),
         ),
         migrations.AlterField(
             model_name="room",

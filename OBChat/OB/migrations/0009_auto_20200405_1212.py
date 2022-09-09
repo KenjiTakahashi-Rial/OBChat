@@ -16,9 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="room",
             name="occupants",
-            field=models.ManyToManyField(
-                related_name="occupied_room", to=settings.AUTH_USER_MODEL
-            ),
+            field=models.ManyToManyField(related_name="occupied_room", to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name="room",

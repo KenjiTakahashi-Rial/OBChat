@@ -33,22 +33,16 @@ class Message(Model):
     """
 
     message = TextField(max_length=MESSAGE_MAX_LENGTH)
-    sender = ForeignKey(
-        OBUser, related_name="message_sent", on_delete=CASCADE, null=True
-    )
+    sender = ForeignKey(OBUser, related_name="message_sent", on_delete=CASCADE, null=True)
     recipients = ManyToManyField(OBUser, related_name="message_received", default=None)
     exclusions = ManyToManyField(OBUser, related_name="message_excluded", default=None)
-    anon_username = CharField(
-        max_length=ANON_USERNAME_MAX_LENGTH, default=None, null=True
-    )
+    anon_username = CharField(max_length=ANON_USERNAME_MAX_LENGTH, default=None, null=True)
     room = ForeignKey(Room, on_delete=CASCADE, default=-1)
     timestamp = DateTimeField(auto_now_add=True)
     is_edited = BooleanField(default=False)
     is_deleted = BooleanField(default=False)
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
             force_insert=force_insert,
             force_update=force_update,
