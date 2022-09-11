@@ -21,10 +21,10 @@ class DeleteCommand(BaseCommand):
     All Admin, Ban, and Message objects will be deleted as well.
     """
 
-    CALLERS = (StringId.DeleteCaller, StringId.DeleteCallerShort)
-    MANUAL = StringId.DeleteManual
+    CALLERS: tuple[str, ...] = (StringId.DeleteCaller, StringId.DeleteCallerShort)
+    MANUAL: str = StringId.DeleteManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -35,7 +35,7 @@ class DeleteCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
@@ -50,7 +50,7 @@ class DeleteCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Kicks users, deletes Admins, deletes Bans, deletes Messages, and finally deletes the Room.
         """

@@ -2,6 +2,8 @@
 FireCommand class container module.
 """
 
+from typing import Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
@@ -17,10 +19,10 @@ class FireCommand(BaseCommand):
     Unlimited Admins have their adminships limited.
     """
 
-    CALLERS = (StringId.FireCaller, StringId.FireCallerShort)
-    MANUAL = StringId.FireManual
+    CALLERS: tuple[str, ...] = (StringId.FireCaller, StringId.FireCallerShort)
+    MANUAL: str = StringId.FireManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -34,15 +36,15 @@ class FireCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for username in self.args:
-            arg_user = await async_try_get(OBUser, username=username)
-            arg_privilege = Privilege.Invalid
-            arg_admin = None
+            arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+            arg_privilege: Privilege = Privilege.Invalid
+            arg_admin: Optional[Admin] = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -67,16 +69,16 @@ class FireCommand(BaseCommand):
             else:
                 self.valid_targets += [{"user": arg_user, "adminship": arg_admin}]
 
-            return bool(self.valid_targets)
+        return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Removes adminships of targets.
         Construct strings to send back to the sender and other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 
-        fire_message_body = []
+        fire_message_body: list[str] = []
 
         for fired_user in self.valid_targets:
             # Remove the adminship if they were a normal Admin

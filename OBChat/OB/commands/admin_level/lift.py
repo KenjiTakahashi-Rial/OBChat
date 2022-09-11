@@ -2,6 +2,8 @@
 LiftCommand class container module.
 """
 
+from typing import Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Ban, OBUser
@@ -17,15 +19,15 @@ class LiftCommand(BaseCommand):
     TODO: Viewing a user from inside the Room will show they have been banned before.
     """
 
-    CALLERS = (StringId.LiftCaller, StringId.LiftCallerShort)
-    MANUAL = StringId.LiftManual
+    CALLERS: tuple[str, ...] = (StringId.LiftCaller, StringId.LiftCallerShort)
+    MANUAL: str = StringId.LiftManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
 
-        # Is an anonymous/unauthenticted user
+        # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
             self.sender_receipt += [StringId.AnonLifting]
         # Is authenticated, but not an admin
@@ -37,24 +39,23 @@ class LiftCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for username in self.args:
-            arg_user = await async_try_get(OBUser, username=username)
-            issuer = None
-            issuer_privilege = Privilege.Invalid
-            sender_privilege = Privilege.Invalid
+            arg_ban: Optional[Ban] = None
+            arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+            issuer: Optional[OBUser] = None
+            issuer_privilege: Privilege = Privilege.Invalid
+            sender_privilege: Privilege = Privilege.Invalid
 
             if arg_user:
                 arg_ban = await async_try_get(Ban, user=arg_user, room=self.room, is_lifted=False)
                 issuer = await async_try_get(OBUser, ban_issued=arg_ban)
                 issuer_privilege = await async_get_privilege(issuer, self.room)
                 sender_privilege = await async_get_privilege(self.sender, self.room)
-            else:
-                arg_ban = None
 
             # Target user is not present or does not have an active ban
             if not arg_user or not arg_ban:
@@ -68,7 +69,7 @@ class LiftCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Lifts the ban.
         Note that a lifted ban is not deleted, but it is marked as lifted (see OB.models.ban).
@@ -76,7 +77,7 @@ class LiftCommand(BaseCommand):
         The sender receipt includes per-argument error messages.
         """
 
-        lift_message_body = []
+        lift_message_body: list[str] = []
 
         for lifted_ban, lifted_user in self.valid_targets:
             # Mark the ban as lifted

@@ -2,12 +2,15 @@
 Handles when a command is issued from a user and redirects to the appropriate command function.
 """
 
+from OB.commands.base import BaseCommand
 from OB.commands.commands import CALLER_MAP
 from OB.commands.commands import COMMANDS
+from OB.models.ob_user import OBUser
+from OB.models.room import Room
 from OB.utilities.event import send_system_room_message
 
-MANUAL_ENTRIES = "\n\t* ".join([command.MANUAL for command in COMMANDS])
-VALID_COMMANDS = (
+MANUAL_ENTRIES: str = "\n\t* ".join([command.MANUAL for command in COMMANDS])
+VALID_COMMANDS: str = (
     f"Valid commands:\n"
     f"\t* {MANUAL_ENTRIES}\n"
     f"Type backslash with only the first letter of a command if you're in a hurry.\n"
@@ -15,7 +18,7 @@ VALID_COMMANDS = (
 )
 
 
-async def handle_command(command, sender, room):
+async def handle_command(command: str, sender: OBUser, room: Room) -> None:
     """
     Tries to execute a command function from the COMMANDS dict with arguments.
     Assumes that the text given is in command format (see
@@ -29,12 +32,12 @@ async def handle_command(command, sender, room):
     """
 
     # Separate by whitespace to get arguments
-    separated = command.split()
-    caller = separated[0]
-    arguments = separated[1:]
+    separated: list[str] = command.split()
+    caller: str = separated[0]
+    arguments: list[str] = separated[1:]
 
     if caller in CALLER_MAP:
-        command_class = CALLER_MAP[caller]
+        command_class: BaseCommand = CALLER_MAP[caller]
         command_instance = command_class(arguments, sender, room)
         await command_instance.execute()
     else:

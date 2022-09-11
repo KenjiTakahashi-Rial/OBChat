@@ -2,6 +2,8 @@
 BanCommand class container module.
 """
 
+from typing import Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Ban, OBUser
@@ -17,10 +19,10 @@ class BanCommand(BaseCommand):
     to rejoin the group. Bans may be lifted (see lift()).
     """
 
-    CALLERS = (StringId.BanCaller, StringId.BanCallerShort)
-    MANUAL = StringId.BanManual
+    CALLERS: tuple[str, ...] = (StringId.BanCaller, StringId.BanCallerShort)
+    MANUAL: str = StringId.BanManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -37,15 +39,15 @@ class BanCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for username in self.args:
-            arg_user = await async_try_get(OBUser, username=username)
-            arg_privilege = Privilege.Invalid
-            arg_ban = None
+            arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+            arg_privilege: Privilege = Privilege.Invalid
+            arg_ban: Optional[Ban] = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -65,7 +67,7 @@ class BanCommand(BaseCommand):
                 self.sender_receipt += [StringId.AlreadyBanned]
             # Target user has Privilege greater than or equal to the sender
             elif arg_privilege >= self.sender_privilege:
-                job_title = StringId.Admin
+                job_title: str = StringId.Admin
 
                 if arg_privilege == await async_get_privilege(self.sender, self.room):
                     job_title += StringId.JustLikeYou
@@ -80,14 +82,14 @@ class BanCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Kick and ban users from the room.
         Construct strings to send back to the sender and to the other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 
-        ban_message_body = []
+        ban_message_body: list[str] = []
 
         for banned_user in self.valid_targets:
             # Save the ban to the database

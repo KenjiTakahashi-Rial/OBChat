@@ -4,7 +4,7 @@ ApplyCommand class container module.
 
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
-from OB.models import Admin, OBUser
+from OB.models import Admin, OBUser, Room
 from OB.strings import StringId
 from OB.utilities.database import async_filter, async_get, async_get_owner
 
@@ -16,10 +16,10 @@ class ApplyCommand(BaseCommand):
     Optionally includes a message.
     """
 
-    CALLERS = (StringId.ApplyCaller, StringId.ApplyCallerShort)
-    MANUAL = StringId.ApplyManual
+    CALLERS: tuple[str, ...] = (StringId.ApplyCaller, StringId.ApplyCallerShort)
+    MANUAL: str = StringId.ApplyManual
 
-    def __init__(self, args, sender, room):
+    def __init__(self, args: list[str], sender: OBUser, room: Room):
         """
         Arguments of /apply are a message, so do not remove duplicates.
         """
@@ -27,7 +27,7 @@ class ApplyCommand(BaseCommand):
         super().__init__(args, sender, room)
         self.remove_duplicates = False
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -41,7 +41,7 @@ class ApplyCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         Arguments can only be a message to send along with the application, so they do not need to
         be checked for errors like with other commands.
@@ -49,7 +49,7 @@ class ApplyCommand(BaseCommand):
 
         return True
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Gathers recipients for the application.
         Construct strings to send back to the sender and to those who may hire them.
@@ -65,11 +65,11 @@ class ApplyCommand(BaseCommand):
         self.valid_targets += [await async_get_owner(self.room)]
 
         # Construct strings
-        user_suffix = StringId.AdminSuffix if self.sender_privilege == Privilege.Admin else ""
-        position_prefix = StringId.Unlimited if self.sender_privilege == Privilege.Admin else ""
-        application_message = " ".join(self.args) if self.args else None
+        user_suffix: str = StringId.AdminSuffix if self.sender_privilege == Privilege.Admin else ""
+        position_prefix: str = StringId.Unlimited if self.sender_privilege == Privilege.Admin else ""
+        application_message: str = " ".join(self.args) if self.args else None
 
-        application_body = [
+        application_body: list[str] = [
             f"   {StringId.User} {self.sender}{user_suffix}",
             f"   {StringId.Position} {position_prefix}{StringId.Admin}",
             f"   {StringId.Message} {application_message}",

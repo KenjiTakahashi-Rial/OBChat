@@ -17,9 +17,9 @@ class PrivateCommand(BaseCommand):
     """
 
     CALLERS = [StringId.PrivateCaller, StringId.PrivateCallerShort]
-    MANUAL = StringId.PrivateManual
+    MANUAL: str = StringId.PrivateManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -33,7 +33,7 @@ class PrivateCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
@@ -47,14 +47,14 @@ class PrivateCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Reconstruct the original message from the command arugments.
         """
 
         self.targets_notification = [" ".join(self.args[1:])]
 
-    async def send_responses(self):
+    async def send_responses(self) -> None:
         """
         For private messages, the only response should be errors or the private message, itself.
         Send the message to both the target and the user in its own private room.

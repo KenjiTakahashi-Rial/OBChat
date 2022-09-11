@@ -3,10 +3,11 @@ ElevateCommand class container module.
 """
 
 from enum import IntEnum
+from typing import Optional
 
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
-from OB.models import Admin, OBUser
+from OB.models import Admin, OBUser, Room
 from OB.strings import StringId
 from OB.utilities.command import async_get_privilege, is_valid_command
 from OB.utilities.database import async_filter, async_model_list, async_try_get
@@ -18,21 +19,21 @@ class ElevateCommand(BaseCommand):
     Can request generally to all users with higher privilege or to a specific user.
     """
 
-    CALLERS = (StringId.ElevateCaller, StringId.ElevateCallerShort)
-    MANUAL = StringId.ElevateManual
+    CALLERS: tuple[str, ...] = (StringId.ElevateCaller, StringId.ElevateCallerShort)
+    MANUAL: str = StringId.ElevateManual
 
-    def __init__(self, args, sender, room):
+    def __init__(self, args: list[str], sender: OBUser, room: Room):
         """
         Elevate requires more instance variables than other commands because of its more complex
         syntax.
         """
 
         super().__init__(args, sender, room)
-        self.command = ""
-        self.message = ""
-        self.valid_elevations = []
+        self.command: str = ""
+        self.message: str = ""
+        self.valid_elevations: list[OBUser] = []
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -49,12 +50,13 @@ class ElevateCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def parse(self):
+    async def parse(self) -> None:
         """
         Parses the arguments into 3 key parts: the command to elevate with its arguments, the target
         usernames to send the elevation request to, and the elevation request message.
         """
 
+        # TODO: Revisit this (there's got to be a better way)
         class Stage(IntEnum):
             """
             Tracks which section of the /elevate command is being parsed in order to organize the
@@ -67,10 +69,10 @@ class ElevateCommand(BaseCommand):
             Message = 3
             Done = 4
 
-        stage = Stage.Command
+        stage: Stage = Stage.Command
 
-        i = 0
-        next_stage = False
+        i: int = 0
+        next_stage: bool = False
 
         while stage < Stage.Done:
             # Check for open parenthesis and valid commands
@@ -84,7 +86,7 @@ class ElevateCommand(BaseCommand):
                     self.sender_receipt += [StringId.ElevateSyntax]
                     return
 
-                addition = self.args[i]
+                addition: str = self.args[i]
 
                 # Start parenthesis
                 if self.args[i][0] == "(":
@@ -113,7 +115,7 @@ class ElevateCommand(BaseCommand):
                     stage += 1
                     next_stage = False
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
@@ -127,8 +129,8 @@ class ElevateCommand(BaseCommand):
         else:
             # Check for per-argument errors
             for username in self.valid_targets:
-                arg_user = await async_try_get(OBUser, username=username)
-                arg_privilege = Privilege.Invalid
+                arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+                arg_privilege: Privilege = Privilege.Invalid
 
                 if arg_user:
                     arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -144,21 +146,21 @@ class ElevateCommand(BaseCommand):
 
         return bool(self.valid_elevations)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Construct an elevation request message and send it to the valid elevations.
         Also send a receipt to the sender.
         """
 
         # Construction the elevation request
-        elevate_message_body = [
+        elevate_message_body: list[str] = [
             f"    {StringId.Recipients}" + ", ".join(self.valid_elevations),
             f"    {StringId.CommandRequested} {self.command}",
             f"    {StringId.Message} {self.message if self.message else None}",
         ]
 
         self.sender_receipt += (
-            # Add an exra newline to separate argument error messages from request receipt
+            # Add an extra newline to separate argument error messages from request receipt
             [("\n" if self.sender_receipt else "") + StringId.ElevateSenderReceiptPreface]
             + elevate_message_body
         )

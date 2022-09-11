@@ -2,7 +2,11 @@
 The BaseCommand class container module.
 """
 
+from abc import abstractmethod
+
 from OB.constants import Privilege
+from OB.models import OBUser
+from OB.models import Room
 from OB.utilities.command import async_get_privilege
 from OB.utilities.event import send_system_room_message
 
@@ -18,34 +22,34 @@ class BaseCommand:
     # The message describing how to use the command
     MANUAL: str
 
-    def __init__(self, args, sender, room):
+    def __init__(self, args: list[str], sender: OBUser, room: Room) -> None:
         """
         Declares the instance variables that will be used for the command execution.
         The sender receipt and occupants notification are lists of strings that are joined later.
 
         Arguments:
-            args (list[string]): The arguments of the command. Some commands may not use arguments.
-            sender (OBUser): The OBUser who issued the command.
-            room (Room): The Room the command was sent from.
+            args: The arguments of the command. Some commands may not use arguments.
+            sender: The OBUser who issued the command.
+            room: The Room the command was sent from.
         """
 
-        self.args = args
-        self.sender = sender
-        self.room = room
+        self.args: list[str] = args
+        self.sender: OBUser = sender
+        self.room: Room = room
 
-        self.sender_privilege = Privilege.Invalid
+        self.sender_privilege: Privilege = Privilege.Invalid
 
         # Responses to send after processing the command
-        self.sender_receipt = []
-        self.occupants_notification = []
-        self.targets_notification = []
+        self.sender_receipt: list[str] = []
+        self.occupants_notification: list[str] = []
+        self.targets_notification: list[str] = []
 
         # Valid targets for the command, type varying by command
-        self.valid_targets = []
+        self.valid_targets: list[OBUser] = []
 
-        self.remove_duplicates = True
+        self.remove_duplicates: bool = True
 
-    async def execute(self):
+    async def execute(self) -> None:
         """
         This is the driver code behind the command.
         """
@@ -68,7 +72,8 @@ class BaseCommand:
 
         await self.send_responses()
 
-    async def check_initial_errors(self):
+    @abstractmethod
+    async def check_initial_errors(self) -> bool:
         """
         Check for initial errors such as lack of privilege or invalid syntax.
         Save initial error messages in the sender receipt instance variable.
@@ -77,7 +82,8 @@ class BaseCommand:
             boolean: True if there were no initial errors.
         """
 
-    async def check_arguments(self):
+    @abstractmethod
+    async def check_arguments(self) -> bool:
         """
         Check each argument for errors such as self-targeting or targeting a user of higher
         privilege.
@@ -88,12 +94,13 @@ class BaseCommand:
             boolean: True if any of the arguments are a valid ban.
         """
 
-    async def execute_implementation(self):
+    @abstractmethod
+    async def execute_implementation(self) -> None:
         """
         The main implementation of the command function.
         """
 
-    async def send_responses(self):
+    async def send_responses(self) -> None:
         """
         Sends the sender a receipt of errors and successes.
         Sends other occupants of the room a notification of a command's execution.

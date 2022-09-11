@@ -2,6 +2,8 @@
 KickCommand class container module.
 """
 
+from typing import Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import OBUser
@@ -17,17 +19,17 @@ class KickCommand(BaseCommand):
     Kicked users will not receive messages from the group until they rejoin the Room.
     """
 
-    CALLERS = (StringId.KickCaller, StringId.KickCallerShort)
-    MANUAL = StringId.KickManual
+    CALLERS: tuple[str, ...] = (StringId.KickCaller, StringId.KickCallerShort)
+    MANUAL: str = StringId.KickManual
 
     # TODO: Add an option to do this silently (without notifying everyone)
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
 
-        # Is an anonymous/unauthenticted user
+        # Is an anonymous/unauthenticated user
         if self.sender_privilege < Privilege.AuthUser:
             self.sender_receipt = [StringId.AnonKicking]
         # Is authenticated, but not an admin
@@ -39,14 +41,14 @@ class KickCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for username in self.args:
-            arg_user = await async_try_get(OBUser, username=username)
-            arg_privilege = Privilege.Invalid
+            arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+            arg_privilege: Privilege = Privilege.Invalid
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -77,14 +79,14 @@ class KickCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Kick users from the room.
         Construct strings to send back to the sender and to the other occupants of the room.
         The sender receipt includes per-argument error messages.
         """
 
-        kick_message_body = []
+        kick_message_body: list[str] = []
 
         for kicked_user in self.valid_targets:
             # Kick the user
@@ -95,7 +97,7 @@ class KickCommand(BaseCommand):
             kick_message_body += [f"   {kicked_user}"]
 
         self.sender_receipt += (
-            # Add an exra newline to separate argument error messages from ban receipt
+            # Add an extra newline to separate argument error messages from ban receipt
             [("\n" if self.sender_receipt else "") + StringId.KickSenderReceiptPreface]
             + kick_message_body
             + [StringId.KickSenderReceiptNote]

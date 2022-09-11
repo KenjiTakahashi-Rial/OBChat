@@ -2,6 +2,8 @@
 HireCommand class container module.
 """
 
+from typing import Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import Privilege
 from OB.models import Admin, OBUser
@@ -17,10 +19,10 @@ class HireCommand(BaseCommand):
     Authenticated users receive a limited adminship.
     """
 
-    CALLERS = (StringId.HireCaller, StringId.HireCallerShort)
-    MANUAL = StringId.HireManual
+    CALLERS: tuple[str, ...] = (StringId.HireCaller, StringId.HireCallerShort)
+    MANUAL: str = StringId.HireManual
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         See BaseCommand.check_initial_errors().
         """
@@ -34,15 +36,15 @@ class HireCommand(BaseCommand):
 
         return not self.sender_receipt
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for username in self.args:
-            arg_user = await async_try_get(OBUser, username=username)
-            arg_privilege = Privilege.Invalid
-            arg_admin = None
+            arg_user: Optional[OBUser] = await async_try_get(OBUser, username=username)
+            arg_privilege: Privilege = Privilege.Invalid
+            arg_admin: Optional[Admin] = None
 
             if arg_user:
                 arg_privilege = await async_get_privilege(arg_user, self.room)
@@ -72,7 +74,7 @@ class HireCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Add adminships for targets who are not already an Admin.
         Un-limit the adminships for targets who are already an Admin.
@@ -80,7 +82,7 @@ class HireCommand(BaseCommand):
         The sender receipt includes per-argument error messages.
         """
 
-        hire_message_body = []
+        hire_message_body: list[str] = []
 
         for hired_user, target_adminship in self.valid_targets:
             if target_adminship and self.sender_privilege == Privilege.Owner:
@@ -108,7 +110,7 @@ class HireCommand(BaseCommand):
             [StringId.HireOccupantsNotificationPreface] + hire_message_body + [StringId.HireTargetsNotificationNote]
         )
 
-    async def send_responses(self):
+    async def send_responses(self) -> None:
         """
         Change the valid_targets list to be a list of OBUsers instead of a list of tuples.
         """

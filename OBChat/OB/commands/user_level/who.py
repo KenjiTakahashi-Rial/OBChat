@@ -2,9 +2,11 @@
 WhoCommand class container module.
 """
 
+from typing import Any, Optional
+
 from OB.commands.base import BaseCommand
 from OB.constants import GroupTypes
-from OB.models import Admin, Room
+from OB.models import Admin, Room, OBUser
 from OB.strings import StringId
 from OB.utilities.database import async_get_owner, async_model_list, async_try_get
 
@@ -15,10 +17,10 @@ class WhoCommand(BaseCommand):
     issuing user's current room.
     """
 
-    CALLERS = [StringId.WhoCaller, StringId.WhoCallerShort]
-    MANUAL = StringId.WhoManual
+    CALLERS: tuple[str, ...] = (StringId.WhoCaller, StringId.WhoCallerShort)
+    MANUAL: str = StringId.WhoManual
 
-    def __init__(self, args, sender, room):
+    def __init__(self, args: list[str], sender: OBUser, room: Room):
         """
         When there are no arguments, the default is the current room.
         """
@@ -28,20 +30,20 @@ class WhoCommand(BaseCommand):
 
         super().__init__(args, sender, room)
 
-    async def check_initial_errors(self):
+    async def check_initial_errors(self) -> bool:
         """
         There are no initial errors for /who.
         """
 
         return True
 
-    async def check_arguments(self):
+    async def check_arguments(self) -> bool:
         """
         See BaseCommand.check_arguments().
         """
 
         for room_name in self.args:
-            arg_room = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
+            arg_room: Optional[Room] = await async_try_get(Room, group_type=GroupTypes.Room, name=room_name)
 
             if not arg_room:
                 self.sender_receipt += [StringId.WhoInvalidTarget.format(room_name)]
@@ -50,14 +52,16 @@ class WhoCommand(BaseCommand):
 
         return bool(self.valid_targets)
 
-    async def execute_implementation(self):
+    async def execute_implementation(self) -> None:
         """
         Construct a string of occupants in the room and send it back to the sender.
         The sender receipt includes per-argument error messages.
         """
 
         for room in self.valid_targets:
-            occupants = await async_model_list(room.occupants)
+            # Revisit this "Any"
+            occupants: list[Any] = await async_model_list(room.occupants)
+            who_string: str
 
             if not occupants:
                 who_string = StringId.WhoEmpty.format(room)

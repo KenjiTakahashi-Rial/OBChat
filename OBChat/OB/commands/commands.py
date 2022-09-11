@@ -1,3 +1,4 @@
+from OB.commands.base import BaseCommand
 from OB.commands.admin_level import BanCommand
 from OB.commands.admin_level import ElevateCommand
 from OB.commands.admin_level import KickCommand
@@ -11,7 +12,7 @@ from OB.commands.user_level import PrivateCommand
 from OB.commands.user_level import WhoCommand
 
 
-COMMANDS = [
+COMMANDS: list[BaseCommand] = [
     ApplyCommand,
     BanCommand,
     CreateCommand,
@@ -25,7 +26,7 @@ COMMANDS = [
     WhoCommand,
 ]
 
-CALLER_MAP = {}
+CALLER_MAP: dict[str, BaseCommand] = {}
 for command in COMMANDS:
     for caller in command.CALLERS:
         CALLER_MAP[f"/{caller}"] = command
